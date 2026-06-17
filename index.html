@@ -536,17 +536,43 @@
 // ════════════════════════════════════════════════════════
 // CHARACTER DATA
 // ════════════════════════════════════════════════════════
-const CharacterData = {
-    TOJI: {
-        id:'TOJI', name:'Toji Fushiguro', title:"The Zen'in Disgrace",
-        role:'Agile Assassin', difficulty:'Hard', stars:3,
-        combatStyle:'Agile Combat / Close Quarters',
-        description:'Fast close-quarters combat using cursed tools, mobility, and burst damage.',
-        strengths:['Mobility','High Durability','Combo Potential'],
-        weaknesses:['Lower Base Damage','Requires Quick Reaction & Timing'],
-        weapons:['Split Soul Katana','Inverted Spear of Heaven'],
-        image:'tojipfp.jpeg', playable:true, color:'#4a90e2'
-    },
+TOJI: {
+    id:'TOJI',
+    name:'Toji Fushiguro',
+    title:"The Zen'in Disgrace",
+    role:'Agile Assassin',
+    difficulty:'Hard',
+    stars:3,
+
+    combatStyle:'Agile Combat / Close Quarters',
+
+    description:'Fast close-quarters combat using cursed tools, mobility, and burst damage.',
+
+    strengths:['Mobility','High Durability','Combo Potential'],
+    weaknesses:['Lower Base Damage','Requires Quick Reaction & Timing'],
+
+    weapons:['Split Soul Katana','Inverted Spear of Heaven'],
+
+    image:'tojipfp.jpeg',
+    playable:true,
+    color:'#4a90e2',
+
+    // 🧬 AWAKENING (NEW CLEAN ADDITION)
+    awakening: {
+        name: "AWAKENING – The One Who Left It All Behind",
+
+        description: "A state of pure physical dominance born from rejecting cursed energy. Toji fights at peak human efficiency with overwhelming speed and brutality.",
+
+        duration: 30, // seconds
+
+        buffs: {
+            damageMultiplier: 1.45,
+            defenseMultiplier: 1.20,
+            speedMultiplier: 1.30,
+            cooldownReduction: 0.90
+        }
+    }
+}
     GOJO: {
         id:'GOJO', name:'Gojo Satoru', title:'The Strongest Of Today',
         role:'Hybrid Controller', difficulty:'Medium', stars:2,
