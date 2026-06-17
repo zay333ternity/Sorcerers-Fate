@@ -802,7 +802,7 @@ const GAME_STATE = {
         position: new THREE.Vector3(0,0,-15),
         rotation:0,
         hitstunEndTime:0, sealEndTime:0,
-        lastAttackTime:0, attackCooldown:1500, damage:8, range:2.4
+        lastAttackTime:0, attackCooldown:1500, damage:2, range:1.2
     },
     // ── Real multi-enemy wave system — each entry is { state, mesh, barEl, barFillEl } ──
     enemies: [],
@@ -887,7 +887,7 @@ const TOJI_AWAKENING_STATE = {
     activeDuration:  30000,   // 30 s
     blackHole:       null,    // THREE.Group — created/removed during cutscene
     origSpeed:       0,       // saved before buff
-    awakeningTheme:  "tojitheme.mp3,    // placeholder for future MP3 audio object
+    awakeningTheme:  "tojitheme.mp3",    // placeholder for future MP3 audio object
 };
 
 const AwakeningController = {
