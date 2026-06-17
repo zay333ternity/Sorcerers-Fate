@@ -241,6 +241,138 @@
         }
         #dash-indicator.game-visible { opacity:1; }
         #dash-indicator.ready { border-color:#4a90e2; color:#4a90e2; box-shadow:0 0 10px rgba(74,144,226,0.4); }
+
+        /* ── Awakening Meter ── */
+        #awakening-bar-wrap {
+            position:absolute; bottom:84px; left:50%; transform:translateX(-50%);
+            display:flex; flex-direction:column; align-items:center; gap:4px;
+            opacity:0; transition:opacity 0.5s; pointer-events:none;
+        }
+        #awakening-bar-wrap.game-visible { opacity:1; }
+        #awakening-label {
+            color:#7c3aed; font-size:9px; font-weight:700; letter-spacing:2px;
+            text-transform:uppercase; text-shadow:0 0 8px rgba(124,58,237,0.7);
+        }
+        #awakening-meter-outer {
+            width:210px; height:8px; background:#111; border-radius:4px;
+            border:1px solid #3b1f6e; overflow:hidden;
+        }
+        #awakening-meter-fill {
+            height:100%; width:0%; border-radius:4px;
+            background:linear-gradient(90deg,#4c1d95,#7c3aed);
+            transition:width 0.12s ease-out;
+        }
+        #awakening-meter-text { color:#6d28d9; font-size:9px; font-weight:600; }
+        #awakening-ready-hint {
+            color:#a855f7; font-size:9px; font-weight:700; letter-spacing:1px;
+            opacity:0; transition:opacity 0.3s;
+            text-shadow:0 0 10px rgba(168,85,247,0.8);
+        }
+        #awakening-bar-wrap.meter-full #awakening-ready-hint { opacity:1; }
+        #awakening-bar-wrap.meter-full #awakening-meter-fill {
+            background:linear-gradient(90deg,#7c3aed,#c084fc);
+            box-shadow:0 0 8px rgba(168,85,247,0.65);
+        }
+        /* Active awakening pulse on player panel */
+        .player-panel.awakening-active {
+            border-color:#7c3aed !important;
+            box-shadow:0 0 18px rgba(124,58,237,0.55) !important;
+            animation:awaken-pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes awaken-pulse {
+            0%,100% { box-shadow:0 0 12px rgba(124,58,237,0.4); }
+            50%      { box-shadow:0 0 26px rgba(168,85,247,0.75); }
+        }
+
+        /* ── Ability Bar ── */
+        #ability-bar {
+            position:absolute; bottom:26px; right:90px;
+            display:flex; flex-direction:column-reverse; gap:6px;
+            opacity:0; transition:opacity 0.5s; pointer-events:none;
+        }
+        #ability-bar.game-visible { opacity:1; }
+        .ab-slot {
+            width:64px; height:64px; position:relative;
+            background:rgba(0,0,0,0.78); border:1px solid #2a2a3a;
+            border-radius:6px; overflow:hidden; backdrop-filter:blur(4px);
+            transition:border-color 0.2s, box-shadow 0.2s;
+        }
+        .ab-slot.ab-ready { border-color:#7c3aed; box-shadow:0 0 9px rgba(124,58,237,0.45); }
+        .ab-cooldown-fill {
+            position:absolute; bottom:0; left:0; width:100%; height:0%;
+            background:linear-gradient(0deg,rgba(124,58,237,0.32),rgba(168,85,247,0.18));
+        }
+        .ab-slot.ab-ready .ab-cooldown-fill { height:100%; }
+        .ab-key-lbl {
+            position:absolute; top:5px; left:6px;
+            font-size:11px; font-weight:800; color:#a855f7;
+            text-shadow:0 0 6px rgba(168,85,247,0.8); letter-spacing:0.5px;
+        }
+        .ab-slot.ab-ready .ab-key-lbl { color:#c084fc; }
+        .ab-name-lbl {
+            position:absolute; bottom:5px; left:0; right:0; text-align:center;
+            font-size:7.5px; color:#555; text-transform:uppercase; letter-spacing:0.4px;
+            padding:0 2px;
+        }
+        .ab-slot.ab-ready .ab-name-lbl { color:#aaa; }
+
+        /* ── Settings Modal ── */
+        #settings-modal {
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,0.82); z-index:9000;
+            align-items:center; justify-content:center; backdrop-filter:blur(6px);
+        }
+        #settings-modal.open { display:flex; }
+        .settings-box {
+            background:#0d0d1a; border:1px solid #2a2a4a; border-radius:12px;
+            padding:30px 36px; width:500px; max-height:80vh; overflow-y:auto;
+            box-shadow:0 0 40px rgba(124,58,237,0.25);
+        }
+        .settings-title {
+            color:#fff; font-size:14px; font-weight:800; letter-spacing:4px;
+            text-transform:uppercase; margin-bottom:22px; border-bottom:1px solid #222;
+            padding-bottom:12px;
+        }
+        .st-section { margin-bottom:20px; }
+        .st-section-title {
+            color:#7c3aed; font-size:9px; font-weight:700; letter-spacing:3px;
+            text-transform:uppercase; margin-bottom:10px;
+        }
+        .st-row {
+            display:flex; align-items:center; gap:10px; margin-bottom:8px;
+        }
+        .st-label { color:#888; font-size:12px; flex:1; }
+        .st-key-btn {
+            background:#111; border:1px solid #333; color:#fff; border-radius:4px;
+            padding:5px 14px; font-size:11px; font-weight:700; cursor:pointer;
+            min-width:70px; text-align:center; transition:border-color 0.2s;
+            font-family:inherit;
+        }
+        .st-key-btn:hover { border-color:#7c3aed; }
+        .st-key-btn.listening { border-color:#a855f7; color:#a855f7; animation:blink-border 0.6s ease-in-out infinite; }
+        @keyframes blink-border { 0%,100%{border-color:#7c3aed;} 50%{border-color:#c084fc;} }
+        .st-opt-btn {
+            background:#111; border:1px solid #2a2a3a; color:#666;
+            border-radius:4px; padding:5px 14px; font-size:11px; cursor:pointer;
+            transition:all 0.15s; font-family:inherit;
+        }
+        .st-opt-btn.active { background:#1a0040; border-color:#7c3aed; color:#c084fc; }
+        .st-opt-btn:hover:not(.active) { border-color:#444; color:#aaa; }
+        .settings-close-btn {
+            margin-top:18px; width:100%;
+            background:transparent; border:1px solid #333; border-radius:6px;
+            color:#888; padding:9px; font-size:11px; letter-spacing:2px; cursor:pointer;
+            font-family:inherit; transition:border-color 0.2s, color 0.2s;
+        }
+        .settings-close-btn:hover { border-color:#7c3aed; color:#fff; }
+
+        /* ── FPS Counter ── */
+        #fps-counter {
+            position:absolute; top:20px; left:50%; transform:translateX(-50%);
+            color:#555; font-size:10px; font-weight:700; letter-spacing:1px;
+            opacity:0; transition:opacity 0.3s; pointer-events:none;
+        }
+        #fps-counter.fps-visible { opacity:1; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -309,11 +441,56 @@
             <li><strong>SPACE</strong> — Attack</li>
             <li><strong>SHIFT</strong> — Dash Burst</li>
             <li><strong>Q / E</strong> — Swap Weapons</li>
+            <li><strong>G</strong> — Awakening (meter full)</li>
         </ul>
     </div>
 </div>
 <div id="status-msg"></div>
 <div id="dash-indicator">DASH</div>
+<div id="awakening-bar-wrap">
+    <div id="awakening-label">THE ONE WHO LEFT IT ALL BEHIND</div>
+    <div id="awakening-meter-outer"><div id="awakening-meter-fill"></div></div>
+    <div style="display:flex;gap:12px;align-items:center;">
+        <div id="awakening-meter-text">0</div>
+        <div id="awakening-ready-hint">[ G ] AWAKEN</div>
+    </div>
+</div>
+
+<!-- ── Ability Bar ── -->
+<div id="ability-bar">
+    <div class="ab-slot" id="ab-slot-s1">
+        <div class="ab-cooldown-fill" id="ab-fill-s1"></div>
+        <div class="ab-key-lbl" id="ab-key-s1">1</div>
+        <div class="ab-name-lbl">Flurry</div>
+    </div>
+    <div class="ab-slot" id="ab-slot-s2">
+        <div class="ab-cooldown-fill" id="ab-fill-s2"></div>
+        <div class="ab-key-lbl" id="ab-key-s2">2</div>
+        <div class="ab-name-lbl">Nullify</div>
+    </div>
+    <div class="ab-slot" id="ab-slot-s3">
+        <div class="ab-cooldown-fill" id="ab-fill-s3"></div>
+        <div class="ab-key-lbl" id="ab-key-s3">3</div>
+        <div class="ab-name-lbl">Chain</div>
+    </div>
+    <div class="ab-slot" id="ab-slot-s4">
+        <div class="ab-cooldown-fill" id="ab-fill-s4"></div>
+        <div class="ab-key-lbl" id="ab-key-s4">4</div>
+        <div class="ab-name-lbl">Mirage</div>
+    </div>
+</div>
+
+<!-- ── Settings Modal ── -->
+<div id="settings-modal">
+    <div class="settings-box">
+        <div class="settings-title">Settings</div>
+        <div id="settings-body"></div>
+        <button class="settings-close-btn" id="settings-close">CLOSE</button>
+    </div>
+</div>
+
+<!-- ── FPS Counter ── -->
+<div id="fps-counter">-- FPS</div>
 
 <script>
 // ════════════════════════════════════════════════════════
@@ -363,7 +540,7 @@ const TitleScreen = {
             this.hide(() => CharacterSelect.show());
         });
         document.getElementById('btn-settings').addEventListener('click', () => {
-            MenuUI.showModal('Settings', 'Settings panel coming in a future update.\n\nStay tuned!');
+            SettingsController.open();
         });
         document.getElementById('btn-credits').addEventListener('click', () => {
             MenuUI.showModal('Credits', 'SORCERER\'S FATE\n\nA Jujutsu Kaisen Inspired Fan Game\n\nAll characters © Gege Akutami / Shueisha\n\nThis is a non-commercial fan project.');
@@ -498,6 +675,8 @@ const MenuUI = {
             document.getElementById('ui-layer').style.pointerEvents = 'auto';
             const dash = document.getElementById('dash-indicator');
             dash.classList.add('game-visible');
+            document.getElementById('awakening-bar-wrap').classList.add('game-visible');
+            document.getElementById('ability-bar').classList.add('game-visible');
 
             // Kick off gameplay
             gameStarted = true;
@@ -580,6 +759,555 @@ const M1_STEP_TUNING = {
     3: { cooldownMul:0.78, dmgMul:1.05, knockMul:1.10, hitstopMul:0.70, hitstunMul:0.70, shakeMul:0.70, squishMul:1.05, arcMul:1.05 },
     4: { cooldownMul:1.18, dmgMul:1.45, knockMul:2.20, hitstopMul:2.00, hitstunMul:1.90, shakeMul:1.80, squishMul:1.55, arcMul:1.40, finisher:true }
 };
+
+// ════════════════════════════════════════════════════════
+// DUAL-WEAPON ANIMATION IDENTITY MAP
+// Each weapon × each M1 hit (1-4) has its own shape.
+// fwd       — fraction of animation that is wind-up (rest is follow-through)
+// ang       — peak swing angle in radians
+// shoulderZ — lateral tilt of the sword arm (+right bias, -left bias)
+// elbowStart— elbow bend at start of swing (0=fully extended, 1=fully folded)
+// bodyLeanZ — upper-body lean into the slash (+/- drives left/right torso)
+// lungeZ    — forward body push magnitude (peaks at mid-swing via sin curve)
+// ════════════════════════════════════════════════════════
+const ANIM_MAP = {
+    KATANA: [
+        // Hit 1 — Entry Cut: fast diagonal R→L, minimal windup, quick lunge
+        { fwd:0.16, ang:1.28, shoulderZ:-0.26, elbowStart:0.70, bodyLeanZ:-0.07, lungeZ:0.14 },
+        // Hit 2 — Return Slash: opposite diagonal L→R, slightly wider arc
+        { fwd:0.20, ang:1.46, shoulderZ: 0.28, elbowStart:0.55, bodyLeanZ: 0.10, lungeZ:0.10 },
+        // Hit 3 — Heavy Pressure: wide horizontal, clear windup, full body commit
+        { fwd:0.32, ang:1.64, shoulderZ:-0.20, elbowStart:0.42, bodyLeanZ:-0.14, lungeZ:0.22 },
+        // Hit 4 — Execution Finisher: downward cross-body, max windup, max lunge
+        { fwd:0.38, ang:1.76, shoulderZ:-0.22, elbowStart:0.28, bodyLeanZ:-0.18, lungeZ:0.32 }
+    ],
+    SPEAR: [
+        // Hit 1 — Chain Probe: forward stab, minimal arc, deep lunge for reach
+        { fwd:0.14, ang:0.94, shoulderZ:-0.07, elbowStart:0.88, bodyLeanZ:-0.04, lungeZ:0.34 },
+        // Hit 2 — Chain Return Slash: reverse swing, chain trails visual lag
+        { fwd:0.26, ang:1.18, shoulderZ: 0.24, elbowStart:0.48, bodyLeanZ: 0.12, lungeZ:0.08 },
+        // Hit 3 — Chain Whip Sweep: wide heavy sweep, extended reach, long windup
+        { fwd:0.30, ang:1.36, shoulderZ:-0.17, elbowStart:0.32, bodyLeanZ:-0.16, lungeZ:0.15 },
+        // Hit 4 — Chain Snap Finisher: sudden forward whip, snap then retract
+        { fwd:0.18, ang:1.42, shoulderZ:-0.27, elbowStart:0.14, bodyLeanZ:-0.20, lungeZ:0.40 }
+    ]
+};
+
+// ════════════════════════════════════════════════════════
+// TOJI AWAKENING — "THE ONE WHO LEFT IT ALL BEHIND"
+// Modular controller — purely additive, no existing system touched.
+// ════════════════════════════════════════════════════════
+const TOJI_AWAKENING_STATE = {
+    meter:           0,       // 0–100; only fills on confirmed hits
+    phase:           'idle',  // 'idle' | 'cutscene' | 'active'
+    cutsceneStart:   0,
+    activeStart:     0,
+    activeDuration:  30000,   // 30 s
+    blackHole:       null,    // THREE.Group — created/removed during cutscene
+    origSpeed:       0,       // saved before buff
+    awakeningTheme:  null,    // placeholder for future MP3 audio object
+};
+
+const AwakeningController = {
+
+    DISPLAY_NAME: 'THE ONE WHO LEFT IT ALL BEHIND',
+
+    // ── Public queries ──────────────────────────────────
+    isActive()      { return TOJI_AWAKENING_STATE.phase === 'active'; },
+    inputLocked()   { return TOJI_AWAKENING_STATE.phase === 'cutscene'; },
+    getDamageMul()  { return this.isActive() ? 1.25 : 1.0; },
+    getDamageReceiveMul() { return this.isActive() ? 0.82 : 1.0; },
+
+    // ── Audio placeholders ──────────────────────────────
+    playAwakeningVoice() {
+        console.log('AWAKENING VOICE LINE TRIGGERED');
+    },
+
+    // ── Meter ───────────────────────────────────────────
+    onHitLanded() {
+        if(TOJI_AWAKENING_STATE.phase !== 'idle') return;
+        TOJI_AWAKENING_STATE.meter = Math.min(100, TOJI_AWAKENING_STATE.meter + 7);
+        this._refreshMeterUI();
+    },
+
+    // ── Activation ──────────────────────────────────────
+    tryActivate() {
+        if(!gameStarted) return;
+        if(TOJI_AWAKENING_STATE.phase !== 'idle') return;
+        if(TOJI_AWAKENING_STATE.meter < 100) return;
+        this._startCutscene();
+    },
+
+    // ── Cutscene start ───────────────────────────────────
+    _startCutscene() {
+        const s = TOJI_AWAKENING_STATE;
+        s.phase = 'cutscene';
+        s.cutsceneStart = performance.now();
+        this.playAwakeningVoice();
+        console.log(`[${this.DISPLAY_NAME}] Cutscene started`);
+        // Phase 1 (0–1.5 s): hide player
+        if(pMesh) pMesh.visible = false;
+    },
+
+    // ── Black hole ───────────────────────────────────────
+    _spawnBlackHole() {
+        if(TOJI_AWAKENING_STATE.blackHole) return;
+        const g = new THREE.Group();
+        g.position.copy(pMesh.position); g.position.y = 1;
+
+        // Core void sphere
+        const core = new THREE.Mesh(
+            new THREE.SphereGeometry(0.55, 8, 8),
+            new THREE.MeshBasicMaterial({ color:0x000000 })
+        );
+        g.add(core);
+
+        // Dark-purple torus ring
+        const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(1.3, 0.28, 8, 24),
+            new THREE.MeshBasicMaterial({ color:0x1a0033, transparent:true, opacity:0.88, side:THREE.DoubleSide })
+        );
+        ring.rotation.x = Math.PI * 0.28;
+        g.add(ring);
+
+        // Energy disc
+        const disc = new THREE.Mesh(
+            new THREE.CircleGeometry(1.3, 16),
+            new THREE.MeshBasicMaterial({ color:0x0d001a, transparent:true, opacity:0.45, side:THREE.DoubleSide })
+        );
+        disc.rotation.x = -Math.PI * 0.5;
+        g.add(disc);
+
+        g.scale.set(0.01, 0.01, 0.01);
+        scene.add(g);
+        TOJI_AWAKENING_STATE.blackHole = g;
+    },
+
+    _collapseBlackHole(t) {
+        // t = 0→1 collapse progress
+        const sc = Math.max(0, 1 - t);
+        const bh = TOJI_AWAKENING_STATE.blackHole;
+        if(!bh) return;
+        bh.scale.set(sc, sc, sc);
+        if(sc <= 0) {
+            scene.remove(bh);
+            TOJI_AWAKENING_STATE.blackHole = null;
+        }
+    },
+
+    // ── Activate passives ────────────────────────────────
+    _startActive() {
+        const s = TOJI_AWAKENING_STATE;
+        s.phase = 'active';
+        s.activeStart = performance.now();
+        console.log(`[${this.DISPLAY_NAME}] Awakening active — 30 s`);
+        if(pMesh) { pMesh.visible = true; pMesh.position.y = 0; }
+        // Speed buff (+22%)
+        s.origSpeed = GAME_STATE.player.speed;
+        GAME_STATE.player.speed *= 1.22;
+        // Damage & durability buffs live in getDamageMul / getDamageReceiveMul
+        // Remove black hole if still present
+        if(s.blackHole) { scene.remove(s.blackHole); s.blackHole = null; }
+        // Visual: purple glow on player panel
+        document.querySelector('.player-panel')?.classList.add('awakening-active');
+        this._refreshMeterUI();
+    },
+
+    // ── End awakening ────────────────────────────────────
+    _endActive() {
+        const s = TOJI_AWAKENING_STATE;
+        s.phase = 'idle';
+        console.log(`[${this.DISPLAY_NAME}] Awakening ended`);
+        // Remove speed buff
+        GAME_STATE.player.speed = s.origSpeed || 13;
+        // Reset meter
+        s.meter = 0;
+        document.querySelector('.player-panel')?.classList.remove('awakening-active');
+        this._refreshMeterUI();
+    },
+
+    // ── Camera override (called from processCameraPhysics) ──
+    // Returns true while it's controlling the camera so the default path is skipped.
+    overrideCamera(delta) {
+        if(TOJI_AWAKENING_STATE.phase !== 'cutscene') return false;
+        const elapsed = performance.now() - TOJI_AWAKENING_STATE.cutsceneStart;
+
+        if(elapsed < 3500) {
+            // Phases 1–2: slow pull up to top-down cinematic
+            const t = elapsed / 3500;
+            const tgt = pMesh.position.clone().add(new THREE.Vector3(0, 22+t*12, 12-t*10));
+            camera.position.lerp(tgt, 7*delta);
+            camera.lookAt(pMesh.position.clone().add(new THREE.Vector3(0, 2, 0)));
+        } else if(elapsed < 7500) {
+            // Phases 3–4: cinematic front-facing close-up
+            const fwd = new THREE.Vector3(
+                Math.sin(GAME_STATE.player.rotation), 0,
+                Math.cos(GAME_STATE.player.rotation)
+            );
+            const camPos = pMesh.position.clone()
+                .sub(fwd.multiplyScalar(5.5))
+                .add(new THREE.Vector3(0, 3.8, 0));
+            camera.position.lerp(camPos, 5.5*delta);
+            camera.lookAt(pMesh.position.clone().add(new THREE.Vector3(0, 2.8, 0)));
+        }
+        // Phases 5+: stop overriding — processCameraPhysics snaps back naturally
+        return elapsed < 8500;
+    },
+
+    // ── Per-frame update (called from runGameLoop) ────────
+    update(delta, now) {
+        const s = TOJI_AWAKENING_STATE;
+        if(s.phase === 'idle') return;
+
+        if(s.phase === 'cutscene') {
+            const el = now - s.cutsceneStart;
+
+            // Phase 2 (1.5 s): spawn black hole
+            if(el >= 1500 && !s.blackHole) this._spawnBlackHole();
+
+            // Expand black hole + spin (phases 2–3)
+            if(s.blackHole && el < 7500) {
+                const grow = Math.min(1, Math.max(0, el-1500) / 1100);
+                s.blackHole.scale.set(grow, grow, grow);
+                s.blackHole.children[0].rotation.y += delta * 0.7;  // core
+                s.blackHole.children[1].rotation.z += delta * 1.5;  // torus
+                s.blackHole.children[2].rotation.z += delta * 0.9;  // disc
+            }
+
+            // Phase 3 (3.5 s): player rises from black hole
+            if(el >= 3500 && pMesh && !pMesh.visible) {
+                pMesh.visible = true;
+                pMesh.position.y = -2.2;
+            }
+            if(el >= 3500 && el < 5500 && pMesh) {
+                pMesh.position.y = -2.2 + ((el - 3500) / 2000) * 2.2;
+            } else if(el >= 5500 && pMesh) {
+                pMesh.position.y = 0;
+            }
+
+            // Phase 5 (7.5 s): collapse black hole
+            if(el >= 7500 && s.blackHole) {
+                this._collapseBlackHole((el - 7500) / 700);
+            }
+
+            // Cutscene ends → activate passives
+            if(el >= 8500) { this._startActive(); return; }
+        }
+
+        if(s.phase === 'active') {
+            if(now - s.activeStart >= s.activeDuration) this._endActive();
+        }
+    },
+
+    // ── Meter UI ─────────────────────────────────────────
+    _refreshMeterUI() {
+        const m = TOJI_AWAKENING_STATE.meter;
+        const fill = document.getElementById('awakening-meter-fill');
+        const txt  = document.getElementById('awakening-meter-text');
+        const wrap = document.getElementById('awakening-bar-wrap');
+        if(fill) fill.style.width = m + '%';
+        if(txt)  txt.innerText = Math.round(m);
+        if(wrap) wrap.classList.toggle('meter-full', m >= 100);
+    }
+};
+
+// ════════════════════════════════════════════════════════
+// KEYBIND SYSTEM — all input reads from this object
+// ════════════════════════════════════════════════════════
+const KEYBINDS = {
+    S1:'Digit1', S2:'Digit2', S3:'Digit3', S4:'Digit4',
+    Awakening:'KeyG', Dash:'ShiftLeft'
+};
+function keybindLabel(code) {
+    return code.replace('Digit','').replace('Key','')
+               .replace('ShiftLeft','SHIFT').replace('ShiftRight','SHIFT')
+               .replace('Space','SPC').replace('Arrow','↑').toUpperCase();
+}
+
+// ════════════════════════════════════════════════════════
+// FPS SYSTEM
+// ════════════════════════════════════════════════════════
+let fpsCap = 0, showFps = false;
+let _lastFrameMs = 0, _fpsCount = 0, _fpsCountMs = 0;
+
+// ════════════════════════════════════════════════════════
+// ABILITY ANIMATION CONTROLLER (transform-based, no engine rewrite)
+// Keyframe format: t=ms, rSx/rSz=right shoulder, rEx=right elbow,
+//                  lSz=left shoulder z, uZ=upper body rotation z
+// ════════════════════════════════════════════════════════
+const ABILITY_ANIMS = {
+    S1: { dur:1100, frames:[
+        {t:0,    rSx:0,    rSz:-0.12, rEx:0.35, lSz: 0.12, uZ: 0},
+        {t:60,   rSx:-0.9, rSz:-0.30, rEx:0.10, lSz:-0.10, uZ:-0.08},
+        {t:170,  rSx: 0.7, rSz: 0.22, rEx:0.05, lSz: 0.14, uZ: 0.06},
+        {t:330,  rSx:-1.0, rSz:-0.28, rEx:0.08, lSz:-0.12, uZ:-0.09},
+        {t:440,  rSx: 0.8, rSz: 0.24, rEx:0.05, lSz: 0.14, uZ: 0.07},
+        {t:580,  rSx:-0.9, rSz:-0.26, rEx:0.08, lSz:-0.10, uZ:-0.08},
+        {t:710,  rSx: 0.6, rSz: 0.18, rEx:0.05, lSz: 0.14, uZ: 0.05},
+        {t:930,  rSx: 0,   rSz:-0.14, rEx:0.35, lSz: 0.14, uZ: 0},
+        {t:1100, rSx: 0,   rSz:-0.14, rEx:0.35, lSz: 0.14, uZ: 0}
+    ]},
+    S2: { dur:920, frames:[
+        {t:0,   rSx: 0,   rSz:-0.10, rEx:0.35, lSz: 0.14, uZ: 0},
+        {t:180, rSx: 0.5, rSz: 0.14, rEx:0.45, lSz:-0.08, uZ: 0.10},
+        {t:380, rSx:-1.35,rSz:-0.08, rEx:0.02, lSz: 0.14, uZ:-0.14},
+        {t:480, rSx:-1.35,rSz:-0.08, rEx:0.02, lSz: 0.14, uZ:-0.14},
+        {t:660, rSx:-0.3, rSz:-0.10, rEx:0.22, lSz: 0.14, uZ:-0.04},
+        {t:920, rSx: 0,   rSz:-0.14, rEx:0.35, lSz: 0.14, uZ: 0}
+    ]},
+    S3: { dur:1150, frames:[
+        {t:0,    rSx: 0,   rSz:-0.10, rEx:0.35, lSz: 0.14, uZ: 0},
+        {t:140,  rSx: 0.55,rSz: 0.22, rEx:0.22, lSz:-0.14, uZ: 0.10},
+        {t:360,  rSx: 1.15,rSz: 0.32, rEx:0.10, lSz:-0.24, uZ: 0.18},
+        {t:610,  rSx:-0.85,rSz:-0.38, rEx:0.05, lSz: 0.26, uZ:-0.22},
+        {t:870,  rSx:-0.30,rSz:-0.22, rEx:0.20, lSz: 0.18, uZ:-0.10},
+        {t:1150, rSx: 0,   rSz:-0.14, rEx:0.35, lSz: 0.14, uZ: 0}
+    ]},
+    S4: { dur:820, frames:[
+        {t:0,   rSx: 0,   rSz:-0.12, rEx:0.35, lSz: 0.14, uZ: 0},
+        {t:90,  rSx: 0.28,rSz:-0.20, rEx:0.40, lSz: 0.10, uZ: 0.08},
+        {t:240, rSx:-1.45,rSz:-0.14, rEx:0.05, lSz: 0.14, uZ:-0.20},
+        {t:380, rSx: 0.90,rSz:-0.10, rEx:0.08, lSz: 0.14, uZ: 0.16},
+        {t:550, rSx: 0.28,rSz:-0.14, rEx:0.25, lSz: 0.14, uZ: 0.06},
+        {t:820, rSx: 0,   rSz:-0.14, rEx:0.35, lSz: 0.14, uZ: 0}
+    ]}
+};
+
+const AbilityAnimController = {
+    _seq: null, _start: 0,
+    play(seq) { this._seq=seq; this._start=performance.now(); },
+    isPlaying() { return !!this._seq && performance.now()-this._start < this._seq.dur; },
+    // Returns true while it controls the rig (M1/idle arms are suppressed)
+    tick(delta, now, rig) {
+        if(!this._seq || !rig) return false;
+        const el = now - this._start;
+        if(el >= this._seq.dur) { this._seq=null; return false; }
+        const frames=this._seq.frames;
+        let bf=frames[0], af=frames[frames.length-1];
+        for(let i=0;i<frames.length-1;i++){
+            if(frames[i].t<=el && frames[i+1].t>el){ bf=frames[i]; af=frames[i+1]; break; }
+        }
+        const p = af.t===bf.t ? 1 : (el-bf.t)/(af.t-bf.t);
+        const lp=(a,b)=>a+(b-a)*p;
+        if(bf.rSx!==undefined) rig.rS.rotation.x=lp(bf.rSx,af.rSx);
+        if(bf.rSz!==undefined) rig.rS.rotation.z=lp(bf.rSz,af.rSz);
+        if(bf.rEx!==undefined) rig.rE.rotation.x=lp(bf.rEx,af.rEx);
+        if(bf.lSz!==undefined) rig.lS.rotation.z=lp(bf.lSz,af.lSz);
+        if(bf.uZ !==undefined) rig.upper.rotation.z=lp(bf.uZ,af.uZ);
+        rig.upper.position.z=0;  // abilities don't lunge, clear any M1 lunge
+        return true;
+    }
+};
+
+// ════════════════════════════════════════════════════════
+// ABILITY SYSTEM (S1–S4) — additive, no core systems touched
+// ════════════════════════════════════════════════════════
+function _mkAbWep(dmg, kb) {
+    return { damage:dmg, knockback:kb, hitstopDur:88, shakeMag:0.20, special:null };
+}
+
+const AbilitySystem = {
+    defs:{
+        S1:{ name:'Split Soul Flurry',           cd:8000,  lastUsed:0 },
+        S2:{ name:'Heavenly Nullification',      cd:12000, lastUsed:0 },
+        S3:{ name:'Chain of Thousand Miles',     cd:15000, lastUsed:0 },
+        S4:{ name:'Mirage Step',                 cd:10000, lastUsed:0 }
+    },
+    _cdMul() { return AwakeningController.isActive() ? 0.5 : 1.0; },
+
+    use(key) {
+        if(!gameStarted || !pMesh || GAME_STATE.player.hp<=0) return;
+        if(AwakeningController.inputLocked()) return;
+        const ab=this.defs[key], now=performance.now();
+        if(now-ab.lastUsed < ab.cd*this._cdMul()) return;
+        ab.lastUsed=now;
+        this['_'+key.toLowerCase()]();
+    },
+
+    _s1() {
+        AbilityAnimController.play(ABILITY_ANIMS.S1);
+        const wep=GAME_STATE.player.currentWeapon;
+        const dir=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+        // Dash toward enemy
+        const gap=Math.max(0,pMesh.position.distanceTo(eMesh.position)-1.8);
+        pMesh.position.addScaledVector(dir,Math.min(4.5,gap));
+        pMesh.position.x=Math.max(-38,Math.min(38,pMesh.position.x));
+        pMesh.position.z=Math.max(-38,Math.min(38,pMesh.position.z));
+        GAME_STATE.player.position.copy(pMesh.position);
+        // 3 rapid strikes
+        [0,165,335].forEach(delay=>{
+            setTimeout(()=>{
+                if(GAME_STATE.enemy.hp>0 && pMesh.position.distanceTo(eMesh.position)<=wep.range+2){
+                    const d=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+                    applyDamageToEnemy(_mkAbWep(Math.round(wep.damage*0.78),5),d,1);
+                }
+            },delay);
+        });
+    },
+
+    _s2() {
+        AbilityAnimController.play(ABILITY_ANIMS.S2);
+        if(pMesh.position.distanceTo(eMesh.position)<=5.5){
+            const dir=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+            applyDamageToEnemy(_mkAbWep(30,10),dir,2);
+            // Extended hitstun — ability lock
+            GAME_STATE.enemy.hitstunEndTime=Math.max(GAME_STATE.enemy.hitstunEndTime,performance.now()+1400);
+        }
+    },
+
+    _s3() {
+        AbilityAnimController.play(ABILITY_ANIMS.S3);
+        if(pMesh.position.distanceTo(eMesh.position)<=6.5){
+            const dir=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+            applyDamageToEnemy(_mkAbWep(20,18),dir,3);
+        }
+    },
+
+    _s4() {
+        AbilityAnimController.play(ABILITY_ANIMS.S4);
+        // Teleport behind enemy
+        const toPlayer=new THREE.Vector3().subVectors(pMesh.position,eMesh.position).normalize();
+        const dest=eMesh.position.clone().add(toPlayer.multiplyScalar(2.4));
+        dest.y=0;
+        dest.x=Math.max(-38,Math.min(38,dest.x));
+        dest.z=Math.max(-38,Math.min(38,dest.z));
+        pMesh.position.copy(dest); GAME_STATE.player.position.copy(dest);
+        const fwd=new THREE.Vector3().subVectors(eMesh.position,pMesh.position);
+        GAME_STATE.player.rotation=Math.atan2(fwd.x,fwd.z);
+        pMesh.rotation.y=GAME_STATE.player.rotation;
+        setTimeout(()=>{
+            if(GAME_STATE.enemy.hp>0){
+                const d=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+                applyDamageToEnemy(_mkAbWep(36,24),d,4);
+            }
+        },260);
+    },
+
+    updateUI(now) {
+        const cdm=this._cdMul();
+        ['S1','S2','S3','S4'].forEach(key=>{
+            const ab=this.defs[key];
+            const fill=document.getElementById('ab-fill-'+key.toLowerCase());
+            const slot=document.getElementById('ab-slot-'+key.toLowerCase());
+            const lbl =document.getElementById('ab-key-'+key.toLowerCase());
+            if(!fill||!slot) return;
+            const pct=Math.min(1,(now-ab.lastUsed)/(ab.cd*cdm));
+            fill.style.height=(pct*100)+'%';
+            slot.classList.toggle('ab-ready',pct>=1);
+            // Keep key label in sync with current keybind
+            if(lbl) lbl.innerText=keybindLabel(KEYBINDS[key]);
+        });
+    }
+};
+
+// ════════════════════════════════════════════════════════
+// SETTINGS CONTROLLER
+// ════════════════════════════════════════════════════════
+const SettingsController = {
+    _listening: null,
+    _gfx: 'HIGH',
+
+    open() {
+        this._render();
+        document.getElementById('settings-modal').classList.add('open');
+        document.getElementById('settings-close').onclick=()=>this.close();
+    },
+    close() {
+        this._listening=null;
+        document.getElementById('settings-modal').classList.remove('open');
+    },
+
+    _render() {
+        const body=document.getElementById('settings-body'); if(!body) return;
+        const bindDefs=[
+            {id:'S1',label:'Ability 1 (S1)'},{id:'S2',label:'Ability 2 (S2)'},
+            {id:'S3',label:'Ability 3 (S3)'},{id:'S4',label:'Ability 4 (S4)'},
+            {id:'Awakening',label:'Awakening'},{id:'Dash',label:'Dash'}
+        ];
+        const gfxOpts=['LOW','MEDIUM','HIGH'];
+        const fpsOpts=[[30,'30'],[60,'60'],[120,'120'],[0,'∞ Unlimited']];
+
+        body.innerHTML=`
+        <div class="st-section">
+            <div class="st-section-title">Keybinds</div>
+            ${bindDefs.map(r=>`
+            <div class="st-row">
+                <span class="st-label">${r.label}</span>
+                <button class="st-key-btn" id="st-btn-${r.id}" data-id="${r.id}">${keybindLabel(KEYBINDS[r.id])}</button>
+            </div>`).join('')}
+        </div>
+        <div class="st-section">
+            <div class="st-section-title">Graphics Quality</div>
+            <div class="st-row">
+                ${gfxOpts.map(q=>`<button class="st-opt-btn${this._gfx===q?' active':''}" data-gfx="${q}">${q}</button>`).join('')}
+            </div>
+        </div>
+        <div class="st-section">
+            <div class="st-section-title">FPS Limiter</div>
+            <div class="st-row">
+                ${fpsOpts.map(([v,l])=>`<button class="st-opt-btn${fpsCap===v?' active':''}" data-fps="${v}">${l}</button>`).join('')}
+            </div>
+        </div>
+        <div class="st-section">
+            <div class="st-section-title">FPS Counter</div>
+            <div class="st-row">
+                <button class="st-opt-btn${showFps?' active':''}" data-fpsshow="1">ON</button>
+                <button class="st-opt-btn${!showFps?' active':''}" data-fpsshow="0">OFF</button>
+            </div>
+        </div>`;
+
+        body.querySelectorAll('.st-key-btn').forEach(btn=>{
+            btn.addEventListener('click',()=>{
+                if(this._listening){
+                    const pb=document.getElementById('st-btn-'+this._listening);
+                    if(pb){pb.innerText=keybindLabel(KEYBINDS[this._listening]);pb.classList.remove('listening');}
+                }
+                this._listening=btn.dataset.id;
+                btn.innerText='...'; btn.classList.add('listening');
+            });
+        });
+        body.querySelectorAll('[data-gfx]').forEach(btn=>{
+            btn.addEventListener('click',()=>{ this._gfx=btn.dataset.gfx; this._applyGfx(); this._render(); });
+        });
+        body.querySelectorAll('[data-fps]').forEach(btn=>{
+            btn.addEventListener('click',()=>{ fpsCap=parseInt(btn.dataset.fps); this._render(); });
+        });
+        body.querySelectorAll('[data-fpsshow]').forEach(btn=>{
+            btn.addEventListener('click',()=>{
+                showFps=btn.dataset.fpsshow==='1';
+                const el=document.getElementById('fps-counter');
+                if(el) el.classList.toggle('fps-visible',showFps);
+                this._render();
+            });
+        });
+    },
+
+    _applyGfx() {
+        if(!renderer) return;
+        if(this._gfx==='LOW'){
+            renderer.setPixelRatio(1); renderer.shadowMap.enabled=false;
+        } else if(this._gfx==='MEDIUM'){
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.5)); renderer.shadowMap.enabled=true;
+        } else {
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)); renderer.shadowMap.enabled=true;
+        }
+    },
+
+    // Called from global capture-phase keydown listener
+    handleRemap(e) {
+        if(!this._listening) return false;
+        e.preventDefault(); e.stopPropagation();
+        const id=this._listening;
+        KEYBINDS[id]=e.code;
+        const btn=document.getElementById('st-btn-'+id);
+        if(btn){btn.innerText=keybindLabel(e.code);btn.classList.remove('listening');}
+        this._listening=null;
+        return true;
+    }
+};
+
+// Capture-phase listener for keybind remapping (intercepts before game handler)
+window.addEventListener('keydown',e=>{ SettingsController.handleRemap(e); },{capture:true});
 
 let scene, camera, renderer, pMesh, eMesh;
 const texLoader = new THREE.TextureLoader();
@@ -1107,10 +1835,16 @@ function setupInputListeners() {
                 }
                 break;
             }
-            case 'ShiftLeft': case 'ShiftRight': executeDashPipeline(); break;
             case 'KeyQ': swapWeapon(WEAPONS.KATANA); break;
             case 'KeyE': swapWeapon(WEAPONS.SPEAR);  break;
         }
+        // ── Dynamic keybind actions (all read from KEYBINDS — updates instantly on remap) ──
+        if(e.code === KEYBINDS.Awakening) AwakeningController.tryActivate();
+        else if(e.code === KEYBINDS.Dash || (KEYBINDS.Dash.startsWith('Shift') && e.shiftKey)) executeDashPipeline();
+        else if(e.code === KEYBINDS.S1) AbilitySystem.use('S1');
+        else if(e.code === KEYBINDS.S2) AbilitySystem.use('S2');
+        else if(e.code === KEYBINDS.S3) AbilitySystem.use('S3');
+        else if(e.code === KEYBINDS.S4) AbilitySystem.use('S4');
     });
     window.addEventListener('keyup', e=>{
         switch(e.code){
@@ -1125,6 +1859,10 @@ function setupInputListeners() {
 function swapWeapon(wep) {
     if(GAME_STATE.player.currentWeapon===wep) return;
     GAME_STATE.player.currentWeapon=wep;
+    // Reset M1 string so combos don't bleed across weapon identities
+    combatFX.m1Step=0;
+    combatFX.activeM1Step=1;
+    GAME_STATE.player.isAttacking=false;
     document.getElementById('current-weapon-name').innerText=wep.name;
     WeaponAttachmentSystem.attach(wep);
 }
@@ -1146,6 +1884,7 @@ function executeAttackPipeline() {
 
     if(now-GAME_STATE.player.lastAttackTime<cooldown) return false;
     if(GAME_STATE.player.hp<=0) return false;
+    if(AwakeningController.inputLocked()) return false;
 
     GAME_STATE.player.lastAttackTime=now;
     GAME_STATE.player.isAttacking=true;
@@ -1185,8 +1924,9 @@ function applyDamageToEnemy(wep,dir,step) {
     const tuning=M1_STEP_TUNING[step] || M1_STEP_TUNING[1];
     const now=performance.now();
 
-    const dmg=Math.round(wep.damage*tuning.dmgMul);
+    const dmg=Math.round(wep.damage*tuning.dmgMul*AwakeningController.getDamageMul());
     GAME_STATE.enemy.hp=Math.max(0,GAME_STATE.enemy.hp-dmg);
+    AwakeningController.onHitLanded();   // fills meter on confirmed hit
 
     // ── Hitstop: freeze everything briefly for impact weight ──
     // Light on hits 1-3, a strong jolt on the hit-4 finisher.
@@ -1225,7 +1965,8 @@ function applyDamageToEnemy(wep,dir,step) {
 
 function applyDamageToPlayer() {
     if(GAME_STATE.player.hp<=0||GAME_STATE.player.isDashing) return;
-    GAME_STATE.player.hp=Math.max(0,GAME_STATE.player.hp-GAME_STATE.enemy.damage);
+    const incomingDmg=Math.round(GAME_STATE.enemy.damage*AwakeningController.getDamageReceiveMul());
+    GAME_STATE.player.hp=Math.max(0,GAME_STATE.player.hp-incomingDmg);
     updateHUD();
     if(GAME_STATE.player.hp<=0) triggerEnd('DEFEAT');
 }
@@ -1254,7 +1995,17 @@ function triggerEnd(msg) {
 // ════════════════════════════════════════════════════════
 let menuCamAngle = 0;
 
-function runGameLoop() {
+function runGameLoop(timestamp) {
+    // ── FPS cap (skip frame if interval not elapsed) ──
+    if(fpsCap > 0 && timestamp - _lastFrameMs < (1000/fpsCap) - 0.5) return;
+    _lastFrameMs = timestamp || performance.now();
+    // ── FPS counter ──
+    _fpsCount++;
+    if(_lastFrameMs - _fpsCountMs >= 1000){
+        if(showFps){ const el=document.getElementById('fps-counter'); if(el) el.innerText=_fpsCount+' FPS'; }
+        _fpsCount=0; _fpsCountMs=_lastFrameMs;
+    }
+
     const delta=Math.min(GAME_STATE.clock.getDelta(),0.1);
     const now=performance.now();
 
@@ -1266,6 +2017,9 @@ function runGameLoop() {
         renderer.render(scene,camera);
         return;
     }
+
+    AwakeningController.update(delta,now);
+    AbilitySystem.updateUI(now);
 
     // Input buffer flush — fires buffered attack as soon as cooldown clears
     if(combatFX.inputBuffer){
@@ -1305,25 +2059,47 @@ function updateWalkAnimation(delta,now) {
 
     const wep=GAME_STATE.player.currentWeapon;
     const wDur=GAME_STATE.player.attackCooldownMs || wep.attackSpeed;
-    if(GAME_STATE.player.isAttacking){
+    if(AbilityAnimController.tick(delta, now, rig)){
+        // Ability animation driving arms/upper — M1 and idle both suppressed this frame
+    } else if(GAME_STATE.player.isAttacking){
         const prog=(now-GAME_STATE.player.attackStartTime)/wDur;
         if(prog<1.0){
-            // Weapon-specific arc: katana=big heavy sweep, spear=tight fast snap.
-            // arcMul widens the swing further on the hit-4 finisher for extra weight.
-            const stepTuning=M1_STEP_TUNING[combatFX.activeM1Step] || M1_STEP_TUNING[1];
-            const fwd=wep.arcForward, ang=wep.arcAngle*Math.PI*stepTuning.arcMul;
-            const a=prog<fwd
-                ? (prog/fwd)*-ang
-                : -ang+((prog-fwd)/(1-fwd))*ang;
-            rig.rS.rotation.x=a;
-            rig.rS.rotation.z= wep===WEAPONS.KATANA ? -0.22 : -0.14;
-            rig.rE.rotation.x=Math.max(0, 0.55-prog*0.55);
-            // Slight body lean into the swing
-            rig.upper.rotation.z=(prog<fwd?-prog/fwd:-(1-prog)/(1-fwd))*0.12;
-        } else { GAME_STATE.player.isAttacking=false; }
+            // ── Resolve this hit's animation definition ──
+            const animKey = wep===WEAPONS.KATANA ? 'KATANA' : 'SPEAR';
+            const hitIdx  = Math.max(0, (combatFX.activeM1Step||1) - 1);
+            const h       = ANIM_MAP[animKey][hitIdx];
+
+            // arcMul from M1_STEP_TUNING still scales the finisher for extra weight
+            const stepTuning = M1_STEP_TUNING[combatFX.activeM1Step] || M1_STEP_TUNING[1];
+            const ang = h.ang * stepTuning.arcMul;
+
+            // Main arm swing — wind-up then follow-through
+            const a = prog < h.fwd
+                ? (prog/h.fwd) * -ang
+                : -ang + ((prog-h.fwd)/(1-h.fwd)) * ang;
+            rig.rS.rotation.x = a;
+
+            // Lateral shoulder tilt — ramps up then back, drives slash direction
+            const tiltEnv = prog < h.fwd
+                ? prog/h.fwd
+                : 1 - (prog-h.fwd)/(1-h.fwd);
+            rig.rS.rotation.z = h.shoulderZ * tiltEnv;
+
+            // Elbow unfolds through the swing
+            rig.rE.rotation.x = Math.max(0, h.elbowStart * (1 - prog));
+
+            // Upper-body lateral lean — mirrors the shoulder direction
+            rig.upper.rotation.z = h.bodyLeanZ * tiltEnv;
+
+            // Forward lunge — peaks at mid-swing, returns to rest
+            rig.upper.position.z = -h.lungeZ * Math.sin(prog * Math.PI);
+        } else {
+            GAME_STATE.player.isAttacking = false;
+        }
     } else {
         rig.rS.rotation.x=sw*0.22; rig.rS.rotation.z=-0.14; rig.rE.rotation.x=0.35;
         rig.upper.rotation.z=moving?sw*0.025:0;
+        rig.upper.position.z=0;   // reset lunge
     }
     rig.lS.rotation.x=-sw*0.32; rig.lS.rotation.z=0.14; rig.lE.rotation.x=0.12;
     rig.upper.position.y=moving?Math.sin(t*2)*0.028:0;
@@ -1334,6 +2110,7 @@ function updateWalkAnimation(delta,now) {
 // ════════════════════════════════════════════════════════
 function processPlayerLocomotion(delta,now) {
     if(GAME_STATE.player.hp<=0) return;
+    if(AwakeningController.inputLocked()) return;    // cutscene input lock
     if(now < combatFX.hitstopEndTime) return;   // hitstop freeze
     if(GAME_STATE.player.isDashing){
         if(now>GAME_STATE.player.dashEndTime) GAME_STATE.player.isDashing=false;
@@ -1400,6 +2177,7 @@ function processEnemyAI(delta,now) {
 // CAMERA
 // ════════════════════════════════════════════════════════
 function processCameraPhysics(delta) {
+    if(AwakeningController.overrideCamera(delta)) return;   // cutscene camera
     const now=performance.now();
 
     // Forward anticipation — lean camera slightly toward movement direction
