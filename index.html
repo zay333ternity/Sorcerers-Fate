@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +14,7 @@
             user-select: none;
         }
         #canvas-container { width: 100vw; height: 100vh; display: block; }
-
+ 
         /* ══════════════════════════════════════════════════
            TITLE SCREEN
         ══════════════════════════════════════════════════ */
@@ -65,7 +66,7 @@
             letter-spacing: 7px; color: #fff;
         }
         .menu-btn.placeholder { color: #3a3a4a; border-color: rgba(255,255,255,0.05); cursor: default; }
-
+ 
         /* ══════════════════════════════════════════════════
            CHARACTER SELECT
         ══════════════════════════════════════════════════ */
@@ -84,7 +85,7 @@
             text-shadow: 0 0 20px rgba(120,60,220,0.45);
         }
         #char-card-grid { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-
+ 
         .char-card {
             width: 210px; border: 2px solid rgba(255,255,255,0.07);
             background: rgba(255,255,255,0.02); border-radius: 10px;
@@ -101,7 +102,7 @@
             transform: translateY(-9px) !important;
         }
         .char-card.locked { opacity: 0.38; cursor: not-allowed; }
-
+ 
         .card-art {
             height: 195px; overflow: hidden; position: relative;
             background: rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center;
@@ -123,7 +124,7 @@
         }
         .card-diff { display:flex; align-items:center; gap:6px; font-size:10px; color:#555; }
         .card-stars { color: #c8a030; font-size:13px; letter-spacing:1px; }
-
+ 
         /* Detail panel */
         #char-detail-panel {
             display: none; opacity: 0; transition: opacity 0.3s ease;
@@ -150,7 +151,7 @@
             background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.10);
             padding:4px 12px; border-radius:3px; font-size:10px; color:#bbb; letter-spacing:1px;
         }
-
+ 
         /* Select actions */
         .select-actions { display:flex; gap:14px; justify-content:center; align-items:center; padding-bottom:8px; }
         .btn-back {
@@ -171,7 +172,7 @@
             box-shadow:0 0 32px rgba(110,50,220,0.5); color:#fff; transform:translateY(-2px);
         }
         .btn-play-game:disabled { opacity:0.2; cursor:default; }
-
+ 
         /* ══════════════════════════════════════════════════
            MODAL (placeholder for Settings/Credits)
         ══════════════════════════════════════════════════ */
@@ -193,7 +194,7 @@
             font-family:inherit; font-size:11px; letter-spacing:2px; text-transform:uppercase; transition:all 0.2s;
         }
         .modal-close:hover { color:#fff; border-color:rgba(255,255,255,0.45); }
-
+ 
         /* ══════════════════════════════════════════════════
            GAME HUD (hidden until gameplay)
         ══════════════════════════════════════════════════ */
@@ -241,7 +242,7 @@
         }
         #dash-indicator.game-visible { opacity:1; }
         #dash-indicator.ready { border-color:#4a90e2; color:#4a90e2; box-shadow:0 0 10px rgba(74,144,226,0.4); }
-
+ 
         /* ── Awakening Meter ── */
         #awakening-bar-wrap {
             position:absolute; bottom:84px; left:50%; transform:translateX(-50%);
@@ -283,7 +284,7 @@
             0%,100% { box-shadow:0 0 12px rgba(124,58,237,0.4); }
             50%      { box-shadow:0 0 26px rgba(168,85,247,0.75); }
         }
-
+ 
         /* ── Ability Bar ── */
         #ability-bar {
             position:absolute; bottom:26px; right:90px;
@@ -315,7 +316,7 @@
             padding:0 2px;
         }
         .ab-slot.ab-ready .ab-name-lbl { color:#aaa; }
-
+ 
         /* ── Settings Modal ── */
         #settings-modal {
             display:none; position:fixed; inset:0;
@@ -365,7 +366,7 @@
             font-family:inherit; transition:border-color 0.2s, color 0.2s;
         }
         .settings-close-btn:hover { border-color:#7c3aed; color:#fff; }
-
+ 
         /* ── FPS Counter ── */
         #fps-counter {
             position:absolute; top:20px; left:50%; transform:translateX(-50%);
@@ -373,14 +374,46 @@
             opacity:0; transition:opacity 0.3s; pointer-events:none;
         }
         #fps-counter.fps-visible { opacity:1; }
+ 
+        /* ── Wave System HUD (additive) ── */
+        #wave-hud {
+            position:absolute; top:20px; left:50%; transform:translateX(-50%);
+            display:flex; flex-direction:column; align-items:center; gap:3px;
+            opacity:0; transition:opacity 0.5s; pointer-events:none;
+        }
+        #wave-hud.game-visible { opacity:1; }
+        #wave-number-text {
+            color:#fff; font-size:15px; font-weight:800; letter-spacing:3px;
+            text-transform:uppercase; text-shadow:0 0 14px rgba(231,76,60,0.55);
+        }
+        #wave-enemies-remaining {
+            color:#999; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+        }
+        #wave-banner {
+            position:absolute; top:38%; left:50%; transform:translate(-50%,-50%);
+            text-align:center; opacity:0; pointer-events:none;
+            transition:opacity 0.35s ease;
+        }
+        #wave-banner.show { opacity:1; }
+        #wave-banner-title {
+            color:#fff; font-size:42px; font-weight:900; letter-spacing:7px;
+            text-transform:uppercase; text-shadow:0 0 30px rgba(231,76,60,0.6);
+        }
+        #wave-banner-countdown {
+            color:#e74c3c; font-size:20px; font-weight:800; letter-spacing:3px;
+            margin-top:10px; text-shadow:0 0 16px rgba(231,76,60,0.5);
+        }
+        #wave-banner-sub {
+            color:#888; font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-top:14px;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-
+ 
 <!-- 3D CANVAS (always behind everything) -->
 <div id="canvas-container"></div>
-
+ 
 <!-- ── TITLE SCREEN ── -->
 <div id="title-screen">
     <div class="title-logo">
@@ -394,7 +427,7 @@
         <button class="menu-btn placeholder" id="btn-credits">CREDITS</button>
     </div>
 </div>
-
+ 
 <!-- ── CHARACTER SELECT SCREEN ── -->
 <div id="char-select-screen">
     <div>
@@ -408,7 +441,7 @@
         <button class="btn-play-game" id="btn-char-play" disabled>ENTER BATTLE</button>
     </div>
 </div>
-
+ 
 <!-- ── PLACEHOLDER MODAL ── -->
 <div id="ph-modal">
     <div class="modal-box">
@@ -417,7 +450,7 @@
         <button class="modal-close" id="modal-close">CLOSE</button>
     </div>
 </div>
-
+ 
 <!-- ── GAME HUD ── -->
 <div id="ui-layer">
     <div class="hud-container">
@@ -455,32 +488,31 @@
         <div id="awakening-ready-hint">[ G ] AWAKEN</div>
     </div>
 </div>
-
+ 
 <!-- ── Ability Bar ── -->
 <div id="ability-bar">
     <div class="ab-slot" id="ab-slot-s1">
         <div class="ab-cooldown-fill" id="ab-fill-s1"></div>
         <div class="ab-key-lbl" id="ab-key-s1">1</div>
-        <div class="ab-name-lbl">Soul Flurry</div>
+        <div class="ab-name-lbl">Flurry</div>
     </div>
     <div class="ab-slot" id="ab-slot-s2">
         <div class="ab-cooldown-fill" id="ab-fill-s2"></div>
         <div class="ab-key-lbl" id="ab-key-s2">2</div>
-        <div class="ab-name-lbl">Heavenly Nullification</div>
+        <div class="ab-name-lbl">Nullify</div>
     </div>
     <div class="ab-slot" id="ab-slot-s3">
         <div class="ab-cooldown-fill" id="ab-fill-s3"></div>
         <div class="ab-key-lbl" id="ab-key-s3">3</div>
-        <div class="ab-name-lbl">Chain of a Thousand Miles
-</div>
+        <div class="ab-name-lbl">Chain</div>
     </div>
     <div class="ab-slot" id="ab-slot-s4">
         <div class="ab-cooldown-fill" id="ab-fill-s4"></div>
         <div class="ab-key-lbl" id="ab-key-s4">4</div>
-        <div class="ab-name-lbl">Zen'In Mirage</div>
+        <div class="ab-name-lbl">Mirage</div>
     </div>
 </div>
-
+ 
 <!-- ── Settings Modal ── -->
 <div id="settings-modal">
     <div class="settings-box">
@@ -489,10 +521,21 @@
         <button class="settings-close-btn" id="settings-close">CLOSE</button>
     </div>
 </div>
-
+ 
 <!-- ── FPS Counter ── -->
 <div id="fps-counter">-- FPS</div>
-
+ 
+<!-- ── Wave System HUD (additive) ── -->
+<div id="wave-hud">
+    <div id="wave-number-text">WAVE 1</div>
+    <div id="wave-enemies-remaining">2 ENEMIES REMAINING</div>
+</div>
+<div id="wave-banner">
+    <div id="wave-banner-title">WAVE COMPLETE</div>
+    <div id="wave-banner-countdown">NEXT WAVE IN 5</div>
+    <div id="wave-banner-sub"></div>
+</div>
+ 
 <script>
 // ════════════════════════════════════════════════════════
 // CHARACTER DATA
@@ -529,7 +572,7 @@ const CharacterData = {
         image:'yujipfp.jpeg', playable:false, color:'#e08040'
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // TITLE SCREEN MODULE
 // ════════════════════════════════════════════════════════
@@ -556,7 +599,7 @@ const TitleScreen = {
         setTimeout(() => { this.el.style.display = 'none'; if (cb) cb(); }, 650);
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // CHARACTER SELECT MODULE
 // ════════════════════════════════════════════════════════
@@ -650,7 +693,7 @@ const CharacterSelect = {
         setTimeout(() => { this.el.style.display = 'none'; if (cb) cb(); }, 500);
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // MENU UI (ORCHESTRATOR)
 // ════════════════════════════════════════════════════════
@@ -678,25 +721,29 @@ const MenuUI = {
             dash.classList.add('game-visible');
             document.getElementById('awakening-bar-wrap').classList.add('game-visible');
             document.getElementById('ability-bar').classList.add('game-visible');
-
+            document.getElementById('wave-hud').classList.add('game-visible');
+ 
             // Kick off gameplay
             gameStarted = true;
-
+ 
             // "FIGHT!" flash
             const msg = document.getElementById('status-msg');
             msg.innerText = 'FIGHT!';
             msg.style.color = '#f1c40f';
             msg.style.opacity = '1';
             setTimeout(() => { msg.style.opacity = '0'; }, 1600);
+ 
+            // Hand off to the wave system (additive — does not touch combat internals)
+            WaveSystem.startRun();
         });
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // GAME STATE
 // ════════════════════════════════════════════════════════
 let gameStarted = false;
-
+ 
 const WEAPONS = {
     // Katana — heavy, slower swing, massive knockback
     KATANA: { name:"Split Soul Katana",        damage:25, range:4.0, attackSpeed:520, knockback:16, special:"execution",
@@ -705,7 +752,7 @@ const WEAPONS = {
     SPEAR:  { name:"Inverted Spear of Heaven", damage:12, range:3.2, attackSpeed:245, knockback:8,  special:"seal",
               hitstopDur:55,  shakeMag:0.14, arcForward:0.24, arcAngle:1.12 }
 };
-
+ 
 const GAME_STATE = {
     player: {
         hp:100, maxHp:100, speed:13,
@@ -730,7 +777,7 @@ const GAME_STATE = {
     clock: new THREE.Clock(),
     assets:{ playerMesh:null, enemyMesh:null, loadedWeapons:{ KATANA:null, SPEAR:null } }
 };
-
+ 
 // ── Combat feel state (all transient, no save needed) ──
 const combatFX = {
     hitstopEndTime:     0,          // ms — both player+enemy freeze
@@ -744,14 +791,14 @@ const combatFX = {
     comboCount:         0,          // mirrors the M1 string position (1-4) at the time of the last landed hit
     lastHitTime:        0,          // ms of last landed hit
     comboResetMs:       1300,       // ms before combo resets
-
+ 
     // ── M1 string state ──
     m1Step:             0,          // 1-3 = light combo hits, 4 = finisher; 0 = string not started yet
     m1LastSwingTime:    0,          // ms timestamp of the last M1 swing (counts every press, hit or miss)
     m1ComboWindow:       620,       // ms allowed between swings before the string resets back to hit 1
     activeM1Step:       1           // snapshot of the step the currently-playing swing animation belongs to
 };
-
+ 
 // ── Per-hit tuning for the 4-hit M1 string ──
 // Hits 1-3: fast, light, chainable. Hit 4: heavy finisher with forced knockback & big hit feel.
 const M1_STEP_TUNING = {
@@ -760,7 +807,7 @@ const M1_STEP_TUNING = {
     3: { cooldownMul:0.78, dmgMul:1.05, knockMul:1.10, hitstopMul:0.70, hitstunMul:0.70, shakeMul:0.70, squishMul:1.05, arcMul:1.05 },
     4: { cooldownMul:1.18, dmgMul:1.45, knockMul:2.20, hitstopMul:2.00, hitstunMul:1.90, shakeMul:1.80, squishMul:1.55, arcMul:1.40, finisher:true }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // DUAL-WEAPON ANIMATION IDENTITY MAP
 // Each weapon × each M1 hit (1-4) has its own shape.
@@ -793,7 +840,7 @@ const ANIM_MAP = {
         { fwd:0.18, ang:1.42, shoulderZ:-0.27, elbowStart:0.14, bodyLeanZ:-0.20, lungeZ:0.40 }
     ]
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // TOJI AWAKENING — "THE ONE WHO LEFT IT ALL BEHIND"
 // Modular controller — purely additive, no existing system touched.
@@ -808,29 +855,29 @@ const TOJI_AWAKENING_STATE = {
     origSpeed:       0,       // saved before buff
     awakeningTheme:  null,    // placeholder for future MP3 audio object
 };
-
+ 
 const AwakeningController = {
-
+ 
     DISPLAY_NAME: 'THE ONE WHO LEFT IT ALL BEHIND',
-
+ 
     // ── Public queries ──────────────────────────────────
     isActive()      { return TOJI_AWAKENING_STATE.phase === 'active'; },
     inputLocked()   { return TOJI_AWAKENING_STATE.phase === 'cutscene'; },
     getDamageMul()  { return this.isActive() ? 1.25 : 1.0; },
     getDamageReceiveMul() { return this.isActive() ? 0.82 : 1.0; },
-
+ 
     // ── Audio placeholders ──────────────────────────────
     playAwakeningVoice() {
         console.log('AWAKENING VOICE LINE TRIGGERED');
     },
-
+ 
     // ── Meter ───────────────────────────────────────────
     onHitLanded() {
         if(TOJI_AWAKENING_STATE.phase !== 'idle') return;
         TOJI_AWAKENING_STATE.meter = Math.min(100, TOJI_AWAKENING_STATE.meter + 7);
         this._refreshMeterUI();
     },
-
+ 
     // ── Activation ──────────────────────────────────────
     tryActivate() {
         if(!gameStarted) return;
@@ -838,7 +885,7 @@ const AwakeningController = {
         if(TOJI_AWAKENING_STATE.meter < 100) return;
         this._startCutscene();
     },
-
+ 
     // ── Cutscene start ───────────────────────────────────
     _startCutscene() {
         const s = TOJI_AWAKENING_STATE;
@@ -849,20 +896,20 @@ const AwakeningController = {
         // Phase 1 (0–1.5 s): hide player
         if(pMesh) pMesh.visible = false;
     },
-
+ 
     // ── Black hole ───────────────────────────────────────
     _spawnBlackHole() {
         if(TOJI_AWAKENING_STATE.blackHole) return;
         const g = new THREE.Group();
         g.position.copy(pMesh.position); g.position.y = 1;
-
+ 
         // Core void sphere
         const core = new THREE.Mesh(
             new THREE.SphereGeometry(0.55, 8, 8),
             new THREE.MeshBasicMaterial({ color:0x000000 })
         );
         g.add(core);
-
+ 
         // Dark-purple torus ring
         const ring = new THREE.Mesh(
             new THREE.TorusGeometry(1.3, 0.28, 8, 24),
@@ -870,7 +917,7 @@ const AwakeningController = {
         );
         ring.rotation.x = Math.PI * 0.28;
         g.add(ring);
-
+ 
         // Energy disc
         const disc = new THREE.Mesh(
             new THREE.CircleGeometry(1.3, 16),
@@ -878,12 +925,12 @@ const AwakeningController = {
         );
         disc.rotation.x = -Math.PI * 0.5;
         g.add(disc);
-
+ 
         g.scale.set(0.01, 0.01, 0.01);
         scene.add(g);
         TOJI_AWAKENING_STATE.blackHole = g;
     },
-
+ 
     _collapseBlackHole(t) {
         // t = 0→1 collapse progress
         const sc = Math.max(0, 1 - t);
@@ -895,7 +942,7 @@ const AwakeningController = {
             TOJI_AWAKENING_STATE.blackHole = null;
         }
     },
-
+ 
     // ── Activate passives ────────────────────────────────
     _startActive() {
         const s = TOJI_AWAKENING_STATE;
@@ -913,7 +960,7 @@ const AwakeningController = {
         document.querySelector('.player-panel')?.classList.add('awakening-active');
         this._refreshMeterUI();
     },
-
+ 
     // ── End awakening ────────────────────────────────────
     _endActive() {
         const s = TOJI_AWAKENING_STATE;
@@ -926,13 +973,13 @@ const AwakeningController = {
         document.querySelector('.player-panel')?.classList.remove('awakening-active');
         this._refreshMeterUI();
     },
-
+ 
     // ── Camera override (called from processCameraPhysics) ──
     // Returns true while it's controlling the camera so the default path is skipped.
     overrideCamera(delta) {
         if(TOJI_AWAKENING_STATE.phase !== 'cutscene') return false;
         const elapsed = performance.now() - TOJI_AWAKENING_STATE.cutsceneStart;
-
+ 
         if(elapsed < 3500) {
             // Phases 1–2: slow pull up to top-down cinematic
             const t = elapsed / 3500;
@@ -954,18 +1001,18 @@ const AwakeningController = {
         // Phases 5+: stop overriding — processCameraPhysics snaps back naturally
         return elapsed < 8500;
     },
-
+ 
     // ── Per-frame update (called from runGameLoop) ────────
     update(delta, now) {
         const s = TOJI_AWAKENING_STATE;
         if(s.phase === 'idle') return;
-
+ 
         if(s.phase === 'cutscene') {
             const el = now - s.cutsceneStart;
-
+ 
             // Phase 2 (1.5 s): spawn black hole
             if(el >= 1500 && !s.blackHole) this._spawnBlackHole();
-
+ 
             // Expand black hole + spin (phases 2–3)
             if(s.blackHole && el < 7500) {
                 const grow = Math.min(1, Math.max(0, el-1500) / 1100);
@@ -974,7 +1021,7 @@ const AwakeningController = {
                 s.blackHole.children[1].rotation.z += delta * 1.5;  // torus
                 s.blackHole.children[2].rotation.z += delta * 0.9;  // disc
             }
-
+ 
             // Phase 3 (3.5 s): player rises from black hole
             if(el >= 3500 && pMesh && !pMesh.visible) {
                 pMesh.visible = true;
@@ -985,21 +1032,21 @@ const AwakeningController = {
             } else if(el >= 5500 && pMesh) {
                 pMesh.position.y = 0;
             }
-
+ 
             // Phase 5 (7.5 s): collapse black hole
             if(el >= 7500 && s.blackHole) {
                 this._collapseBlackHole((el - 7500) / 700);
             }
-
+ 
             // Cutscene ends → activate passives
             if(el >= 8500) { this._startActive(); return; }
         }
-
+ 
         if(s.phase === 'active') {
             if(now - s.activeStart >= s.activeDuration) this._endActive();
         }
     },
-
+ 
     // ── Meter UI ─────────────────────────────────────────
     _refreshMeterUI() {
         const m = TOJI_AWAKENING_STATE.meter;
@@ -1011,7 +1058,7 @@ const AwakeningController = {
         if(wrap) wrap.classList.toggle('meter-full', m >= 100);
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // KEYBIND SYSTEM — all input reads from this object
 // ════════════════════════════════════════════════════════
@@ -1024,13 +1071,13 @@ function keybindLabel(code) {
                .replace('ShiftLeft','SHIFT').replace('ShiftRight','SHIFT')
                .replace('Space','SPC').replace('Arrow','↑').toUpperCase();
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // FPS SYSTEM
 // ════════════════════════════════════════════════════════
 let fpsCap = 0, showFps = false;
 let _lastFrameMs = 0, _fpsCount = 0, _fpsCountMs = 0;
-
+ 
 // ════════════════════════════════════════════════════════
 // ABILITY ANIMATION CONTROLLER (transform-based, no engine rewrite)
 // Keyframe format: t=ms, rSx/rSz=right shoulder, rEx=right elbow,
@@ -1073,7 +1120,7 @@ const ABILITY_ANIMS = {
         {t:820, rSx: 0,   rSz:-0.14, rEx:0.35, lSz: 0.14, uZ: 0}
     ]}
 };
-
+ 
 const AbilityAnimController = {
     _seq: null, _start: 0,
     play(seq) { this._seq=seq; this._start=performance.now(); },
@@ -1099,14 +1146,14 @@ const AbilityAnimController = {
         return true;
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // ABILITY SYSTEM (S1–S4) — additive, no core systems touched
 // ════════════════════════════════════════════════════════
 function _mkAbWep(dmg, kb) {
     return { damage:dmg, knockback:kb, hitstopDur:88, shakeMag:0.20, special:null };
 }
-
+ 
 const AbilitySystem = {
     defs:{
         S1:{ name:'Split Soul Flurry',           cd:8000,  lastUsed:0 },
@@ -1115,7 +1162,7 @@ const AbilitySystem = {
         S4:{ name:'Mirage Step',                 cd:10000, lastUsed:0 }
     },
     _cdMul() { return AwakeningController.isActive() ? 0.5 : 1.0; },
-
+ 
     use(key) {
         if(!gameStarted || !pMesh || GAME_STATE.player.hp<=0) return;
         if(AwakeningController.inputLocked()) return;
@@ -1124,7 +1171,7 @@ const AbilitySystem = {
         ab.lastUsed=now;
         this['_'+key.toLowerCase()]();
     },
-
+ 
     _s1() {
         AbilityAnimController.play(ABILITY_ANIMS.S1);
         const wep=GAME_STATE.player.currentWeapon;
@@ -1145,7 +1192,7 @@ const AbilitySystem = {
             },delay);
         });
     },
-
+ 
     _s2() {
         AbilityAnimController.play(ABILITY_ANIMS.S2);
         if(pMesh.position.distanceTo(eMesh.position)<=5.5){
@@ -1155,7 +1202,7 @@ const AbilitySystem = {
             GAME_STATE.enemy.hitstunEndTime=Math.max(GAME_STATE.enemy.hitstunEndTime,performance.now()+1400);
         }
     },
-
+ 
     _s3() {
         AbilityAnimController.play(ABILITY_ANIMS.S3);
         if(pMesh.position.distanceTo(eMesh.position)<=6.5){
@@ -1163,7 +1210,7 @@ const AbilitySystem = {
             applyDamageToEnemy(_mkAbWep(20,18),dir,3);
         }
     },
-
+ 
     _s4() {
         AbilityAnimController.play(ABILITY_ANIMS.S4);
         // Teleport behind enemy
@@ -1183,7 +1230,7 @@ const AbilitySystem = {
             }
         },260);
     },
-
+ 
     updateUI(now) {
         const cdm=this._cdMul();
         ['S1','S2','S3','S4'].forEach(key=>{
@@ -1200,14 +1247,14 @@ const AbilitySystem = {
         });
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // SETTINGS CONTROLLER
 // ════════════════════════════════════════════════════════
 const SettingsController = {
     _listening: null,
     _gfx: 'HIGH',
-
+ 
     open() {
         this._render();
         document.getElementById('settings-modal').classList.add('open');
@@ -1217,7 +1264,7 @@ const SettingsController = {
         this._listening=null;
         document.getElementById('settings-modal').classList.remove('open');
     },
-
+ 
     _render() {
         const body=document.getElementById('settings-body'); if(!body) return;
         const bindDefs=[
@@ -1227,7 +1274,7 @@ const SettingsController = {
         ];
         const gfxOpts=['LOW','MEDIUM','HIGH'];
         const fpsOpts=[[30,'30'],[60,'60'],[120,'120'],[0,'∞ Unlimited']];
-
+ 
         body.innerHTML=`
         <div class="st-section">
             <div class="st-section-title">Keybinds</div>
@@ -1256,7 +1303,7 @@ const SettingsController = {
                 <button class="st-opt-btn${!showFps?' active':''}" data-fpsshow="0">OFF</button>
             </div>
         </div>`;
-
+ 
         body.querySelectorAll('.st-key-btn').forEach(btn=>{
             btn.addEventListener('click',()=>{
                 if(this._listening){
@@ -1282,7 +1329,7 @@ const SettingsController = {
             });
         });
     },
-
+ 
     _applyGfx() {
         if(!renderer) return;
         if(this._gfx==='LOW'){
@@ -1293,7 +1340,7 @@ const SettingsController = {
             renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)); renderer.shadowMap.enabled=true;
         }
     },
-
+ 
     // Called from global capture-phase keydown listener
     handleRemap(e) {
         if(!this._listening) return false;
@@ -1306,13 +1353,13 @@ const SettingsController = {
         return true;
     }
 };
-
+ 
 // Capture-phase listener for keybind remapping (intercepts before game handler)
 window.addEventListener('keydown',e=>{ SettingsController.handleRemap(e); },{capture:true});
-
+ 
 let scene, camera, renderer, pMesh, eMesh;
 const texLoader = new THREE.TextureLoader();
-
+ 
 // ════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════
@@ -1321,17 +1368,17 @@ function init() {
     MenuUI.init();
     setupInputListeners();
     window.addEventListener('resize', onWindowResize);
-
+ 
     const container = document.getElementById('canvas-container');
     try {
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x080810);
         scene.fog = new THREE.FogExp2(0x080810, 0.012);
-
+ 
         camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 22, 30);
         camera.lookAt(0, 2, 0);
-
+ 
         renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1340,19 +1387,19 @@ function init() {
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.85;
         container.appendChild(renderer.domElement);
-
+ 
         setupLighting();
         buildEnvironment();
         buildEntities();
         WeaponManager.build();
-
+ 
         renderer.setAnimationLoop(runGameLoop);
     } catch(e) {
         // WebGL unavailable — menus still work, game just won't render 3D
         console.warn('WebGL init failed:', e);
     }
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // LIGHTING
 // ════════════════════════════════════════════════════════
@@ -1370,7 +1417,7 @@ function setupLighting() {
     const l2=new THREE.PointLight(0xe82020,4,60); l2.position.set(22,8,18);  scene.add(l2);
     const l3=new THREE.PointLight(0x1a4a9a,2,40); l3.position.set(0,12,-30); scene.add(l3);
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // ENVIRONMENT
 // ════════════════════════════════════════════════════════
@@ -1379,7 +1426,7 @@ function buildEnvironment() {
     const floor = new THREE.Mesh(new THREE.BoxGeometry(82,0.5,82), floorMat);
     floor.position.y=-0.25; floor.receiveShadow=true; scene.add(floor);
     scene.add(new THREE.GridHelper(82,41,0x35364a,0x28293a));
-
+ 
     const wallMat = new THREE.MeshStandardMaterial({ color:0x1e2028, roughness:0.95 });
     const mw = (px,py,pz,sx,sy,sz) => {
         const m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),wallMat);
@@ -1387,14 +1434,14 @@ function buildEnvironment() {
     };
     mw(0,3,-41,84,6,2); mw(0,3,41,84,6,2);
     mw(-41,3,0,2,6,84); mw(41,3,0,2,6,84);
-
+ 
     buildBuildings();
     buildHighwaySlabs();
     buildCars();
     buildRubble();
     buildSilhouette();
 }
-
+ 
 function buildBuildings() {
     [
         { cx:-5, cz:-33, w:13, h:32, d:13, base:0x22232a, neon:0x7b1de8 },
@@ -1407,7 +1454,7 @@ function buildBuildings() {
         const bm = new THREE.MeshStandardMaterial({ color:def.base, roughness:0.88 });
         const bd = new THREE.Mesh(new THREE.BoxGeometry(def.w,def.h,def.d), bm);
         bd.position.y=def.h/2; bd.castShadow=bd.receiveShadow=true; g.add(bd);
-
+ 
         const wm2 = new THREE.MeshStandardMaterial({ color:0x445566, emissive:0x223344, emissiveIntensity:0.4, roughness:0.3 });
         const rows=Math.floor(def.h/4.5), cols=Math.floor(def.w/2.2);
         for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
@@ -1422,18 +1469,18 @@ function buildBuildings() {
         p2.position.set(-def.w/2-0.12,def.h*0.65,0); g.add(p2);
         const pl=new THREE.PointLight(def.neon,5,30);
         pl.position.set(def.w/2+2,def.h*0.55,0); g.add(pl);
-
+ 
         g.position.set(def.cx,0,def.cz);
         if(def.lean) g.rotation.z=def.lean;
         scene.add(g);
     });
 }
-
+ 
 function buildHighwaySlabs() {
     const sm=new THREE.MeshStandardMaterial({ color:0x38393f, roughness:0.9 });
     const lm=new THREE.MeshStandardMaterial({ color:0xddcc22, emissive:0x554400, emissiveIntensity:0.4, roughness:0.8 });
     const rm=new THREE.MeshStandardMaterial({ color:0x444450, roughness:0.9 });
-
+ 
     [[38,11,-2,4.0,-8,0.55,0.20],[30,10,5,2.5,-2,-0.78,-0.15],[20,9,-10,1.4,3,1.08,-0.28]].forEach(([w,d,px,py,pz,ry,rz]) => {
         const sg=new THREE.Group();
         const top=new THREE.Mesh(new THREE.BoxGeometry(w,0.9,d),sm);
@@ -1452,7 +1499,7 @@ function buildHighwaySlabs() {
         p.position.set(px,3,pz); p.castShadow=true; scene.add(p);
     });
 }
-
+ 
 function buildCars() {
     [{x:16,z:18,ry:0.2,c:0x1e1e26},{x:-16,z:14,ry:-0.5,c:0x24242c},{x:22,z:-20,ry:1.1,c:0x201c1c},
      {x:-22,z:-18,ry:-0.9,c:0x181820},{x:8,z:26,ry:0.05,c:0x222228},{x:-8,z:-26,ry:2.2,c:0x1a1a22},
@@ -1471,7 +1518,7 @@ function buildCars() {
         cg.position.set(x,0,z); cg.rotation.y=ry; scene.add(cg);
     });
 }
-
+ 
 function buildRubble() {
     const m1=new THREE.MeshStandardMaterial({ color:0x35363c, roughness:0.97 });
     const m2=new THREE.MeshStandardMaterial({ color:0x252630, roughness:0.97 });
@@ -1483,7 +1530,7 @@ function buildRubble() {
         rb.castShadow=rb.receiveShadow=true; scene.add(rb);
     });
 }
-
+ 
 function buildSilhouette() {
     const sm=new THREE.MeshStandardMaterial({ color:0x10101a, roughness:1 });
     [[-55,20,-55,10,40,10],[55,18,-55,8,36,8],[-55,15,55,9,30,9],
@@ -1493,7 +1540,7 @@ function buildSilhouette() {
         bg.position.set(px,h/2,pz); scene.add(bg);
     });
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // ENTITIES
 // ════════════════════════════════════════════════════════
@@ -1503,15 +1550,15 @@ function buildEntities() {
     pGroup.position.copy(GAME_STATE.player.position);
     scene.add(pGroup); pMesh=pGroup; GAME_STATE.assets.playerMesh=pGroup;
     const rig={};
-
+ 
     const sw=new THREE.MeshStandardMaterial({ color:0xd8dce8, roughness:0.78 });
     const pt=new THREE.MeshStandardMaterial({ color:0x16181f, roughness:0.82 });
     const sk=new THREE.MeshStandardMaterial({ color:0xc8956a, roughness:0.68 });
     const hr=new THREE.MeshStandardMaterial({ color:0x0b0c10, roughness:0.9 });
     const sh=new THREE.MeshStandardMaterial({ color:0x0e0e14, roughness:0.88 });
-
+ 
     const upper=new THREE.Group(); pGroup.add(upper); rig.upper=upper;
-
+ 
     const mk=(geo,mat,px,py,pz,parent)=>{ const m=new THREE.Mesh(geo,mat); m.position.set(px,py,pz); m.castShadow=true; parent.add(m); return m; };
     mk(new THREE.BoxGeometry(0.44,0.50,0.40),sk,0,2.14,0,upper);
     mk(new THREE.BoxGeometry(0.46,0.22,0.44),hr,0,2.46,-0.01,upper);
@@ -1519,36 +1566,36 @@ function buildEntities() {
     mk(new THREE.BoxGeometry(0.22,0.18,0.20),sk,0,1.85,0,upper);
     mk(new THREE.BoxGeometry(0.82,0.88,0.44),sw,0,1.46,0,upper);
     mk(new THREE.BoxGeometry(0.70,0.24,0.40),pt,0,0.98,0,upper);
-
+ 
     const mkPivot=(px,py,pz,parent)=>{ const g=new THREE.Group(); g.position.set(px,py,pz); parent.add(g); return g; };
-
+ 
     const lS=mkPivot(-0.52,1.84,0,upper); rig.lS=lS;
     mk(new THREE.BoxGeometry(0.28,0.52,0.28),sw,0,-0.26,0,lS);
     const lE=mkPivot(0,-0.52,0,lS); rig.lE=lE;
     mk(new THREE.BoxGeometry(0.22,0.44,0.22),sk,0,-0.22,0,lE);
-
+ 
     const rS=mkPivot(0.52,1.84,0,upper); rig.rS=rS;
     mk(new THREE.BoxGeometry(0.28,0.52,0.28),sw,0,-0.26,0,rS);
     const rE=mkPivot(0,-0.52,0,rS); rig.rE=rE;
     mk(new THREE.BoxGeometry(0.22,0.44,0.22),sk,0,-0.22,0,rE);
     const handNode=mkPivot(0,-0.44,0,rE);
     GAME_STATE.player.handBone=handNode;
-
+ 
     const lH=mkPivot(-0.20,0.90,0,pGroup); rig.lH=lH;
     mk(new THREE.BoxGeometry(0.31,0.56,0.31),pt,0,-0.28,0,lH);
     const lK=mkPivot(0,-0.56,0,lH); rig.lK=lK;
     mk(new THREE.BoxGeometry(0.26,0.54,0.26),pt,0,-0.27,0,lK);
     mk(new THREE.BoxGeometry(0.29,0.15,0.42),sh,0,-0.60,0.08,lK);
-
+ 
     const rH=mkPivot(0.20,0.90,0,pGroup); rig.rH=rH;
     mk(new THREE.BoxGeometry(0.31,0.56,0.31),pt,0,-0.28,0,rH);
     const rK=mkPivot(0,-0.56,0,rH); rig.rK=rK;
     mk(new THREE.BoxGeometry(0.26,0.54,0.26),pt,0,-0.27,0,rK);
     mk(new THREE.BoxGeometry(0.29,0.15,0.42),sh,0,-0.60,0.08,rK);
-
+ 
     GAME_STATE.player.rig=rig;
     lS.rotation.z=0.14; rS.rotation.z=-0.14; lE.rotation.x=0.12; rE.rotation.x=0.35;
-
+ 
     // ── Enemy dummy ──
     const eGroup=new THREE.Group();
     eGroup.position.copy(GAME_STATE.enemy.position);
@@ -1563,19 +1610,19 @@ function buildEntities() {
     mk(new THREE.BoxGeometry(0.7,0.06,0.06),xm,0,1.4,0.36,eGroup);
     mk(new THREE.BoxGeometry(0.06,0.7,0.06),xm,0,1.4,0.36,eGroup);
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // WEAPON MANAGER  —  builds all 3D weapon geometry
 // ════════════════════════════════════════════════════════
 const WeaponManager = {
     weapons: {},
-
+ 
     build() {
         this.weapons.KATANA = this._buildKatana();
         this.weapons.SPEAR  = this._buildSpear();
         WeaponAttachmentSystem.attach(GAME_STATE.player.currentWeapon);
     },
-
+ 
     _mesh(geo, mat, px, py, pz, parent) {
         const m = new THREE.Mesh(geo, mat);
         m.position.set(px, py, pz);
@@ -1583,13 +1630,13 @@ const WeaponManager = {
         parent.add(m);
         return m;
     },
-
+ 
     _buildKatana() {
         const root = new THREE.Group();
         const M = this._mesh.bind(this);
-
+ 
         // ══ SPLIT SOUL KATANA — geometric machete-katana hybrid ══
-
+ 
         // ── Materials ──
         // Spine: matte charcoal, very low reflectivity
         const mSpine  = new THREE.MeshStandardMaterial({ color:0x1c1d20, metalness:0.30, roughness:0.82 });
@@ -1604,14 +1651,14 @@ const WeaponManager = {
         const mBand   = new THREE.MeshStandardMaterial({ color:0x0a0a0c, roughness:0.97 });
         // Pommel: angular white with slight warmth
         const mPommel = new THREE.MeshStandardMaterial({ color:0xdddcd8, roughness:0.60, metalness:0.10 });
-
+ 
         // ── Handle (dark cylindrical grip) ──
         M(new THREE.BoxGeometry(0.092, 0.38, 0.092), mGrip, 0, -0.10, 0, root);
         // Tight wrap bands — evenly spaced horizontal strips
         for (let i = 0; i < 6; i++) {
             M(new THREE.BoxGeometry(0.102, 0.020, 0.102), mBand, 0, -0.27 + i * 0.10, 0, root);
         }
-
+ 
         // ── Pommel — angular white block with 2 geometric prongs ──
         M(new THREE.BoxGeometry(0.118, 0.052, 0.118), mPommel,  0,    -0.322, 0, root);
         // Prong left
@@ -1620,7 +1667,7 @@ const WeaponManager = {
         // Prong right
         const pR = M(new THREE.BoxGeometry(0.030, 0.080, 0.030), mPommel,  0.042, -0.370, 0, root);
         pR.rotation.z = -0.18;
-
+ 
         // ── Voxel / energy cluster guard ──
         // Main slab spanning the blade base
         M(new THREE.BoxGeometry(0.310, 0.062, 0.225), mCluA,  0,       0.105,  0,     root);
@@ -1638,7 +1685,7 @@ const WeaponManager = {
         // Corner glitch chips
         M(new THREE.BoxGeometry(0.038, 0.038, 0.038), mCluA, -0.148,   0.148, -0.098, root);
         M(new THREE.BoxGeometry(0.030, 0.030, 0.032), mCluB,  0.130,   0.150,  0.102, root);
-
+ 
         // ── Blade — broad, straight, machete-katana silhouette ──
         // Spine: wide flat dark slab — does NOT taper
         M(new THREE.BoxGeometry(0.138, 1.16, 0.046), mSpine,  0.008,  0.880,  0, root);
@@ -1646,26 +1693,26 @@ const WeaponManager = {
         M(new THREE.BoxGeometry(0.024, 1.16, 0.040), mEdge,  -0.058,  0.880,  0, root);
         // Edge highlight — thin razor line
         M(new THREE.BoxGeometry(0.006, 1.16, 0.004), mEdge,  -0.068,  0.880,  0.016, root);
-
+ 
         // ── Tanto tip — angular flat cut (no curve/taper) ──
         // Top flat face — same width as blade (not tapered)
         M(new THREE.BoxGeometry(0.138, 0.058, 0.046), mSpine,  0.008,  1.489,  0, root);
         // Bright chrome on the tanto bevel (angled face at tip)
         const tantoB = M(new THREE.BoxGeometry(0.138, 0.072, 0.040), mEdge, -0.008, 1.515,  0, root);
         tantoB.rotation.z = -0.22;
-
+ 
         // Orientation: blade along +Y, tilted forward for natural sweep
         root.rotation.set(-Math.PI * 0.52, 0, 0.06);
         root.position.set(0.07, -0.20, 0.18);
         return root;
     },
-
+ 
     _buildSpear() {
         const root = new THREE.Group();
         const M = this._mesh.bind(this);
-
+ 
         // ══ INVERTED SPEAR OF HEAVEN — heavy industrial dagger-spear ══
-
+ 
         // ── Materials ──
         // Blade: scratched weathered steel — semi-reflective, gritty
         const mBlade  = new THREE.MeshStandardMaterial({ color:0x8a9198, metalness:0.55, roughness:0.62 });
@@ -1679,7 +1726,7 @@ const WeaponManager = {
         // Chain: clean iron/silver — linked ovals
         const mChain  = new THREE.MeshStandardMaterial({ color:0x9ca8b0, metalness:0.80, roughness:0.30 });
         const mChainDk= new THREE.MeshStandardMaterial({ color:0x788088, metalness:0.72, roughness:0.38 });
-
+ 
         // ── Main blade — short, thick, heavy and compact ──
         // Primary column — squat and thick, not tall like katana
         M(new THREE.BoxGeometry(0.115, 0.46, 0.110), mBlade,   0,     0.355,  0, root);
@@ -1691,7 +1738,7 @@ const WeaponManager = {
         // Tip — flat blunt industrial point
         M(new THREE.BoxGeometry(0.075, 0.095, 0.085), mBlade,  0,     0.628,  0, root);
         M(new THREE.BoxGeometry(0.042, 0.062, 0.055), mBlade,  0,     0.690,  0, root);
-
+ 
         // ── Secondary hook blade — geometric protrusion, "stair-step" silhouette ──
         // Creates an asymmetric industrial look — hook jutting from mid-blade on one side
         M(new THREE.BoxGeometry(0.100, 0.065, 0.095), mBlade,  -0.100, 0.430,  0, root); // horizontal spur
@@ -1699,7 +1746,7 @@ const WeaponManager = {
         M(new THREE.BoxGeometry(0.035, 0.040, 0.072), mBlade,  -0.150, 0.332,  0, root); // hook tip
         // Stair-step notch on opposite side (blade has character)
         M(new THREE.BoxGeometry(0.028, 0.055, 0.108), mBladeSc,  0.058, 0.260, 0, root);
-
+ 
         // ── Guard — thick oval/crescent, antique brass ──
         // Main thick horizontal slab
         M(new THREE.BoxGeometry(0.310, 0.072, 0.130), mGuard,   0,     0.080,  0, root);
@@ -1710,35 +1757,35 @@ const WeaponManager = {
         M(new THREE.BoxGeometry(0.052, 0.072, 0.035), mGuardDk,  0.148, 0.080, 0, root);
         // Raised ridge along center top
         M(new THREE.BoxGeometry(0.088, 0.022, 0.108), mGuard,   0,     0.145,  0, root);
-
+ 
         // ── Handle — worn leather grip, short and thick ──
         M(new THREE.BoxGeometry(0.082, 0.30, 0.082), mShaft,   0,    -0.115,  0, root);
         // Leather wrapping strips — fewer, wider, rougher than katana
         for (let i = 0; i < 4; i++) {
             M(new THREE.BoxGeometry(0.090, 0.026, 0.090), mLeather, 0, -0.215 + i * 0.085, 0, root);
         }
-
+ 
         // ── Pommel — thick heavy ring for chain attachment ──
         M(new THREE.BoxGeometry(0.108, 0.068, 0.108), mGuard,   0,    -0.325,  0, root);
         M(new THREE.BoxGeometry(0.075, 0.045, 0.075), mGuardDk, 0,    -0.358,  0, root);
-
+ 
         // ── Chain — long segmented oval ring links (14 links, visual only) ──
         const chainGroup = new THREE.Group();
         chainGroup.position.set(0, -0.390, 0);
         root.add(chainGroup);
-
+ 
         const linkCount = 14;
         let ly = 0;
         for (let i = 0; i < linkCount; i++) {
             const isFlat = i % 2 === 0;
             const cm = (i % 3 === 0) ? mChainDk : mChain;
-
+ 
             // Oval ring shape: two thin slabs form a hollow ring silhouette
             // Top/bottom bars of the oval ring
             const ringW  = 0.092;
             const ringD  = isFlat ? 0.026 : 0.092;
             const ringW2 = isFlat ? 0.092 : 0.026;
-
+ 
             // Outer oval shell (thicker — single box approximates the ring)
             const link = new THREE.Mesh(
                 new THREE.BoxGeometry(ringW, 0.115, ringD), cm
@@ -1750,7 +1797,7 @@ const WeaponManager = {
             link.rotation.x = -0.055 * Math.sin(i * 0.95);
             ly -= 0.112;
             chainGroup.add(link);
-
+ 
             // Inner cutout suggestion (thin dark bar across center)
             const inner = new THREE.Mesh(
                 new THREE.BoxGeometry(ringW2 * 0.5, 0.068, ringD * 0.5 + 0.012),
@@ -1761,17 +1808,17 @@ const WeaponManager = {
         }
         // Heavy terminal weight at chain end
         M(new THREE.BoxGeometry(0.072, 0.050, 0.072), mChain, 0, ly, 0, chainGroup);
-
+ 
         // Store chain ref for WeaponVisualController
         root.userData.chainGroup = chainGroup;
-
+ 
         // Orientation: same attachment frame as katana
         root.rotation.set(-Math.PI * 0.52, 0, 0.06);
         root.position.set(0.07, -0.14, 0.16);
         return root;
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // WEAPON ATTACHMENT SYSTEM
 // ════════════════════════════════════════════════════════
@@ -1788,13 +1835,13 @@ const WeaponAttachmentSystem = {
         WeaponVisualController.activeWeaponKey = key;
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // WEAPON VISUAL CONTROLLER  —  per-frame visual updates
 // ════════════════════════════════════════════════════════
 const WeaponVisualController = {
     activeWeaponKey: 'KATANA',
-
+ 
     update(now) {
         // Gently animate the Spear's chain group so it sways with movement
         const spear = WeaponManager.weapons.SPEAR;
@@ -1808,7 +1855,7 @@ const WeaponVisualController = {
         chain.rotation.z = Math.cos(now * 0.0022) * intensity * 0.6;
     }
 };
-
+ 
 // ════════════════════════════════════════════════════════
 // INPUT
 // ════════════════════════════════════════════════════════
@@ -1856,7 +1903,7 @@ function setupInputListeners() {
         }
     });
 }
-
+ 
 function swapWeapon(wep) {
     if(GAME_STATE.player.currentWeapon===wep) return;
     GAME_STATE.player.currentWeapon=wep;
@@ -1867,14 +1914,14 @@ function swapWeapon(wep) {
     document.getElementById('current-weapon-name').innerText=wep.name;
     WeaponAttachmentSystem.attach(wep);
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // COMBAT
 // ════════════════════════════════════════════════════════
 function executeAttackPipeline() {
     const now=performance.now();
     const wep=GAME_STATE.player.currentWeapon;
-
+ 
     // ── Resolve which hit of the 4-hit M1 string this press belongs to ──
     // If the player waited too long since the last swing, the string resets to hit 1.
     if(combatFX.m1Step===0 || now-combatFX.m1LastSwingTime>combatFX.m1ComboWindow){
@@ -1882,31 +1929,31 @@ function executeAttackPipeline() {
     }
     const tuning=M1_STEP_TUNING[combatFX.m1Step];
     const cooldown=wep.attackSpeed*tuning.cooldownMul;
-
+ 
     if(now-GAME_STATE.player.lastAttackTime<cooldown) return false;
     if(GAME_STATE.player.hp<=0) return false;
     if(AwakeningController.inputLocked()) return false;
-
+ 
     GAME_STATE.player.lastAttackTime=now;
     GAME_STATE.player.isAttacking=true;
     GAME_STATE.player.attackStartTime=now;
     GAME_STATE.player.attackCooldownMs=cooldown;
-
+ 
     combatFX.m1LastSwingTime=now;
     combatFX.activeM1Step=combatFX.m1Step;
-
+ 
     const dist=pMesh.position.distanceTo(eMesh.position);
     if(dist<=wep.range){
         const dir=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
         const fwd=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),GAME_STATE.player.rotation);
         if(fwd.angleTo(dir)<1.05) applyDamageToEnemy(wep,dir,combatFX.m1Step);
     }
-
+ 
     // Advance the string — loops back to hit 1 right after the finisher (hit 4)
     combatFX.m1Step = (combatFX.m1Step>=4) ? 1 : combatFX.m1Step+1;
     return true;
 }
-
+ 
 function executeDashPipeline() {
     const now=performance.now();
     if(now-GAME_STATE.player.lastDashTime<GAME_STATE.player.dashCooldown) return;
@@ -1919,33 +1966,33 @@ function executeDashPipeline() {
     GAME_STATE.player.isDashing=true; GAME_STATE.player.dashDir.copy(mv);
     GAME_STATE.player.lastDashTime=now; GAME_STATE.player.dashEndTime=now+190;
 }
-
+ 
 function applyDamageToEnemy(wep,dir,step) {
     if(GAME_STATE.enemy.hp<=0) return;
     const tuning=M1_STEP_TUNING[step] || M1_STEP_TUNING[1];
     const now=performance.now();
-
+ 
     const dmg=Math.round(wep.damage*tuning.dmgMul*AwakeningController.getDamageMul());
     GAME_STATE.enemy.hp=Math.max(0,GAME_STATE.enemy.hp-dmg);
     AwakeningController.onHitLanded();   // fills meter on confirmed hit
-
+ 
     // ── Hitstop: freeze everything briefly for impact weight ──
     // Light on hits 1-3, a strong jolt on the hit-4 finisher.
     combatFX.hitstopEndTime = now + wep.hitstopDur*tuning.hitstopMul;
-
+ 
     // ── Camera shake: weapon-tuned magnitude, scaled by combo step ──
     combatFX.shakeIntensity = wep.shakeMag*tuning.shakeMul;
-
+ 
     // ── Knockback as velocity (decay over frames, no instant teleport) ──
     // copy() (not add) so the finisher's push always overrides whatever
     // momentum the enemy currently has — it gets shoved back regardless.
     combatFX.knockbackVel.copy(dir).multiplyScalar(wep.knockback * 2.8 * tuning.knockMul);
-
+ 
     // ── Enemy hitstun (scaled by weapon, then by combo step) ──
     const baseStun = (wep === WEAPONS.KATANA ? 360 : 210);
     GAME_STATE.enemy.hitstunEndTime = now + baseStun*tuning.hitstunMul;
     if(wep.special==='seal') GAME_STATE.enemy.sealEndTime = now + 3200;
-
+ 
     // ── Enemy recoil squish: instant squash → lerp back, bigger on the finisher ──
     const baseSquishXZ = (wep === WEAPONS.KATANA ? 1.35 : 1.20);
     const baseSquishY   = (wep === WEAPONS.KATANA ? 0.70 : 0.82);
@@ -1955,15 +2002,15 @@ function applyDamageToEnemy(wep,dir,step) {
         1 - (1 - baseSquishY) * sq,
         1 + (baseSquishXZ - 1) * sq
     );
-
+ 
     // ── Combo tracking (mirrors the M1 string position for this landed hit) ──
     combatFX.comboCount = step;
     combatFX.lastHitTime = now;
-
+ 
     updateHUD();
     if(GAME_STATE.enemy.hp<=0) triggerEnd('VICTORY');
 }
-
+ 
 function applyDamageToPlayer() {
     if(GAME_STATE.player.hp<=0||GAME_STATE.player.isDashing) return;
     const incomingDmg=Math.round(GAME_STATE.enemy.damage*AwakeningController.getDamageReceiveMul());
@@ -1971,7 +2018,7 @@ function applyDamageToPlayer() {
     updateHUD();
     if(GAME_STATE.player.hp<=0) triggerEnd('DEFEAT');
 }
-
+ 
 function updateHUD() {
     const pp=(GAME_STATE.player.hp/GAME_STATE.player.maxHp)*100;
     document.getElementById('player-hp-bar').style.width=`${pp}%`;
@@ -1985,17 +2032,17 @@ function updateHUD() {
     const dr=performance.now()-GAME_STATE.player.lastDashTime>=GAME_STATE.player.dashCooldown;
     document.getElementById('dash-indicator').classList.toggle('ready',dr);
 }
-
+ 
 function triggerEnd(msg) {
     const el=document.getElementById('status-msg');
     el.innerText=msg; el.style.color=msg==='VICTORY'?'#f1c40f':'#e74c3c'; el.style.opacity='1';
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // GAME LOOP
 // ════════════════════════════════════════════════════════
 let menuCamAngle = 0;
-
+ 
 function runGameLoop(timestamp) {
     // ── FPS cap (skip frame if interval not elapsed) ──
     if(fpsCap > 0 && timestamp - _lastFrameMs < (1000/fpsCap) - 0.5) return;
@@ -2006,10 +2053,10 @@ function runGameLoop(timestamp) {
         if(showFps){ const el=document.getElementById('fps-counter'); if(el) el.innerText=_fpsCount+' FPS'; }
         _fpsCount=0; _fpsCountMs=_lastFrameMs;
     }
-
+ 
     const delta=Math.min(GAME_STATE.clock.getDelta(),0.1);
     const now=performance.now();
-
+ 
     if(!gameStarted){
         // Slow cinematic orbit for menu background
         menuCamAngle += delta * 0.06;
@@ -2018,10 +2065,10 @@ function runGameLoop(timestamp) {
         renderer.render(scene,camera);
         return;
     }
-
+ 
     AwakeningController.update(delta,now);
     AbilitySystem.updateUI(now);
-
+ 
     // Input buffer flush — fires buffered attack as soon as cooldown clears
     if(combatFX.inputBuffer){
         if(now < combatFX.inputBufferExpiry){
@@ -2030,7 +2077,7 @@ function runGameLoop(timestamp) {
             combatFX.inputBuffer=false;
         }
     }
-
+ 
     processPlayerLocomotion(delta,now);
     processEnemyAI(delta,now);
     updateWalkAnimation(delta,now);
@@ -2039,7 +2086,7 @@ function runGameLoop(timestamp) {
     updateHUD();
     renderer.render(scene,camera);
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // WALK ANIMATION
 // ════════════════════════════════════════════════════════
@@ -2047,17 +2094,17 @@ function updateWalkAnimation(delta,now) {
     const rig=GAME_STATE.player.rig; if(!rig) return;
     const moving=GAME_STATE.input.forward||GAME_STATE.input.backward||
                  GAME_STATE.input.left||GAME_STATE.input.right||GAME_STATE.player.isDashing;
-
+ 
     // Pause locomotion cycle during hitstop (freeze body on impact frame)
     if(now >= combatFX.hitstopEndTime) {
         GAME_STATE.player.walkTime+=moving?delta*5.8:0;
     }
     const t=GAME_STATE.player.walkTime, sw=moving?Math.sin(t):0;
-
+ 
     rig.lH.rotation.x=sw*0.50; rig.rH.rotation.x=-sw*0.50;
     rig.lK.rotation.x=Math.max(0,-sw)*0.58+0.04;
     rig.rK.rotation.x=Math.max(0,sw)*0.58+0.04;
-
+ 
     const wep=GAME_STATE.player.currentWeapon;
     const wDur=GAME_STATE.player.attackCooldownMs || wep.attackSpeed;
     if(AbilityAnimController.tick(delta, now, rig)){
@@ -2069,29 +2116,29 @@ function updateWalkAnimation(delta,now) {
             const animKey = wep===WEAPONS.KATANA ? 'KATANA' : 'SPEAR';
             const hitIdx  = Math.max(0, (combatFX.activeM1Step||1) - 1);
             const h       = ANIM_MAP[animKey][hitIdx];
-
+ 
             // arcMul from M1_STEP_TUNING still scales the finisher for extra weight
             const stepTuning = M1_STEP_TUNING[combatFX.activeM1Step] || M1_STEP_TUNING[1];
             const ang = h.ang * stepTuning.arcMul;
-
+ 
             // Main arm swing — wind-up then follow-through
             const a = prog < h.fwd
                 ? (prog/h.fwd) * -ang
                 : -ang + ((prog-h.fwd)/(1-h.fwd)) * ang;
             rig.rS.rotation.x = a;
-
+ 
             // Lateral shoulder tilt — ramps up then back, drives slash direction
             const tiltEnv = prog < h.fwd
                 ? prog/h.fwd
                 : 1 - (prog-h.fwd)/(1-h.fwd);
             rig.rS.rotation.z = h.shoulderZ * tiltEnv;
-
+ 
             // Elbow unfolds through the swing
             rig.rE.rotation.x = Math.max(0, h.elbowStart * (1 - prog));
-
+ 
             // Upper-body lateral lean — mirrors the shoulder direction
             rig.upper.rotation.z = h.bodyLeanZ * tiltEnv;
-
+ 
             // Forward lunge — peaks at mid-swing, returns to rest
             rig.upper.position.z = -h.lungeZ * Math.sin(prog * Math.PI);
         } else {
@@ -2105,7 +2152,7 @@ function updateWalkAnimation(delta,now) {
     rig.lS.rotation.x=-sw*0.32; rig.lS.rotation.z=0.14; rig.lE.rotation.x=0.12;
     rig.upper.position.y=moving?Math.sin(t*2)*0.028:0;
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // PLAYER LOCOMOTION
 // ════════════════════════════════════════════════════════
@@ -2132,7 +2179,7 @@ function processPlayerLocomotion(delta,now) {
     pMesh.position.z=Math.max(-38,Math.min(38,pMesh.position.z));
     GAME_STATE.player.position.copy(pMesh.position);
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // ENEMY AI
 // ════════════════════════════════════════════════════════
@@ -2143,11 +2190,11 @@ function processEnemyAI(delta,now) {
         combatFX.knockbackVel.multiplyScalar(combatFX.knockbackDecay);
         if(combatFX.knockbackVel.lengthSq() < 0.004) combatFX.knockbackVel.set(0,0,0);
     }
-
+ 
     // ── Enemy recoil squish — lerp scale back to 1 ──
     combatFX.enemyRecoilScale.lerp(new THREE.Vector3(1,1,1), 14*delta);
     eMesh.scale.copy(combatFX.enemyRecoilScale);
-
+ 
     // ── Hitstop freeze and hitstun guard ──
     if(GAME_STATE.enemy.hp<=0||now<GAME_STATE.enemy.hitstunEndTime||now<combatFX.hitstopEndTime) {
         eMesh.position.x=Math.max(-38,Math.min(38,eMesh.position.x));
@@ -2155,7 +2202,7 @@ function processEnemyAI(delta,now) {
         GAME_STATE.enemy.position.copy(eMesh.position);
         return;
     }
-
+ 
     const tp=new THREE.Vector3().subVectors(pMesh.position,eMesh.position); tp.y=0;
     const dist=tp.length();
     if(dist>0.1){
@@ -2173,14 +2220,14 @@ function processEnemyAI(delta,now) {
     eMesh.position.z=Math.max(-38,Math.min(38,eMesh.position.z));
     GAME_STATE.enemy.position.copy(eMesh.position);
 }
-
+ 
 // ════════════════════════════════════════════════════════
 // CAMERA
 // ════════════════════════════════════════════════════════
 function processCameraPhysics(delta) {
     if(AwakeningController.overrideCamera(delta)) return;   // cutscene camera
     const now=performance.now();
-
+ 
     // Forward anticipation — lean camera slightly toward movement direction
     const lean=new THREE.Vector3();
     if(GAME_STATE.input.forward)  lean.z-=1;
@@ -2188,10 +2235,10 @@ function processCameraPhysics(delta) {
     if(GAME_STATE.input.left)     lean.x-=1;
     if(GAME_STATE.input.right)    lean.x+=1;
     if(lean.lengthSq()>0) lean.normalize().multiplyScalar(3.2);
-
+ 
     const tgt=pMesh.position.clone().add(new THREE.Vector3(0,18,22)).add(lean);
     camera.position.lerp(tgt, 5.5*delta);
-
+ 
     // Camera shake — noise-based, decays per frame
     if(combatFX.shakeIntensity > 0.004) {
         const t=now*0.038;
@@ -2200,17 +2247,18 @@ function processCameraPhysics(delta) {
         combatFX.shakeIntensity *= combatFX.shakeDecayRate;
         if(combatFX.shakeIntensity < 0.004) combatFX.shakeIntensity=0;
     }
-
+ 
     camera.lookAt(pMesh.position.clone().add(new THREE.Vector3(0,1.5,0)));
 }
-
+ 
 function onWindowResize() {
     camera.aspect=window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth,window.innerHeight);
 }
-
+ 
 window.onload = init;
 </script>
 </body>
 </html>
+ 
