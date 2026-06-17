@@ -794,9 +794,7 @@ const GAME_STATE = {
         walkTime:0, isAttacking:false, attackStartTime:0,
         attackCooldownMs:0
     },
-    // Legacy single-enemy slot — kept ONLY as a synced "currently targeted enemy" pointer
-    // so the ability system / awakening system / HUD (none of which are touched) keep
-    // working unmodified. The real multi-enemy data lives in GAME_STATE.enemies below.
+
     enemy: {
         hp:100, maxHp:100, speed:4.8,
         position: new THREE.Vector3(0,0,-15),
@@ -804,44 +802,32 @@ const GAME_STATE = {
         hitstunEndTime:0, sealEndTime:0,
         lastAttackTime:0, attackCooldown:1500, damage:2, range:1.2
     },
-    // ── Real multi-enemy wave system — each entry is { state, mesh, barEl, barFillEl } ──
+
     enemies: [],
+
     input:{ forward:false, backward:false, left:false, right:false },
+
     clock: new THREE.Clock(),
-    assets:{ playerMesh:null, enemyMesh:null, loadedWeapons:{ KATANA:null, SPEAR:null } }
-};
 
-// ── Combat feel state (all transient, no save needed) ──
-const combatFX = {
-    hitstopEndTime:     0,          // ms — both player+enemy freeze
-    shakeIntensity:     0,          // current shake magnitude
-    shakeDecayRate:     0.86,       // multiplied per frame
-    knockbackVel:       new THREE.Vector3(), // applied to enemy per-frame
-    knockbackDecay:     0.68,       // friction per frame
-    knockbackTargetMesh: null,      // which enemy mesh the current knockback/squish belongs to (multi-enemy safe)
-    enemyRecoilScale:   new THREE.Vector3(1, 1, 1), // squish on hit
-    inputBuffer:        false,      // buffered attack pending
-    inputBufferExpiry:  0,          // discard buffer after this ms
-    comboCount:         0,          // mirrors the M1 string position (1-4) at the time of the last landed hit
-    lastHitTime:        0,          // ms of last landed hit
-    comboResetMs:       1300,       // ms before combo resets
+    assets:{
+        playerMesh:null,
+        enemyMesh:null,
+        loadedWeapons:{ KATANA:null, SPEAR:null }
+    },
 
-    // ── M1 string state ──
-    m1Step:             0,          // 1-3 = light combo hits, 4 = finisher; 0 = string not started yet
-    m1LastSwingTime:    0,          // ms timestamp of the last M1 swing (counts every press, hit or miss)
-    m1ComboWindow:       620,       // ms allowed between swings before the string resets back to hit 1
-    activeM1Step:       1           // snapshot of the step the currently-playing swing animation belongs to
-};
+    // 🧠 ADDED: perk + wave system state (SAFE EXTENSION)
+    wave: {
+        number: 1,
+        phase: "combat", // combat | cleared | perk
+        active: true,
+        waveCleared: false
+    },
 
-// ── Per-hit tuning for the 4-hit M1 string ──
-// Hits 1-3: fast, light, chainable. Hit 4: heavy finisher with forced knockback & big hit feel.
-const M1_STEP_TUNING = {
-    1: { cooldownMul:0.74, dmgMul:1.00, knockMul:1.00, hitstopMul:0.55, hitstunMul:0.55, shakeMul:0.55, squishMul:1.00, arcMul:1.00 },
-    2: { cooldownMul:0.74, dmgMul:1.00, knockMul:1.05, hitstopMul:0.60, hitstunMul:0.60, shakeMul:0.60, squishMul:1.02, arcMul:1.02 },
-    3: { cooldownMul:0.78, dmgMul:1.05, knockMul:1.10, hitstopMul:0.70, hitstunMul:0.70, shakeMul:0.70, squishMul:1.05, arcMul:1.05 },
-    4: { cooldownMul:1.18, dmgMul:1.45, knockMul:2.20, hitstopMul:2.00, hitstunMul:1.90, shakeMul:1.80, squishMul:1.55, arcMul:1.40, finisher:true }
-};
-
+    perks: {
+        active: false,
+        options: []
+    }
+}
 // ════════════════════════════════════════════════════════
 // DUAL-WEAPON ANIMATION IDENTITY MAP
 // Each weapon × each M1 hit (1-4) has its own shape.
