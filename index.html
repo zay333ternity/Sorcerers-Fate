@@ -780,7 +780,6 @@ const WEAPONS = {
     SPEAR:  { name:"Inverted Spear of Heaven", damage:12, range:3.2, attackSpeed:245, knockback:8,  special:"seal",
               hitstopDur:55,  shakeMag:0.14, arcForward:0.24, arcAngle:1.12 }
 };
-
 const GAME_STATE = {
     player: {
         hp:100, maxHp:100, speed:13,
@@ -815,7 +814,7 @@ const GAME_STATE = {
         loadedWeapons:{ KATANA:null, SPEAR:null }
     },
 
-    // 🧠 ADDED: perk + wave system state (SAFE EXTENSION)
+    // 🧠 CLEAN WAVE STATE (NO DUPLICATES, NO CONFLICTS)
     wave: {
         number: 1,
         phase: "combat", // combat | cleared | perk
@@ -823,42 +822,11 @@ const GAME_STATE = {
         waveCleared: false
     },
 
+    // 🎴 PERK SYSTEM STATE
     perks: {
         active: false,
         options: []
     }
-};
-// ════════════════════════════════════════════════════════
-// DUAL-WEAPON ANIMATION IDENTITY MAP
-// Each weapon × each M1 hit (1-4) has its own shape.
-// fwd       — fraction of animation that is wind-up (rest is follow-through)
-// ang       — peak swing angle in radians
-// shoulderZ — lateral tilt of the sword arm (+right bias, -left bias)
-// elbowStart— elbow bend at start of swing (0=fully extended, 1=fully folded)
-// bodyLeanZ — upper-body lean into the slash (+/- drives left/right torso)
-// lungeZ    — forward body push magnitude (peaks at mid-swing via sin curve)
-// ════════════════════════════════════════════════════════
-const ANIM_MAP = {
-    KATANA: [
-        // Hit 1 — Entry Cut: fast diagonal R→L, minimal windup, quick lunge
-        { fwd:0.16, ang:1.28, shoulderZ:-0.26, elbowStart:0.70, bodyLeanZ:-0.07, lungeZ:0.14 },
-        // Hit 2 — Return Slash: opposite diagonal L→R, slightly wider arc
-        { fwd:0.20, ang:1.46, shoulderZ: 0.28, elbowStart:0.55, bodyLeanZ: 0.10, lungeZ:0.10 },
-        // Hit 3 — Heavy Pressure: wide horizontal, clear windup, full body commit
-        { fwd:0.32, ang:1.64, shoulderZ:-0.20, elbowStart:0.42, bodyLeanZ:-0.14, lungeZ:0.22 },
-        // Hit 4 — Execution Finisher: downward cross-body, max windup, max lunge
-        { fwd:0.38, ang:1.76, shoulderZ:-0.22, elbowStart:0.28, bodyLeanZ:-0.18, lungeZ:0.32 }
-    ],
-    SPEAR: [
-        // Hit 1 — Chain Probe: forward stab, minimal arc, deep lunge for reach
-        { fwd:0.14, ang:0.94, shoulderZ:-0.07, elbowStart:0.88, bodyLeanZ:-0.04, lungeZ:0.34 },
-        // Hit 2 — Chain Return Slash: reverse swing, chain trails visual lag
-        { fwd:0.26, ang:1.18, shoulderZ: 0.24, elbowStart:0.48, bodyLeanZ: 0.12, lungeZ:0.08 },
-        // Hit 3 — Chain Whip Sweep: wide heavy sweep, extended reach, long windup
-        { fwd:0.30, ang:1.36, shoulderZ:-0.17, elbowStart:0.32, bodyLeanZ:-0.16, lungeZ:0.15 },
-        // Hit 4 — Chain Snap Finisher: sudden forward whip, snap then retract
-        { fwd:0.18, ang:1.42, shoulderZ:-0.27, elbowStart:0.14, bodyLeanZ:-0.20, lungeZ:0.40 }
-    ]
 };
 
 // ════════════════════════════════════════════════════════
@@ -1947,51 +1915,120 @@ const WaveManager = {
     bossWaveInterval: 0,        // future: e.g. 5 = every 5th wave is a boss wave
 
     // ── Public entry point ──────────────────────────────
-    startRun() {
-        this.active = true;
-        this.waveNumber = 1;
-        this.wavesCleared = 0;
-        GAME_STATE.enemies = [];
-        this._beginWaveIntro();
-    },
+   startRun() {
+    this.active = true;
 
-    // ── Per-frame tick (called additively from runGameLoop) ──
-    update(now) {
-        if (!this.active) return;
-        if (this.phase === 'banner-wave') {
-            if (now >= this.phaseEndTime) {
+    // 🧠 SINGLE SOURCE OF TRUTH SYNC
+    this.waveNumber = 1;
+    this.wavesCleared = 0;
+
+    GAME_STATE.wave.number = 1;
+    GAME_STATE.wave.phase = "combat";
+    GAME_STATE.wave.active = true;
+    GAME_STATE.wave.waveCleared = false;
+
+    GAME_STATE.enemies = [];
+
+    this.phase = 'banner-wave';
+
+    this._beginWaveIntro();
+},
+
+update(now) {
+    if (!this.active) return;
+
+    // 🧠 HARD SYNC EVERY FRAME (prevents desync crashes)
+    GAME_STATE.wave.number = this.waveNumber;
+    GAME_STATE.wave.phase = this.phase;
+    GAME_STATE.wave.active = this.active;
+
+    if (this.phase === 'banner-wave') {
+        if (now >= this.phaseEndTime) {
+            this._hideBanner();
+            this.phase = 'fighting';
+            GAME_STATE.wave.phase = "combat";
+
+            this._spawnWave(this.waveNumber);
+            this._resetPlayerForWave();
+        }
+
+    } else if (this.phase === 'countdown') {
+        if (now >= this.phaseEndTime) {
+            this.countdownValue--;
+
+            if (this.countdownValue <= 0) {
                 this._hideBanner();
-                this.phase = 'fighting';
-                this._spawnWave(this.waveNumber);
-                this._resetPlayerForWave();
-            }
-        } else if (this.phase === 'countdown') {
-            if (now >= this.phaseEndTime) {
-                this.countdownValue--;
-                if (this.countdownValue <= 0) {
-                    this._hideBanner();
-                    this.waveNumber++;
-                    this._beginWaveIntro();
-                } else {
-                    this.phaseEndTime = now + 1000;
-                    this._showBanner('WAVE CLEARED', String(this.countdownValue));
-                }
+
+                this.waveNumber++;
+                this.wavesCleared++;
+
+                // 🧠 SYNC EVERYTHING
+                GAME_STATE.wave.number = this.waveNumber;
+                GAME_STATE.wave.phase = "combat";
+
+                this._beginWaveIntro();
+            } else {
+                this.phaseEndTime = now + 1000;
+                this._showBanner('WAVE CLEARED', String(this.countdownValue));
             }
         }
-    },
+    }
+},
 
-    // ── Scaling formulas ─────────────────────────────────
-    _enemyCountForWave(n)  { return 3 + (n - 1) * 2; },               // 3,5,7,9...
-    _hpMultForWave(n)      { return Math.pow(1.10, n - 1); },          // +10%/wave
-    _dmgMultForWave(n)     { return Math.pow(1.05, n - 1); },          // +5%/wave
-    _speedMultForWave(n)   { return 1 + Math.floor((n - 1) / 3) * 0.04; }, // slight bump every 3 waves
+_beginWaveIntro() {
+    this.phase = 'banner-wave';
+    GAME_STATE.wave.phase = "banner-wave";
 
-    // ── Wave intro banner ("WAVE N", ~1.5s, then spawn) ──
-    _beginWaveIntro() {
-        this.phase = 'banner-wave';
-        this.phaseEndTime = performance.now() + 1500;
-        this._showBanner(`WAVE ${this.waveNumber}`, '');
-    },
+    this.phaseEndTime = performance.now() + 1500;
+
+    this._showBanner(`WAVE ${this.waveNumber}`, '');
+},
+
+_spawnWave(n) {
+    GAME_STATE.enemies.forEach(entry => this._disposeEnemy(entry));
+    GAME_STATE.enemies = [];
+
+    const count   = this._enemyCountForWave(n);
+    const hpMult  = this._hpMultForWave(n);
+    const dmgMult = this._dmgMultForWave(n);
+    const spdMult = this._speedMultForWave(n);
+
+    const baseHp = 100, baseDmg = 8, baseSpeed = 4.8, baseRange = 2.4, baseCooldown = 1500;
+
+    for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2 + (Math.random() * 0.6 - 0.3);
+        const dist  = 14 + Math.random() * 12;
+
+        const x = Math.max(-36, Math.min(36, Math.sin(angle) * dist));
+        const z = Math.max(-36, Math.min(36, Math.cos(angle) * dist));
+
+        const entry = createEnemy({
+            hp: Math.round(baseHp * hpMult),
+            speed: baseSpeed * spdMult,
+            damage: Math.round(baseDmg * dmgMult),
+            range: baseRange,
+            attackCooldown: baseCooldown,
+            x, z,
+            type: this._resolveEnemyType(n, i)
+        });
+
+        scene.add(entry.mesh);
+        GAME_STATE.enemies.push(entry);
+    }
+
+    this.lastAttackedEntry = null;
+    this._hideEnemyPanel();
+    this._refreshDefaultTarget();
+},
+
+_resolveEnemyType(waveNumber, indexInWave) {
+    return 'GRUNT';
+},
+
+_disposeEnemy(entry) {
+    if (entry.mesh && entry.mesh.parent) entry.mesh.parent.remove(entry.mesh);
+    if (entry.barEl && entry.barEl.parentNode) entry.barEl.parentNode.removeChild(entry.barEl);
+}
 
     // ── Spawning ──────────────────────────────────────────
     _spawnWave(n) {
