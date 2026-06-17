@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorcerer's Fate</title>
+    <title>Sorcerer's Fate(BETA)</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -414,7 +414,7 @@
 <!-- ── TITLE SCREEN ── -->
 <div id="title-screen">
     <div class="title-logo">
-        <div class="title-main">SORCERER'S FATE</div>
+        <div class="title-main">SORCERER'S FATE(BETA)</div>
         <div class="title-divider"></div>
         <div class="title-sub">A Jujutsu Kaisen Inspired Fan Game</div>
     </div>
@@ -548,7 +548,7 @@ const CharacterData = {
         image:'tojipfp.jpeg', playable:true, color:'#4a90e2'
     },
     GOJO: {
-        id:'GOJO', name:'Gojo Satoru', title:'The Honored One',
+        id:'GOJO', name:'Gojo Satoru', title:'The Strongest Of Today',
         role:'Hybrid Controller', difficulty:'Medium', stars:2,
         combatStyle:'Mid-range Control',
         description:'Balanced offense and defense with strong utility and battlefield control.',
@@ -558,7 +558,7 @@ const CharacterData = {
         image:'gojopfp.jpeg', playable:false, color:'#88ccff'
     },
     YUJI: {
-        id:'YUJI', name:'Yuji Itadori', title:'The Vessel',
+        id:'YUJI', name:'Yuji Itadori', title:'The One Chosen by the Sparks of Black',
         role:'Tank Brawler', difficulty:'Easy', stars:1,
         combatStyle:'Aggressive Melee',
         description:'Durable melee fighter with high survivability and strong combo potential.',
@@ -754,46 +754,13 @@ const GAME_STATE = {
         position: new THREE.Vector3(0,0,15),
         rotation:0,
         currentWeapon: WEAPONS.KATANA,
-        lastAttackTime:0,
-        lastDashTime:0,
-        dashCooldown:1200,
-        isDashing:false,
-        dashEndTime:0,
+        lastAttackTime:0, lastDashTime:0,
+        dashCooldown:1200, isDashing:false, dashEndTime:0,
         dashDir: new THREE.Vector3(),
-        handBone:null,
-        rig:null,
-        walkTime:0,
-        isAttacking:false,
-        attackStartTime:0,
-        attackCooldownMs:0,
-
-        // 🧬 ONLY ADD THIS HERE
-        perks: [],
-        statModifiers: {
-            hpMult: 1,
-            damageMult: 1,
-            speedMult: 1,
-            cooldownMult: 1,
-            defenseMult: 1
-        }
+        handBone:null, rig:null,
+        walkTime:0, isAttacking:false, attackStartTime:0,
+        attackCooldownMs:0
     },
-};
-    // ======================================================
-// 🧬 PERK SYSTEM MODULE
-// ======================================================
-
-const PERK_POOL = { ... };
-
-function applyPerkToPlayer(perk) { ... }
-
-function rollRandomPerk() { ... }
-
-function getPerkChoices() { ... }
-
-function giveRandomPerk() { ... }
-    if (false) {
-    applyPerkToPlayer(rollRandomPerk());
-}
     // Legacy single-enemy slot — kept ONLY as a synced "currently targeted enemy" pointer
     // so the ability system / awakening system / HUD (none of which are touched) keep
     // working unmodified. The real multi-enemy data lives in GAME_STATE.enemies below.
@@ -880,19 +847,16 @@ const ANIM_MAP = {
 // Modular controller — purely additive, no existing system touched.
 // ════════════════════════════════════════════════════════
 const TOJI_AWAKENING_STATE = {
-    meter: 0,              // 0–100; only fills on confirmed hits
-    phase: 'idle',         // 'idle' | 'cutscene' | 'active'
-    cutsceneStart: 0,
-    activeStart: 0,
-    activeDuration: 30000, // 30 s
-    blackHole: null,       // THREE.Group — created/removed during cutscene
-    origSpeed: 0,          // saved before buff
-
-    // ✅ FIXED: real audio object instead of string
-    awakeningTheme: new Audio('tojitheme.mp3')
+    meter:           0,       // 0–100; only fills on confirmed hits
+    phase:           'idle',  // 'idle' | 'cutscene' | 'active'
+    cutsceneStart:   0,
+    activeStart:     0,
+    activeDuration:  30000,   // 30 s
+    blackHole:       null,    // THREE.Group — created/removed during cutscene
+    origSpeed:       0,       // saved before buff
+    awakeningTheme:  null,    // placeholder for future MP3 audio object
 };
-    TOJI_AWAKENING_STATE.awakeningTheme.volume = 0.6;
-TOJI_AWAKENING_STATE.awakeningTheme.loop = true;
+
 const AwakeningController = {
 
     DISPLAY_NAME: 'THE ONE WHO LEFT IT ALL BEHIND',
@@ -922,63 +886,64 @@ const AwakeningController = {
         if(TOJI_AWAKENING_STATE.meter < 100) return;
         this._startCutscene();
     },
-// ── Cutscene start ───────────────────────────────────
-_startCutscene() {
-    const s = TOJI_AWAKENING_STATE;
 
-    s.phase = 'cutscene';
-    s.cutsceneStart = performance.now();
-
-    console.log(`[${this.DISPLAY_NAME}] Cutscene started`);
-
-    if (typeof this.playAwakeningVoice === "function") {
+    // ── Cutscene start ───────────────────────────────────
+    _startCutscene() {
+        const s = TOJI_AWAKENING_STATE;
+        s.phase = 'cutscene';
+        s.cutsceneStart = performance.now();
         this.playAwakeningVoice();
-    }
+        console.log(`[${this.DISPLAY_NAME}] Cutscene started`);
+        // Phase 1 (0–1.5 s): hide player
+        if(pMesh) pMesh.visible = false;
+    },
 
-    // ── PLAYER HEAL + INVINCIBILITY ────────────────────
-    if (GAME_STATE.player) {
-        GAME_STATE.player.hp = GAME_STATE.player.maxHp;
-        GAME_STATE.player.invulnerable = true;
-    }
+    // ── Black hole ───────────────────────────────────────
+    _spawnBlackHole() {
+        if(TOJI_AWAKENING_STATE.blackHole) return;
+        const g = new THREE.Group();
+        g.position.copy(pMesh.position); g.position.y = 1;
 
-    // ── FREEZE ENEMIES ────────────────────────────────
-    if (Array.isArray(GAME_STATE.enemies)) {
-        GAME_STATE.enemies.forEach(e => {
-            if (!e) return;
-            e.frozen = true;
-            e.savedSpeed = e.speed;
-            e.speed = 0;
-        });
-    }
+        // Core void sphere
+        const core = new THREE.Mesh(
+            new THREE.SphereGeometry(0.55, 8, 8),
+            new THREE.MeshBasicMaterial({ color:0x000000 })
+        );
+        g.add(core);
 
-    // ── MUSIC START ────────────────────────────────────
-    if (s.awakeningTheme instanceof Audio) {
-        try {
-            s.awakeningTheme.currentTime = 0;
-            s.awakeningTheme.volume = 0;
+        // Dark-purple torus ring
+        const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(1.3, 0.28, 8, 24),
+            new THREE.MeshBasicMaterial({ color:0x1a0033, transparent:true, opacity:0.88, side:THREE.DoubleSide })
+        );
+        ring.rotation.x = Math.PI * 0.28;
+        g.add(ring);
 
-            const playPromise = s.awakeningTheme.play();
-            if (playPromise) playPromise.catch(() => {});
+        // Energy disc
+        const disc = new THREE.Mesh(
+            new THREE.CircleGeometry(1.3, 16),
+            new THREE.MeshBasicMaterial({ color:0x0d001a, transparent:true, opacity:0.45, side:THREE.DoubleSide })
+        );
+        disc.rotation.x = -Math.PI * 0.5;
+        g.add(disc);
 
-            const fadeIn = setInterval(() => {
-                if (s.awakeningTheme.volume < 0.6) {
-                    s.awakeningTheme.volume += 0.05;
-                } else {
-                    clearInterval(fadeIn);
-                }
-            }, 80);
+        g.scale.set(0.01, 0.01, 0.01);
+        scene.add(g);
+        TOJI_AWAKENING_STATE.blackHole = g;
+    },
 
-        } catch (err) {
-            console.warn("Awakening music failed:", err);
+    _collapseBlackHole(t) {
+        // t = 0→1 collapse progress
+        const sc = Math.max(0, 1 - t);
+        const bh = TOJI_AWAKENING_STATE.blackHole;
+        if(!bh) return;
+        bh.scale.set(sc, sc, sc);
+        if(sc <= 0) {
+            scene.remove(bh);
+            TOJI_AWAKENING_STATE.blackHole = null;
         }
-    }
+    },
 
-    // ── VISUALS ────────────────────────────────────────
-    if (pMesh) pMesh.visible = false;
-
-    document.querySelector('.player-panel')
-        ?.classList.add('awakening-active');
-},
     // ── Activate passives ────────────────────────────────
     _startActive() {
         const s = TOJI_AWAKENING_STATE;
@@ -997,39 +962,18 @@ _startCutscene() {
         this._refreshMeterUI();
     },
 
-   // ── End awakening ────────────────────────────────────
-_endActive() {
-    const s = TOJI_AWAKENING_STATE;
-
-    s.phase = 'idle';
-
-    console.log(`[${this.DISPLAY_NAME}] Awakening ended`);
-
-    // 🧠 restore player stats
-    GAME_STATE.player.speed = s.origSpeed || 13;
-
-    // 🔥 RESET METER
-    s.meter = 0;
-
-    // 🎵 STOP MUSIC CLEANLY (NEW)
-    if (s.awakeningTheme) {
-        const fadeOut = setInterval(() => {
-            if (s.awakeningTheme.volume > 0.05) {
-                s.awakeningTheme.volume -= 0.05;
-            } else {
-                s.awakeningTheme.pause();
-                s.awakeningTheme.currentTime = 0;
-                clearInterval(fadeOut);
-            }
-        }, 50);
-    }
-
-    // UI cleanup
-    document.querySelector('.player-panel')
-        ?.classList.remove('awakening-active');
-
-    this._refreshMeterUI();
-},
+    // ── End awakening ────────────────────────────────────
+    _endActive() {
+        const s = TOJI_AWAKENING_STATE;
+        s.phase = 'idle';
+        console.log(`[${this.DISPLAY_NAME}] Awakening ended`);
+        // Remove speed buff
+        GAME_STATE.player.speed = s.origSpeed || 13;
+        // Reset meter
+        s.meter = 0;
+        document.querySelector('.player-panel')?.classList.remove('awakening-active');
+        this._refreshMeterUI();
+    },
 
     // ── Camera override (called from processCameraPhysics) ──
     // Returns true while it's controlling the camera so the default path is skipped.
