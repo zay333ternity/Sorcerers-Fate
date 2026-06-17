@@ -754,13 +754,46 @@ const GAME_STATE = {
         position: new THREE.Vector3(0,0,15),
         rotation:0,
         currentWeapon: WEAPONS.KATANA,
-        lastAttackTime:0, lastDashTime:0,
-        dashCooldown:1200, isDashing:false, dashEndTime:0,
+        lastAttackTime:0,
+        lastDashTime:0,
+        dashCooldown:1200,
+        isDashing:false,
+        dashEndTime:0,
         dashDir: new THREE.Vector3(),
-        handBone:null, rig:null,
-        walkTime:0, isAttacking:false, attackStartTime:0,
-        attackCooldownMs:0
+        handBone:null,
+        rig:null,
+        walkTime:0,
+        isAttacking:false,
+        attackStartTime:0,
+        attackCooldownMs:0,
+
+        // 🧬 ONLY ADD THIS HERE
+        perks: [],
+        statModifiers: {
+            hpMult: 1,
+            damageMult: 1,
+            speedMult: 1,
+            cooldownMult: 1,
+            defenseMult: 1
+        }
     },
+};
+    // ======================================================
+// 🧬 PERK SYSTEM MODULE
+// ======================================================
+
+const PERK_POOL = { ... };
+
+function applyPerkToPlayer(perk) { ... }
+
+function rollRandomPerk() { ... }
+
+function getPerkChoices() { ... }
+
+function giveRandomPerk() { ... }
+    if (false) {
+    applyPerkToPlayer(rollRandomPerk());
+}
     // Legacy single-enemy slot — kept ONLY as a synced "currently targeted enemy" pointer
     // so the ability system / awakening system / HUD (none of which are touched) keep
     // working unmodified. The real multi-enemy data lives in GAME_STATE.enemies below.
