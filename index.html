@@ -2083,62 +2083,111 @@ const WaveManager = {
         updateHUD();
     },
 
-    // ── Called by applyDamageToEnemy instead of the old triggerEnd('VICTORY') ──
-    onEnemyDeath(entry) {
-        if (entry.mesh) entry.mesh.visible = false;
-        if (entry.barEl) entry.barEl.style.display = 'none';
-        if (GAME_STATE.enemy === entry.state) {
-            this._refreshDefaultTarget();   // snap abilities/HUD to a still-living enemy
-        }
-        const allDead = GAME_STATE.enemies.length > 0 &&
-                         GAME_STATE.enemies.every(e => e.state.hp <= 0);
-        if (allDead) this._beginWaveClearedSequence();
-    },
+   // ── Called by applyDamageToEnemy instead of the old triggerEnd('VICTORY') ──
+onEnemyDeath(entry) {
+    if (entry.mesh) entry.mesh.visible = false;
+    if (entry.barEl) entry.barEl.style.display = 'none';
 
-    _beginWaveClearedSequence() {
-        this.wavesCleared = this.waveNumber;
-        this.phase = 'countdown';
-        this.countdownValue = 5;
-        this.phaseEndTime = performance.now() + 1000;
-        this._showBanner('WAVE CLEARED', String(this.countdownValue));
-    },
+    if (GAME_STATE.enemy === entry.state) {
+        this._refreshDefaultTarget(); // snap abilities/HUD to a still-living enemy
+    }
 
-    // ── Called by applyDamageToPlayer instead of the old triggerEnd('DEFEAT') ──
-    onPlayerDeath() {
+    const allDead =
+        GAME_STATE.enemies.length > 0 &&
+        GAME_STATE.enemies.every(e => e.state.hp <= 0);
+
+    if (allDead) this._beginWaveClearedSequence();
+},
+
+// ── WAVE CLEARED SEQUENCE ──
+_beginWaveClearedSequence() {
+    this.wavesCleared = this.waveNumber;
+    this.phase = 'wave_cleared';
+    this.countdownValue = 5;
+    this.phaseEndTime = performance.now() + 1000;
+
+    this._showBanner('WAVE CLEARED', String(this.countdownValue));
+
+    // 🧊 freeze combat safely
+    this._freezeAllEnemies();
+
+    // 🎴 trigger perk system (safe hook)
+    this._startPerkSelection();
+},
+
+// ── PERK SYSTEM HOOK (safe entry point) ──
+_startPerkSelection() {
+    setTimeout(() => {
+        // pause game loop safely
         this.active = false;
-        const n = this.wavesCleared;
-        const el = document.getElementById('status-msg');
+
+        if (typeof showPerkUI === "function") {
+            const perks = typeof rollPerks === "function"
+                ? rollPerks(this.waveNumber, GAME_STATE.player?.pity || {})
+                : [];
+
+            showPerkUI(perks);
+        }
+    }, 700);
+},
+
+// ── FREEZE ENEMIES (prevents movement + attacks) ──
+_freezeAllEnemies() {
+    GAME_STATE.enemies.forEach(e => {
+        if (!e || !e.state) return;
+
+        e.state.frozen = true;
+        e.state._oldSpeed = e.state.speed ?? 1;
+        e.state.speed = 0;
+
+        if (e.state.velocity) {
+            e.state.velocity.x = 0;
+            e.state.velocity.z = 0;
+        }
+    });
+},
+
+// ── Called by applyDamageToPlayer instead of old DEFEAT ──
+onPlayerDeath() {
+    this.active = false;
+
+    const n = this.wavesCleared;
+    const el = document.getElementById('status-msg');
+
+    if (el) {
         el.innerText = `YOU SURVIVED ${n} WAVE${n === 1 ? '' : 'S'}`;
         el.style.color = '#e74c3c';
         el.style.opacity = '1';
-    },
-
-    // ── Banner display helpers ───────────────────────────
-    _showBanner(title, countdown) {
-        const banner = document.getElementById('wave-banner');
-        const titleEl = document.getElementById('wave-banner-title');
-        const cdEl = document.getElementById('wave-banner-countdown');
-        if (titleEl) titleEl.innerText = title;
-        if (cdEl) cdEl.innerText = countdown;
-        if (banner) banner.classList.add('show');
-    },
-    _hideBanner() {
-        const banner = document.getElementById('wave-banner');
-        if (banner) banner.classList.remove('show');
-    },
-
-    // ── Right-side "last enemy hit" HP panel (reuses the existing .enemy-panel
-    // markup/CSS untouched — only toggles its visibility) ──
-    _hideEnemyPanel() {
-        const panel = document.querySelector('.enemy-panel');
-        if (panel) panel.style.display = 'none';
-    },
-    _showEnemyPanel() {
-        const panel = document.querySelector('.enemy-panel');
-        if (panel) panel.style.display = 'block';
     }
-};
+},
 
+// ── Banner display helpers ───────────────────────────
+_showBanner(title, countdown) {
+    const banner = document.getElementById('wave-banner');
+    const titleEl = document.getElementById('wave-banner-title');
+    const cdEl = document.getElementById('wave-banner-countdown');
+
+    if (titleEl) titleEl.innerText = title;
+    if (cdEl) cdEl.innerText = countdown;
+    if (banner) banner.classList.add('show');
+},
+
+_hideBanner() {
+    const banner = document.getElementById('wave-banner');
+    if (banner) banner.classList.remove('show');
+},
+
+// ── Enemy panel UI ───────────────────────────
+_hideEnemyPanel() {
+    const panel = document.querySelector('.enemy-panel');
+    if (panel) panel.style.display = 'none';
+},
+
+_showEnemyPanel() {
+    const panel = document.querySelector('.enemy-panel');
+    if (panel) panel.style.display = 'block';
+}
+    
 // ════════════════════════════════════════════════════════
 // PER-FRAME ADDITIVE UI UPDATES (new functions, no existing ones edited)
 // ════════════════════════════════════════════════════════
