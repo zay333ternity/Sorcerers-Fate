@@ -645,7 +645,7 @@ const CharacterData = {
             }
         }
     },
-
+ 
     GOJO: {
         id:'GOJO',
         name:'Gojo Satoru',
@@ -662,7 +662,7 @@ const CharacterData = {
         playable:false,
         color:'#88ccff'
     },
-
+ 
     YUJI: {
         id:'YUJI',
         name:'Yuji Itadori',
@@ -679,7 +679,7 @@ const CharacterData = {
         playable:false,
         color:'#e08040'
     },
-
+ 
     NANAMI: {
         id:'NANAMI',
         name:'Kento Nanami',
@@ -696,7 +696,7 @@ const CharacterData = {
         playable:false,
         color:'#c9b458'
     },
-
+ 
     MEGUMI: {
         id:'MEGUMI',
         name:'Megumi Fushiguro',
@@ -713,7 +713,7 @@ const CharacterData = {
         playable:false,
         color:'#2f6f4e'
     },
-
+ 
     UNKNOWN: {
         id:'YUTA',
         name:'???',
@@ -999,26 +999,26 @@ const combatFX = {
     activeM1Step: 1,           // which hit's animation is currently playing
     m1LastSwingTime: 0,
     m1ComboWindow: 900,        // ms allowed between swings before the combo resets to hit 1
-
+ 
     // Hitstop (brief freeze on impact for weight)
     hitstopEndTime: 0,
-
+ 
     // Camera shake
     shakeIntensity: 0,
     shakeDecayRate: 0.90,      // multiplicative decay applied every frame
-
+ 
     // Knockback applied to whichever enemy was just hit
     knockbackVel: new THREE.Vector3(),
     knockbackDecay: 0.85,      // multiplicative decay applied every frame
     knockbackTargetMesh: null,
-
+ 
     // Enemy hit-recoil squash/stretch
     enemyRecoilScale: new THREE.Vector3(1, 1, 1),
-
+ 
     // Combo bookkeeping for HUD/FX
     comboCount: 0,
     lastHitTime: 0,
-
+ 
     // Input buffering — a press just before cooldown ends queues up
     inputBuffer: false,
     inputBufferExpiry: 0
@@ -3007,3 +3007,4 @@ window.onload = init;
 </script>
 </body>
 </html>
+ 
