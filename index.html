@@ -298,6 +298,30 @@
             0%,100% { box-shadow:0 0 12px rgba(124,58,237,0.4); }
             50%      { box-shadow:0 0 26px rgba(168,85,247,0.75); }
         }
+        /* Nanami Overtime glow */
+        .player-panel.overtime-active {
+            border-color:#d4a017 !important;
+            box-shadow:0 0 18px rgba(212,160,23,0.60) !important;
+            animation:overtime-pulse 1.0s ease-in-out infinite;
+        }
+        @keyframes overtime-pulse {
+            0%,100% { box-shadow:0 0 10px rgba(212,160,23,0.45); }
+            50%      { box-shadow:0 0 28px rgba(241,196,15,0.80); }
+        }
+        /* Nanami ratio mark label — pulsing gold + blue cursed energy */
+        .ratio-mark-label {
+            animation: ratio-mark-pulse 0.82s ease-in-out infinite;
+        }
+        @keyframes ratio-mark-pulse {
+            0%,100% {
+                text-shadow:0 0 10px rgba(241,196,15,0.95), 0 0 20px rgba(241,196,15,0.4);
+                filter:brightness(1);
+            }
+            50% {
+                text-shadow:0 0 8px rgba(241,196,15,0.7), 0 0 24px rgba(80,160,255,0.9), 0 0 48px rgba(50,120,255,0.5);
+                filter:brightness(1.3);
+            }
+        }
  
         /* ── Ability Bar ── */
         #ability-bar {
@@ -540,7 +564,7 @@
             <li><strong>W A S D</strong> — Move</li>
             <li><strong>SPACE</strong> — Attack</li>
             <li><strong>SHIFT</strong> — Dash Burst</li>
-            <li><strong>Q / E</strong> — Swap Weapons</li>
+            <li class="ctrl-swap"><strong>Q / E</strong> — Swap Weapons</li>
             <li><strong>G</strong> — Awakening (meter full)</li>
         </ul>
     </div>
@@ -561,22 +585,22 @@
     <div class="ab-slot" id="ab-slot-s1">
         <div class="ab-cooldown-fill" id="ab-fill-s1"></div>
         <div class="ab-key-lbl" id="ab-key-s1">1</div>
-        <div class="ab-name-lbl">Flurry</div>
+        <div class="ab-name-lbl" id="ab-name-s1">Flurry</div>
     </div>
     <div class="ab-slot" id="ab-slot-s2">
         <div class="ab-cooldown-fill" id="ab-fill-s2"></div>
         <div class="ab-key-lbl" id="ab-key-s2">2</div>
-        <div class="ab-name-lbl">Nullify</div>
+        <div class="ab-name-lbl" id="ab-name-s2">Nullify</div>
     </div>
     <div class="ab-slot" id="ab-slot-s3">
         <div class="ab-cooldown-fill" id="ab-fill-s3"></div>
         <div class="ab-key-lbl" id="ab-key-s3">3</div>
-        <div class="ab-name-lbl">Chain</div>
+        <div class="ab-name-lbl" id="ab-name-s3">Chain</div>
     </div>
     <div class="ab-slot" id="ab-slot-s4">
         <div class="ab-cooldown-fill" id="ab-fill-s4"></div>
         <div class="ab-key-lbl" id="ab-key-s4">4</div>
-        <div class="ab-name-lbl">Mirage</div>
+        <div class="ab-name-lbl" id="ab-name-s4">Mirage</div>
     </div>
 </div>
  
@@ -691,10 +715,16 @@ const CharacterData = {
         description:'High-skill fighter who exploits the 7:3 ratio to land devastating critical strikes.',
         strengths:['Extreme Damage Scaling','Precision Attacks','High Skill Ceiling'],
         weaknesses:['Punishing Mistakes','Requires Accuracy'],
-        weapons:['Ratio Technique','Cleaver'],
+        weapons:['Ratio Cleaver','Ratio Technique'],
         image:'nanamipfp.jpeg',
-        playable:false,
-        color:'#c9b458'
+        playable:true,
+        color:'#c9b458',
+        awakening:{
+            name:'OVERTIME',
+            description:'Tie adjustment. Nanami channels remaining cursed energy for a final burst of efficiency.',
+            duration:25,
+            buffs:{ damageMultiplier:1.35, defenseMultiplier:1.15, speedMultiplier:1.25, cooldownReduction:0.80 }
+        }
     },
  
     MEGUMI: {
@@ -873,7 +903,11 @@ const MenuUI = {
         document.getElementById('ph-modal').classList.remove('open');
     },
     startGame(charId) {
+        currentCharacterId = charId || 'TOJI';
         CharacterSelect.hide(() => {
+            // ── Apply character config before HUD shows ──
+            _applyCharacterConfig(currentCharacterId);
+
             // Reveal game HUD
             document.getElementById('ui-layer').style.opacity = '1';
             document.getElementById('ui-layer').style.pointerEvents = 'auto';
@@ -881,17 +915,17 @@ const MenuUI = {
             dash.classList.add('game-visible');
             document.getElementById('awakening-bar-wrap').classList.add('game-visible');
             document.getElementById('ability-bar').classList.add('game-visible');
- 
+
             // Kick off gameplay
             gameStarted = true;
- 
+
             // "FIGHT!" flash
             const msg = document.getElementById('status-msg');
             msg.innerText = 'FIGHT!';
             msg.style.color = '#f1c40f';
             msg.style.opacity = '1';
             setTimeout(() => { msg.style.opacity = '0'; }, 1600);
- 
+
             // Hand off to the wave manager (additive — does not touch combat internals)
             WaveManager.startRun();
         });
@@ -902,14 +936,138 @@ const MenuUI = {
 // GAME STATE
 // ════════════════════════════════════════════════════════
 let gameStarted = false;
+let currentCharacterId = 'TOJI';   // set in MenuUI.startGame from CharacterSelect.selected
+
+// ── Character config applied once at game-start ──────────────────────────────
+// Adds/removes Nanami's iconic green round glasses on the player rig.
+// Must receive the plain rig object (GAME_STATE.player.rig) — glasses are
+// parented to rig.upper so they bob with the walk animation.
+function _applyNanamiGlasses(charId, rig) {
+    const upper = rig && rig.upper;
+    if (!upper) return;
+    // Remove any existing glasses group
+    const old = upper.getObjectByName('nanami_glasses');
+    if (old) upper.remove(old);
+    if (charId !== 'NANAMI') return;
+
+    const glassGroup = new THREE.Group();
+    glassGroup.name = 'nanami_glasses';
+
+    // Positions are in upper-local space; head center is at y≈2.14
+    const EY = 2.05, EZ = 0.22;  // eye Y, eye Z (front of face)
+
+    const mLens  = new THREE.MeshStandardMaterial({ color:0x2d6b2d, transparent:true, opacity:0.68, metalness:0.1, roughness:0.15 });
+    const mFrame = new THREE.MeshStandardMaterial({ color:0x1a1a1a, roughness:0.60 });
+
+    // Left lens  (screen-left = model's right)
+    const lL = new THREE.Mesh(new THREE.CylinderGeometry(0.082, 0.082, 0.018, 16), mLens);
+    lL.rotation.x = Math.PI / 2;
+    lL.position.set(-0.11, EY, EZ);
+    glassGroup.add(lL);
+
+    // Right lens
+    const lR = new THREE.Mesh(new THREE.CylinderGeometry(0.082, 0.082, 0.018, 16), mLens);
+    lR.rotation.x = Math.PI / 2;
+    lR.position.set( 0.11, EY, EZ);
+    glassGroup.add(lR);
+
+    // Frame ring left
+    const rL = new THREE.Mesh(new THREE.TorusGeometry(0.082, 0.009, 8, 20), mFrame);
+    rL.position.set(-0.11, EY, EZ);
+    glassGroup.add(rL);
+
+    // Frame ring right
+    const rR = new THREE.Mesh(new THREE.TorusGeometry(0.082, 0.009, 8, 20), mFrame);
+    rR.position.set( 0.11, EY, EZ);
+    glassGroup.add(rR);
+
+    // Bridge
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.044, 0.010, 0.010), mFrame);
+    bridge.position.set(0, EY, EZ);
+    glassGroup.add(bridge);
+
+    upper.add(glassGroup);
+}
+
+function _applyCharacterConfig(charId) {
+    const char = CharacterData[charId];
+    if(!char) return;
+
+    // HUD player name
+    const nameEl = document.getElementById('player-name');
+    if(nameEl) nameEl.innerText = char.name;
+
+    // Awakening system config
+    if(charId === 'NANAMI'){
+        AwakeningController.setConfig({
+            displayName: 'OVERTIME', damageMul: 1.22, damageReceiveMul: 0.82,
+            speedMul: 1.22, meterGain: 8,
+            awakeningLabel: 'OVERTIME', awakeningColor: '#d4a017',
+            cutsceneType: 'nanami'   // drives Nanami-specific 3 s awakening animation
+        });
+    } else {
+        // Toji (default)
+        AwakeningController.setConfig({
+            displayName: 'THE ONE WHO LEFT IT ALL BEHIND', damageMul: 1.25, damageReceiveMul: 0.82,
+            speedMul: 1.22, meterGain: 7,
+            awakeningLabel: 'THE ONE WHO LEFT IT ALL BEHIND', awakeningColor: '#7c3aed'
+        });
+    }
+
+    // Ability system
+    AbilitySystem.setCharacter(charId);
+
+    // Weapon
+    const startWep = (charId === 'NANAMI') ? WEAPONS.CLEAVER : WEAPONS.KATANA;
+    GAME_STATE.player.currentWeapon = startWep;
+    const wepNameEl = document.getElementById('current-weapon-name');
+    if(wepNameEl) wepNameEl.innerText = startWep.name;
+
+    // Model recolour — match reference image for each character
+    const rm = GAME_STATE.player.rigMaterials;
+    if(rm && charId === 'NANAMI'){
+        // Reference: white blazer, dark navy shirt, khaki pants, dark brown shoes, blonde hair
+        if(rm.sw) rm.sw.color.setHex(0xf2f0ec);   // white blazer
+        if(rm.pt) rm.pt.color.setHex(0xc4a87a);   // khaki/tan trousers
+        if(rm.sk) rm.sk.color.setHex(0xe8c49a);   // skin tone
+        if(rm.hr) rm.hr.color.setHex(0xd4a820);   // blonde hair
+        if(rm.sh) rm.sh.color.setHex(0x2e1a0a);   // dark brown shoes
+        // Add navy shirt underlay by tinting the torso geometry — approximated via sw roughness
+        rm.sw.roughness = 0.72;
+    } else if(rm){
+        // Toji — reset to original dark colours
+        if(rm.sw) rm.sw.color.setHex(0x080808);
+        if(rm.pt) rm.pt.color.setHex(0x0e0e0e);
+        if(rm.sk) rm.sk.color.setHex(0xc8a070);
+        if(rm.hr) rm.hr.color.setHex(0x111111);
+        if(rm.sh) rm.sh.color.setHex(0x1a1a1a);
+        rm.sw.roughness = 0.78;
+    }
+
+    // Nanami glasses — add/remove circular lens frames on the player rig
+    _applyNanamiGlasses(charId, GAME_STATE.player.rig);
+
+    // Attach the correct starting weapon model to the hand bone
+    WeaponAttachmentSystem.attach(startWep);
+
+    // Controls overlay — swap weapon hint is Toji-only
+    const ctrlEl = document.getElementById('controls-overlay');
+    if(ctrlEl){
+        const qeHint = ctrlEl.querySelector('.ctrl-swap');
+        if(qeHint) qeHint.style.display = (charId==='NANAMI') ? 'none' : '';
+    }
+}
  
 const WEAPONS = {
     // Katana — heavy, slower swing, massive knockback
-    KATANA: { name:"Split Soul Katana",        damage:25, range:4.0, attackSpeed:520, knockback:16, special:"execution",
-              hitstopDur:95,  shakeMag:0.26, arcForward:0.35, arcAngle:1.52 },
+    KATANA:  { name:"Split Soul Katana",        damage:25, range:4.0, attackSpeed:520, knockback:16, special:"execution",
+               hitstopDur:95,  shakeMag:0.26, arcForward:0.35, arcAngle:1.52 },
     // Spear  — fast, tight combo arc, sharp knockback
-    SPEAR:  { name:"Inverted Spear of Heaven", damage:12, range:3.2, attackSpeed:245, knockback:8,  special:"seal",
-              hitstopDur:55,  shakeMag:0.14, arcForward:0.24, arcAngle:1.12 }
+    SPEAR:   { name:"Inverted Spear of Heaven", damage:12, range:3.2, attackSpeed:245, knockback:8,  special:"seal",
+               hitstopDur:55,  shakeMag:0.14, arcForward:0.24, arcAngle:1.12 },
+    // Cleaver — Nanami's ratio cleaver: heavy downward chops, builds ratio stacks on hit
+    CLEAVER: { name:"Ratio Cleaver",            damage:28, range:3.8, attackSpeed:560, knockback:14, special:"ratio",
+               hitstopDur:105, shakeMag:0.30, arcForward:0.40, arcAngle:1.45 }
 };
 const GAME_STATE = {
     player: {
@@ -1037,6 +1195,9 @@ const TOJI_AWAKENING_STATE = {
     blackHole:       null,    // THREE.Group — created/removed during cutscene
     origSpeed:       0,       // saved before buff
     awakeningTheme:  "tojitheme.mp3",    // placeholder for future MP3 audio object
+    // Nanami OVERTIME awakening fx state
+    nanamiEnergyGroup:  null,   // THREE.Group of blue energy fragments
+    nanaminiBurstDone:  false,  // prevents double-triggering the energy burst
 };
  
 const AwakeningController = {
@@ -1046,8 +1207,18 @@ const AwakeningController = {
     // ── Public queries ──────────────────────────────────
     isActive()      { return TOJI_AWAKENING_STATE.phase === 'active'; },
     inputLocked()   { return TOJI_AWAKENING_STATE.phase === 'cutscene'; },
-    getDamageMul()  { return this.isActive() ? 1.25 : 1.0; },
-    getDamageReceiveMul() { return this.isActive() ? 0.82 : 1.0; },
+    // Character config — set at game-start via setConfig()
+    _cfg: { displayName:'THE ONE WHO LEFT IT ALL BEHIND', damageMul:1.25,
+            damageReceiveMul:0.82, speedMul:1.22, meterGain:7,
+            awakeningLabel:'THE ONE WHO LEFT IT ALL BEHIND', awakeningColor:'#7c3aed' },
+    setConfig(cfg) {
+        this._cfg = Object.assign({}, this._cfg, cfg);
+        this.DISPLAY_NAME = this._cfg.displayName;
+        const lbl = document.getElementById('awakening-label');
+        if (lbl) { lbl.innerText = this._cfg.awakeningLabel; lbl.style.color = this._cfg.awakeningColor; }
+    },
+    getDamageMul()  { return this.isActive() ? this._cfg.damageMul : 1.0; },
+    getDamageReceiveMul() { return this.isActive() ? this._cfg.damageReceiveMul : 1.0; },
  
     // ── Audio placeholders ──────────────────────────────
     playAwakeningVoice() {
@@ -1057,7 +1228,7 @@ const AwakeningController = {
     // ── Meter ───────────────────────────────────────────
     onHitLanded() {
         if(TOJI_AWAKENING_STATE.phase !== 'idle') return;
-        TOJI_AWAKENING_STATE.meter = Math.min(100, TOJI_AWAKENING_STATE.meter + 7*GAME_STATE.player.awakeningGainMul);
+        TOJI_AWAKENING_STATE.meter = Math.min(100, TOJI_AWAKENING_STATE.meter + this._cfg.meterGain*GAME_STATE.player.awakeningGainMul);
         this._refreshMeterUI();
     },
  
@@ -1074,9 +1245,17 @@ const AwakeningController = {
         const s = TOJI_AWAKENING_STATE;
         s.phase = 'cutscene';
         s.cutsceneStart = performance.now();
+        s.nanaminiBurstDone = false;
+        s.nanamiEnergyGroup = null;
         this.playAwakeningVoice();
         console.log(`[${this.DISPLAY_NAME}] Cutscene started`);
-        // Phase 1 (0–1.5 s): hide player
+        if (this._cfg.cutsceneType === 'nanami') {
+            // Nanami stays visible — play tie-loosen animation via AbilityAnimController
+            // (suppresses walk/idle arms for its 3 s duration)
+            AbilityAnimController.play(ABILITY_ANIMS.NANAMI_AWAKENING);
+            return;
+        }
+        // Toji: hide player for cinematic
         if(pMesh) pMesh.visible = false;
     },
  
@@ -1132,12 +1311,17 @@ const AwakeningController = {
         s.phase = 'active';
         s.activeStart = performance.now();
         console.log(`[${this.DISPLAY_NAME}] Awakening active — 30 s`);
-        if(pMesh) { pMesh.visible = true; pMesh.position.y = 0; }
-        // Speed buff (+22%)
+        // Toji only: player was hidden during cutscene, restore now
+        if(pMesh && this._cfg.cutsceneType !== 'nanami') { pMesh.visible = true; pMesh.position.y = 0; }
+        // Speed buff (configurable per character)
         s.origSpeed = GAME_STATE.player.speed;
-        GAME_STATE.player.speed *= 1.22;
+        GAME_STATE.player.speed *= this._cfg.speedMul;
+        // Nanami: faster ratio building during OVERTIME
+        if (this._cfg.cutsceneType === 'nanami') {
+            GAME_STATE.player.ratioStackBonus = 1;
+        }
         // Damage & durability buffs live in getDamageMul / getDamageReceiveMul
-        // Remove black hole if still present
+        // Remove black hole if still present (Toji only)
         if(s.blackHole) { scene.remove(s.blackHole); s.blackHole = null; }
         // Visual: purple glow on player panel
         document.querySelector('.player-panel')?.classList.add('awakening-active');
@@ -1151,6 +1335,10 @@ const AwakeningController = {
         console.log(`[${this.DISPLAY_NAME}] Awakening ended`);
         // Remove speed buff
         GAME_STATE.player.speed = s.origSpeed || 13;
+        // Nanami: clear faster ratio stack bonus
+        if (this._cfg.cutsceneType === 'nanami') {
+            GAME_STATE.player.ratioStackBonus = 0;
+        }
         // Reset meter
         s.meter = 0;
         document.querySelector('.player-panel')?.classList.remove('awakening-active');
@@ -1161,6 +1349,8 @@ const AwakeningController = {
     // Returns true while it's controlling the camera so the default path is skipped.
     overrideCamera(delta) {
         if(TOJI_AWAKENING_STATE.phase !== 'cutscene') return false;
+        // Nanami awakening: no cinematic camera override — stays in normal gameplay view
+        if(this._cfg.cutsceneType === 'nanami') return false;
         const elapsed = performance.now() - TOJI_AWAKENING_STATE.cutsceneStart;
  
         if(elapsed < 3500) {
@@ -1193,7 +1383,30 @@ const AwakeningController = {
         if(s.phase === 'cutscene') {
             const el = now - s.cutsceneStart;
  
-            // Phase 2 (1.5 s): spawn black hole
+            // ── Nanami OVERTIME awakening (tie-loosen → blue energy → burst) ──
+            if (this._cfg.cutsceneType === 'nanami') {
+                if (s.nanamiEnergyGroup) {
+                    s.nanamiEnergyGroup.rotation.y += delta * 1.8;
+                    const growIn = Math.min(1, (el - 700) / 550);
+                    const pulse  = 1.0 + Math.sin(now * 0.008) * 0.14;
+                    s.nanamiEnergyGroup.scale.setScalar(growIn * pulse);
+                }
+                if (el >= 700 && !s.nanamiEnergyGroup) this._spawnNanamiEnergy();
+                if (el >= 2000 && !s.nanaminiBurstDone) {
+                    s.nanaminiBurstDone = true;
+                    this._spawnNanamiBurst();
+                    combatFX.shakeIntensity = Math.max(combatFX.shakeIntensity, 0.32);
+                }
+                if (el >= 2800 && s.nanamiEnergyGroup) {
+                    scene.remove(s.nanamiEnergyGroup);
+                    s.nanamiEnergyGroup = null;
+                }
+                if (el >= 3000) this._startActive();
+                return;
+            }
+
+            // ── Toji awakening (original — unchanged) ──
+                        // Phase 2 (1.5 s): spawn black hole
             if(el >= 1500 && !s.blackHole) this._spawnBlackHole();
  
             // Expand black hole + spin (phases 2–3)
@@ -1230,6 +1443,61 @@ const AwakeningController = {
         }
     },
  
+    // ── Nanami OVERTIME awakening FX ───────────────────────────────
+    _spawnNanamiEnergy() {
+        const s = TOJI_AWAKENING_STATE;
+        if (!pMesh || !scene) return;
+        const g = new THREE.Group();
+        g.position.copy(pMesh.position);
+        g.position.y = 1.2;
+        // 8 blue energy fragments orbiting the player
+        for (let i = 0; i < 8; i++) {
+            const ang = (i / 8) * Math.PI * 2;
+            const frag = new THREE.Mesh(
+                new THREE.BoxGeometry(0.10, 0.52, 0.07),
+                new THREE.MeshBasicMaterial({ color:0x2277ff, transparent:true, opacity:0.68 })
+            );
+            frag.position.set(Math.cos(ang)*1.35, Math.sin(ang)*0.30, Math.sin(ang)*1.35);
+            frag.rotation.y = ang;
+            g.add(frag);
+        }
+        // Inner glow sphere
+        g.add(new THREE.Mesh(
+            new THREE.SphereGeometry(0.55, 8, 8),
+            new THREE.MeshBasicMaterial({ color:0x1a55ff, transparent:true, opacity:0.20 })
+        ));
+        g.scale.set(0.01, 0.01, 0.01);
+        scene.add(g);
+        s.nanamiEnergyGroup = g;
+    },
+
+    _spawnNanamiBurst() {
+        if (!pMesh || !scene) return;
+        const pos = pMesh.position.clone();
+        // Expanding blue shockwave ring
+        const rGeo = new THREE.TorusGeometry(0.7, 0.11, 6, 24);
+        const rMat = new THREE.MeshBasicMaterial({ color:0x3399ff, transparent:true, opacity:0.88 });
+        const ring = new THREE.Mesh(rGeo, rMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.copy(pos);
+        ring.position.y = 0.2;
+        scene.add(ring);
+        const t0 = performance.now(), dur = 720;
+        (function tick() {
+            const t = Math.min(1, (performance.now() - t0) / dur);
+            const e = 1 - Math.pow(1 - t, 2);
+            ring.scale.set(1 + e * 9, 1 + e * 9, 1);
+            rMat.opacity = Math.max(0, 0.88 - t * 1.1);
+            if (t < 1) requestAnimationFrame(tick);
+            else { scene.remove(ring); rGeo.dispose(); rMat.dispose(); }
+        })();
+        // Blue DOM flash
+        const fl = document.createElement('div');
+        fl.style.cssText = 'position:fixed;inset:0;background:rgba(25,90,255,0.26);pointer-events:none;z-index:9999;transition:opacity 0.38s';
+        document.body.appendChild(fl);
+        setTimeout(() => { fl.style.opacity = '0'; setTimeout(() => fl.remove(), 420); }, 75);
+    },
+
     // ── Meter UI ─────────────────────────────────────────
     _refreshMeterUI() {
         const m = TOJI_AWAKENING_STATE.meter;
@@ -1301,6 +1569,18 @@ const ABILITY_ANIMS = {
         {t:380, rSx: 0.90,rSz:-0.10, rEx:0.08, lSz: 0.14, uZ: 0.16},
         {t:550, rSx: 0.28,rSz:-0.14, rEx:0.25, lSz: 0.14, uZ: 0.06},
         {t:820, rSx: 0,   rSz:-0.14, rEx:0.35, lSz: 0.14, uZ: 0}
+    ]},
+    // Nanami OVERTIME awakening — deliberate tie-loosen → arms spread → energy burst
+    NANAMI_AWAKENING: { dur:3000, frames:[
+        {t:0,    rSx:0,    rSz:-0.12, rEx:0.35, lSz: 0.14, uZ: 0},
+        {t:300,  rSx:0.05, rSz:-0.12, rEx:0.30, lSz:-0.12, uZ: 0.02},
+        {t:700,  rSx:0.05, rSz:-0.12, rEx:0.28, lSz:-0.55, uZ: 0.04},
+        {t:1000, rSx:0.05, rSz:-0.14, rEx:0.30, lSz:-0.42, uZ: 0.04},
+        {t:1300, rSx:0.10, rSz:-0.14, rEx:0.38, lSz:-0.18, uZ: 0.02},
+        {t:1700, rSx:0.15, rSz:-0.10, rEx:0.35, lSz: 0.06, uZ:-0.02},
+        {t:2100, rSx:0.22, rSz:-0.08, rEx:0.28, lSz: 0.10, uZ:-0.04},
+        {t:2500, rSx:0.10, rSz:-0.12, rEx:0.35, lSz: 0.14, uZ: 0},
+        {t:3000, rSx:0,    rSz:-0.12, rEx:0.35, lSz: 0.14, uZ: 0}
     ]}
 };
  
@@ -1333,16 +1613,37 @@ const AbilityAnimController = {
 // ════════════════════════════════════════════════════════
 // ABILITY SYSTEM (S1–S4) — additive, no core systems touched
 // ════════════════════════════════════════════════════════
-function _mkAbWep(dmg, kb) {
-    return { damage:dmg, knockback:kb, hitstopDur:88, shakeMag:0.20, special:null };
+function _mkAbWep(dmg, kb, hitstopDur, shakeMag) {
+    return { damage:dmg, knockback:kb, hitstopDur:hitstopDur||88, shakeMag:shakeMag||0.20, special:null };
 }
  
 const AbilitySystem = {
-    defs:{
+    _DEFS_TOJI: {
         S1:{ name:'Split Soul Flurry',           cd:8000,  lastUsed:0 },
         S2:{ name:'Heavenly Nullification',      cd:12000, lastUsed:0 },
         S3:{ name:'Chain of Thousand Miles',     cd:15000, lastUsed:0 },
         S4:{ name:'Mirage Step',                 cd:10000, lastUsed:0 }
+    },
+    _DEFS_NANAMI: {
+        S1:{ name:'Ratio Strike',                cd:7000,  lastUsed:0 },
+        S2:{ name:'Collapse Cleave',             cd:11000, lastUsed:0 },
+        S3:{ name:'Calculation Step',            cd:14000, lastUsed:0 },
+        S4:{ name:'Ratio Execution',             cd:14000, lastUsed:0 }
+    },
+    defs: {   // default to Toji so pre-game UI is safe
+        S1:{ name:'Split Soul Flurry',       cd:8000,  lastUsed:0 },
+        S2:{ name:'Heavenly Nullification',  cd:12000, lastUsed:0 },
+        S3:{ name:'Chain of Thousand Miles', cd:15000, lastUsed:0 },
+        S4:{ name:'Mirage Step',             cd:10000, lastUsed:0 }
+    },
+    setCharacter(charId) {
+        const src = charId==='NANAMI' ? this._DEFS_NANAMI : this._DEFS_TOJI;
+        this.defs = {};
+        for(const k in src) this.defs[k] = Object.assign({}, src[k], { lastUsed:0 });
+        ['S1','S2','S3','S4'].forEach(k => {
+            const nameEl = document.getElementById('ab-name-'+k.toLowerCase());
+            if(nameEl) nameEl.innerText = this.defs[k].name;
+        });
     },
     _cdMul() { return (AwakeningController.isActive() ? 0.5 : 1.0) * GAME_STATE.player.abilityCooldownMul; },
  
@@ -1353,7 +1654,8 @@ const AbilitySystem = {
         const ab=this.defs[key], now=performance.now();
         if(now-ab.lastUsed < ab.cd*this._cdMul()) return;
         ab.lastUsed=now;
-        this['_'+key.toLowerCase()]();
+        if(currentCharacterId==='NANAMI') this['_nanami_'+key.toLowerCase()]();
+        else this['_'+key.toLowerCase()]();
     },
  
     _s1() {
@@ -1414,7 +1716,108 @@ const AbilitySystem = {
             }
         },260);
     },
- 
+
+    // ════════════════════════════════════════════════════
+    // NANAMI ABILITIES
+    // ════════════════════════════════════════════════════
+    // S1 — Ratio Strike: dash + heavy cleaver strike, bonus ratio stacks
+    _nanami_s1() {
+        AbilityAnimController.play(ABILITY_ANIMS.S1);
+        const dir=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+        const gap=Math.max(0,pMesh.position.distanceTo(eMesh.position)-1.8);
+        pMesh.position.addScaledVector(dir,Math.min(5.0,gap));
+        pMesh.position.x=Math.max(-38,Math.min(38,pMesh.position.x));
+        pMesh.position.z=Math.max(-38,Math.min(38,pMesh.position.z));
+        GAME_STATE.player.position.copy(pMesh.position);
+        setTimeout(()=>{
+            if(GAME_STATE.enemy.hp>0 && pMesh.position.distanceTo(eMesh.position)<=WEAPONS.CLEAVER.range+1.5){
+                const d=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+                // Heavier hitstop and shake for precision dash strike
+                applyDamageToEnemy(_mkAbWep(Math.round(WEAPONS.CLEAVER.damage*1.1),8,130,0.26),d,1);
+                // Dash strike counts as 3 ratio stacks (applyDamage already added 1)
+                if(GAME_STATE.enemy.hp>0){
+                    const bonus = 2 + (GAME_STATE.player.ratioStackBonus||0);
+                    GAME_STATE.enemy.ratioStacks=(GAME_STATE.enemy.ratioStacks||0)+bonus;
+                    if(GAME_STATE.enemy.ratioStacks>=7) GAME_STATE.enemy.ratioMarked=true;
+                }
+            }
+        },100);
+    },
+
+    // S2 — Collapse Cleave: wide downward slam, heavy hitstop + strong shake
+    _nanami_s2() {
+        AbilityAnimController.play(ABILITY_ANIMS.S2);
+        if(pMesh.position.distanceTo(eMesh.position)<=6.0){
+            const dir=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+            // Heavy cleave: bigger hitstop and strong shake for impact feel
+            applyDamageToEnemy(_mkAbWep(38,14,180,0.38),dir,2);
+            GAME_STATE.enemy.hitstunEndTime=Math.max(GAME_STATE.enemy.hitstunEndTime,performance.now()+1800);
+            // Gold flash tinted slightly blue — cursed energy imbued strike
+            const fl=document.createElement('div');
+            fl.style.cssText='position:fixed;inset:0;background:rgba(200,160,0,0.26);pointer-events:none;z-index:9999;transition:opacity 0.30s';
+            document.body.appendChild(fl);
+            setTimeout(()=>{ fl.style.opacity='0'; setTimeout(()=>fl.remove(),330); },55);
+        }
+    },
+
+    // S3 — Calculation Step: instantly guarantees a Ratio Mark on the targeted enemy
+    _nanami_s3() {
+        AbilityAnimController.play(ABILITY_ANIMS.S3);
+        const state = GAME_STATE.enemy;
+        if(!state || state.hp<=0) return;
+        state.ratioStacks = 7;
+        state.ratioMarked = true;
+        setTimeout(()=>{
+            if(state.hp>0){
+                spawnMarkHitFX(eMesh.position.clone());
+                const fl=document.createElement('div');
+                fl.style.cssText='position:fixed;inset:0;background:rgba(30,100,255,0.16);pointer-events:none;z-index:9998;transition:opacity 0.28s';
+                document.body.appendChild(fl);
+                setTimeout(()=>{ fl.style.opacity='0'; setTimeout(()=>fl.remove(),320); },55);
+            }
+        },220);
+    },
+
+    // S4 — Ratio Execution (two paths):
+    //   NOT MARKED → instantly apply mark (7 stacks), deal moderate damage + blue burst
+    //   MARKED     → consume mark, massive damage, Black Flash VFX (no floating text)
+    _nanami_s4() {
+        if(!GAME_STATE.enemy || GAME_STATE.enemy.hp<=0) return;
+
+        if(!GAME_STATE.enemy.ratioMarked){
+            // ── Path A: apply mark ──
+            AbilityAnimController.play(ABILITY_ANIMS.S4);
+            GAME_STATE.enemy.ratioStacks = 7;
+            GAME_STATE.enemy.ratioMarked = true;
+            setTimeout(()=>{
+                if(GAME_STATE.enemy.hp>0){
+                    const d=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+                    applyDamageToEnemy(_mkAbWep(Math.round(WEAPONS.CLEAVER.damage*0.85),8,110,0.24),d,2);
+                    spawnMarkHitFX(eMesh.position.clone());
+                    // Blue cursed energy overlay — mark applied
+                    const fl=document.createElement('div');
+                    fl.style.cssText='position:fixed;inset:0;background:rgba(30,100,255,0.18);pointer-events:none;z-index:9998;transition:opacity 0.35s';
+                    document.body.appendChild(fl);
+                    setTimeout(()=>{ fl.style.opacity='0'; setTimeout(()=>fl.remove(),380); },65);
+                }
+            },200);
+            return;
+        }
+
+        // ── Path B: execute marked enemy with Black Flash ──
+        AbilityAnimController.play(ABILITY_ANIMS.S4);
+        GAME_STATE.enemy.ratioMarked=false;
+        GAME_STATE.enemy.ratioStacks=0;
+        setTimeout(()=>{
+            if(GAME_STATE.enemy.hp>0){
+                const d=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
+                // Massive damage, very heavy hitstop + shake + knockback
+                applyDamageToEnemy(_mkAbWep(Math.round(WEAPONS.CLEAVER.damage*4.2),28,270,0.60),d,4);
+                spawnBlackFlashVFX(eMesh.position.clone());
+            }
+        },200);
+    },
+
     updateUI(now) {
         const cdm=this._cdMul();
         ['S1','S2','S3','S4'].forEach(key=>{
@@ -1740,6 +2143,7 @@ function buildEntities() {
     const sk=new THREE.MeshStandardMaterial({ color:0xc8956a, roughness:0.68 });
     const hr=new THREE.MeshStandardMaterial({ color:0x0b0c10, roughness:0.9 });
     const sh=new THREE.MeshStandardMaterial({ color:0x0e0e14, roughness:0.88 });
+    GAME_STATE.player.rigMaterials = { sw, pt, sk, hr, sh };
  
     const upper=new THREE.Group(); pGroup.add(upper); rig.upper=upper;
  
@@ -1837,9 +2241,12 @@ function createEnemy(opts) {
         lastAttackTime: 0, attackCooldown: opts.attackCooldown,
         damage: opts.damage, range: opts.range,
         // ── Hooks for future enemy variety (NOT implemented yet) ──
-        type: opts.type || 'GRUNT',   // future: 'ELITE' | 'BOSS' | other archetypes
+        type: opts.type || 'GRUNT',
         isElite: false,
-        isBoss: false
+        isBoss: false,
+        // ── Nanami Ratio Mark system ──
+        ratioStacks: 0,
+        ratioMarked: false
     };
  
     // Lightweight DOM floating health bar (no extra 3D geometry/texture per enemy)
@@ -1850,8 +2257,18 @@ function createEnemy(opts) {
     barEl.appendChild(fillEl);
     const layer = document.getElementById('enemy-floating-bars');
     if (layer) layer.appendChild(barEl);
- 
-    return { state, mesh, barEl, barFillEl: fillEl };
+
+    // Nanami Ratio Mark floating "7:3" label
+    const markEl = document.createElement('div');
+    markEl.className = 'ratio-mark-label';
+    markEl.innerText = '7:3';
+    // text-shadow intentionally omitted from inline style — let .ratio-mark-label CSS animation drive it
+    markEl.style.cssText = 'position:absolute;display:none;pointer-events:none;'+
+        'color:#f1c40f;font-size:18px;font-weight:900;letter-spacing:2px;'+
+        'transform:translate(-50%,-100%);z-index:45;font-family:inherit;';
+    if (layer) layer.appendChild(markEl);
+
+    return { state, mesh, barEl, barFillEl: fillEl, markEl };
 }
  
  
@@ -1863,8 +2280,9 @@ const WeaponManager = {
     weapons: {},
  
     build() {
-        this.weapons.KATANA = this._buildKatana();
-        this.weapons.SPEAR  = this._buildSpear();
+        this.weapons.KATANA   = this._buildKatana();
+        this.weapons.SPEAR    = this._buildSpear();
+        this.weapons.CLEAVER  = this._buildCleaver();
         WeaponAttachmentSystem.attach(GAME_STATE.player.currentWeapon);
     },
  
@@ -2061,6 +2479,54 @@ const WeaponManager = {
         root.rotation.set(-Math.PI * 0.52, 0, 0.06);
         root.position.set(0.07, -0.14, 0.16);
         return root;
+    },
+
+    _buildCleaver() {
+        const root = new THREE.Group();
+        const M = this._mesh.bind(this);
+
+        // ══ RATIO CLEAVER — Nanami's wide bone-cleaver (white blade, dark grip) ══
+        // Reference: wide white rectangular blade, dark leather-wrap handle
+        const mBlade  = new THREE.MeshStandardMaterial({ color:0xf0efea, metalness:0.12, roughness:0.62 }); // off-white
+        const mSpot   = new THREE.MeshStandardMaterial({ color:0x1a1a1a, roughness:0.80 });                 // dark spots (cow-print)
+        const mEdge   = new THREE.MeshStandardMaterial({ color:0xe8e8e0, metalness:0.20, roughness:0.40 }); // lighter edge
+        const mSpine  = new THREE.MeshStandardMaterial({ color:0xd0cec8, metalness:0.10, roughness:0.65 });
+        const mGuard  = new THREE.MeshStandardMaterial({ color:0x5a4030, roughness:0.80 });                 // dark brown guard
+        const mGrip   = new THREE.MeshStandardMaterial({ color:0x2a1a0e, roughness:0.95 });                 // very dark leather
+        const mBand   = new THREE.MeshStandardMaterial({ color:0x1a0e06, roughness:0.98 });
+
+        // ── Wide rectangular blade ──
+        M(new THREE.BoxGeometry(0.32, 0.72, 0.040), mBlade,  0,      0.55,  0, root);
+        M(new THREE.BoxGeometry(0.32, 0.72, 0.012), mEdge,   0,      0.55,  0.026, root);
+        M(new THREE.BoxGeometry(0.010, 0.72, 0.040), mSpine, -0.155, 0.55,  0, root);
+        // Tip — flat blunt top
+        M(new THREE.BoxGeometry(0.32, 0.048, 0.040), mSpine,  0,      0.934, 0, root);
+        M(new THREE.BoxGeometry(0.32, 0.030, 0.040), mEdge,   0,      0.964, 0, root);
+        // Heel notch — signature Nanami cleaver detail
+        M(new THREE.BoxGeometry(0.062, 0.048, 0.045), mSpine, -0.129, 0.175, 0, root);
+
+        // ── Guard ──
+        M(new THREE.BoxGeometry(0.360, 0.058, 0.095), mGuard,  0, 0.115,  0, root);
+        M(new THREE.BoxGeometry(0.360, 0.025, 0.080), mGuard,  0, 0.148,  0, root);
+
+        // ── Handle ──
+        M(new THREE.BoxGeometry(0.075, 0.29, 0.075), mGrip,  0, -0.105, 0, root);
+        for (let i = 0; i < 4; i++) {
+            M(new THREE.BoxGeometry(0.083, 0.022, 0.083), mBand, 0, -0.200 + i * 0.078, 0, root);
+        }
+        // Pommel
+        M(new THREE.BoxGeometry(0.095, 0.055, 0.095), mGuard, 0, -0.295, 0, root);
+
+        // Cow-print spots — dark patches on the white blade
+        M(new THREE.BoxGeometry(0.10, 0.14, 0.042), mSpot,  0.04,  0.72,  0, root);
+        M(new THREE.BoxGeometry(0.12, 0.10, 0.042), mSpot, -0.06,  0.55,  0, root);
+        M(new THREE.BoxGeometry(0.07, 0.09, 0.042), mSpot,  0.08,  0.38,  0, root);
+        M(new THREE.BoxGeometry(0.08, 0.06, 0.042), mSpot, -0.03,  0.26,  0, root);
+
+        // FIX: blade was appearing backwards — rotate 180° on Y to face forward correctly
+        root.rotation.set(-Math.PI * 0.52, Math.PI, 0.06);
+        root.position.set(0.07, -0.20, 0.18);
+        return root;
     }
 };
  
@@ -2071,10 +2537,10 @@ const WeaponAttachmentSystem = {
     attach(weaponData) {
         const hand = GAME_STATE.player.handBone;
         if (!hand) return;
-        // Remove any existing weapon from hand
         while (hand.children.length > 0) hand.remove(hand.children[0]);
-        // Resolve key and attach matching 3D model
-        const key = (weaponData === WEAPONS.KATANA) ? 'KATANA' : 'SPEAR';
+        let key = 'KATANA';
+        if (weaponData === WEAPONS.SPEAR)   key = 'SPEAR';
+        if (weaponData === WEAPONS.CLEAVER) key = 'CLEAVER';
         const model = WeaponManager.weapons[key];
         if (model) hand.add(model);
         WeaponVisualController.activeWeaponKey = key;
@@ -2296,7 +2762,8 @@ _beginWaveIntro() {
     _disposeEnemy(entry) {
         if (!entry) return;
         if (entry.mesh && entry.mesh.parent) entry.mesh.parent.remove(entry.mesh);
-        if (entry.barEl && entry.barEl.parentNode) entry.barEl.parentNode.removeChild(entry.barEl);
+        if (entry.barEl  && entry.barEl.parentNode)  entry.barEl.parentNode.removeChild(entry.barEl);
+        if (entry.markEl && entry.markEl.parentNode) entry.markEl.parentNode.removeChild(entry.markEl);
     },
  
     // Keeps the legacy eMesh/GAME_STATE.enemy pointer (read by AbilitySystem,
@@ -2353,7 +2820,8 @@ onEnemyDeath(entry) {
 // ── WAVE CLEARED SEQUENCE ──
 _beginWaveClearedSequence() {
     this.wavesCleared = this.waveNumber;
-    this.phase = 'wave_cleared';
+    // FIX: was 'wave_cleared' — update() only handles 'countdown', so use that
+    this.phase = 'countdown';
     this.countdownValue = 5;
     this.phaseEndTime = performance.now() + 1000;
  
@@ -2369,17 +2837,21 @@ _beginWaveClearedSequence() {
 // ── PERK SYSTEM HOOK (safe entry point) ──
 _startPerkSelection() {
     setTimeout(() => {
-        // pause game loop safely
-        this.active = false;
- 
         if (typeof showPerkUI === "function") {
+            // Perk UI exists: pause wave manager; perk UI must call WaveManager.resumeAfterPerks()
+            this.active = false;
             const perks = typeof rollPerks === "function"
                 ? rollPerks(this.waveNumber, GAME_STATE.player?.pity || {})
                 : [];
- 
             showPerkUI(perks);
         }
+        // If no perk UI: do NOT set active=false — let countdown in update() drive next wave
     }, 700);
+},
+
+resumeAfterPerks() {
+    this.active = true;
+    // Countdown still running via update() — nothing else needed
 },
  
 // ── FREEZE ENEMIES (prevents movement + attacks) ──
@@ -2467,6 +2939,16 @@ function updateEnemyFloatingBars() {
         entry.barEl.style.top = sy + 'px';
         const pct = Math.max(0, Math.min(100, (entry.state.hp / entry.state.maxHp) * 100));
         entry.barFillEl.style.width = pct + '%';
+        // Nanami ratio mark label
+        if(entry.markEl){
+            if(currentCharacterId==='NANAMI' && entry.state.ratioMarked && entry.state.hp>0){
+                entry.markEl.style.display = 'block';
+                entry.markEl.style.left = sx + 'px';
+                entry.markEl.style.top  = (sy - 28) + 'px';
+            } else {
+                entry.markEl.style.display = 'none';
+            }
+        }
     });
 }
  
@@ -2497,8 +2979,12 @@ function setupInputListeners() {
                 }
                 break;
             }
-            case 'KeyQ': swapWeapon(WEAPONS.KATANA); break;
-            case 'KeyE': swapWeapon(WEAPONS.SPEAR);  break;
+            case 'KeyQ':
+                if(currentCharacterId==='TOJI') swapWeapon(WEAPONS.KATANA);
+                break;
+            case 'KeyE':
+                if(currentCharacterId==='TOJI') swapWeapon(WEAPONS.SPEAR);
+                break;
         }
         // ── Dynamic keybind actions (all read from KEYBINDS — updates instantly on remap) ──
         if(e.code === KEYBINDS.Awakening) AwakeningController.tryActivate();
@@ -2562,6 +3048,13 @@ const ANIM_MAP = {
         { fwd:WEAPONS.SPEAR.arcForward, ang:WEAPONS.SPEAR.arcAngle, shoulderZ:-0.30, elbowStart:0.28, bodyLeanZ:-0.10, lungeZ:0.30 },
         { fwd:WEAPONS.SPEAR.arcForward, ang:WEAPONS.SPEAR.arcAngle, shoulderZ: 0.32, elbowStart:0.30, bodyLeanZ: 0.12, lungeZ:0.34 },
         { fwd:WEAPONS.SPEAR.arcForward, ang:WEAPONS.SPEAR.arcAngle, shoulderZ: 0.00, elbowStart:0.45, bodyLeanZ: 0.00, lungeZ:0.48 }
+    ],
+    // Cleaver — heavy downward chops; heavier wind-up, bigger lunge on finisher
+    CLEAVER: [
+        { fwd:WEAPONS.CLEAVER.arcForward, ang:WEAPONS.CLEAVER.arcAngle, shoulderZ: 0.00, elbowStart:0.90, bodyLeanZ: 0.00, lungeZ:0.32 },
+        { fwd:WEAPONS.CLEAVER.arcForward, ang:WEAPONS.CLEAVER.arcAngle, shoulderZ: 0.40, elbowStart:0.55, bodyLeanZ: 0.14, lungeZ:0.24 },
+        { fwd:WEAPONS.CLEAVER.arcForward, ang:WEAPONS.CLEAVER.arcAngle, shoulderZ:-0.40, elbowStart:0.52, bodyLeanZ:-0.14, lungeZ:0.24 },
+        { fwd:WEAPONS.CLEAVER.arcForward, ang:WEAPONS.CLEAVER.arcAngle, shoulderZ: 0.00, elbowStart:0.95, bodyLeanZ: 0.00, lungeZ:0.50 }
     ]
 };
  
@@ -2667,7 +3160,21 @@ function applyDamageToEnemy(wep,dir,step,targetEntry) {
     }
  
     state.hp=Math.max(0,state.hp-dmg);
- 
+
+    // ── Nanami Ratio Mark: every hit adds stacks; 7 marks the enemy ──
+    if(currentCharacterId==='NANAMI' && state.hp>0){
+        const wasMarked = state.ratioMarked;
+        // During Overtime ratioStackBonus=1 so each hit adds 2 stacks instead of 1
+        state.ratioStacks = (state.ratioStacks||0) + 2 + (GAME_STATE.player.ratioStackBonus||0);
+        if(state.ratioStacks>=7 && !state.ratioMarked) state.ratioMarked = true;
+        // Hitting an already-marked enemy (S4 clears mark first, so this never fires during execute)
+        if(wasMarked){
+            combatFX.hitstopEndTime = Math.max(combatFX.hitstopEndTime, now + 70);
+            combatFX.shakeIntensity  = Math.max(combatFX.shakeIntensity,  0.18);
+            spawnMarkHitFX(mesh.position.clone());
+        }
+    }
+
     // Lifesteal perks: heal the player for a fraction of damage actually dealt
     if (P.lifestealPct > 0) {
         GAME_STATE.player.hp = Math.min(GAME_STATE.player.maxHp, GAME_STATE.player.hp + dmg*P.lifestealPct);
@@ -2695,7 +3202,7 @@ function applyDamageToEnemy(wep,dir,step,targetEntry) {
     combatFX.knockbackTargetMesh = mesh;   // which enemy this knockback/squish belongs to
  
     // ── Enemy hitstun (scaled by weapon, then by combo step) ──
-    const baseStun = (wep === WEAPONS.KATANA ? 360 : 210);
+    const baseStun = wep === WEAPONS.KATANA ? 360 : wep === WEAPONS.CLEAVER ? 300 : 210;
     state.hitstunEndTime = now + baseStun*tuning.hitstunMul;
     if(wep.special==='seal') state.sealEndTime = now + 3200;
  
@@ -2717,8 +3224,111 @@ function applyDamageToEnemy(wep,dir,step,targetEntry) {
     if(state.hp<=0) WaveManager.onEnemyDeath(entry);   // replaces the old single-enemy triggerEnd('VICTORY')
 }
  
+// ── BLACK FLASH VFX — communicates through visuals alone, no floating text ──
+// Spawns: black sphere burst + red lightning bolts + black shockwave ring + brief DOM blackout
+function spawnBlackFlashVFX(pos) {
+    if (!scene) return;
+    const t0 = performance.now(), dur = 680;
+
+    // Black impact sphere — expands rapidly from hit point
+    const sGeo = new THREE.SphereGeometry(0.55, 8, 8);
+    const sMat = new THREE.MeshBasicMaterial({ color:0x000000, transparent:true, opacity:1.0 });
+    const sphere = new THREE.Mesh(sGeo, sMat);
+    sphere.position.copy(pos).add(new THREE.Vector3(0, 1.4, 0));
+    scene.add(sphere);
+
+    // Red lightning bolts radiating outward from impact
+    const boltCount = 8;
+    const bGeo = new THREE.BoxGeometry(0.065, 1.9, 0.065);
+    const boltData = [];
+    for (let i = 0; i < boltCount; i++) {
+        const angle = (i / boltCount) * Math.PI * 2 + Math.random() * 0.4;
+        const bMat = new THREE.MeshBasicMaterial({ color:0xff1100, transparent:true, opacity:0.95 });
+        const bolt = new THREE.Mesh(bGeo, bMat);
+        bolt.position.copy(pos).add(new THREE.Vector3(
+            Math.cos(angle) * 1.0, 1.4 + (Math.random() * 0.8 - 0.4), Math.sin(angle) * 1.0
+        ));
+        bolt.rotation.set(Math.random()*0.5-0.25, 0, angle + Math.PI*0.5);
+        scene.add(bolt);
+        boltData.push({ mesh:bolt, mat:bMat, cos:Math.cos(angle), sin:Math.sin(angle) });
+    }
+
+    // Black shockwave ring (flat torus expanding outward)
+    const rGeo = new THREE.TorusGeometry(0.55, 0.10, 6, 22);
+    const rMat = new THREE.MeshBasicMaterial({ color:0x0a0a0a, transparent:true, opacity:0.90 });
+    const ring = new THREE.Mesh(rGeo, rMat);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.copy(pos).add(new THREE.Vector3(0, 0.12, 0));
+    scene.add(ring);
+
+    // Brief black DOM overlay — the clearest possible Black Flash signal
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:#000;pointer-events:none;z-index:9999;opacity:0.82;transition:opacity 0.14s';
+    document.body.appendChild(overlay);
+    setTimeout(() => { overlay.style.opacity='0'; setTimeout(()=>overlay.remove(), 160); }, 85);
+
+    (function tick() {
+        const t = Math.min(1, (performance.now()-t0)/dur);
+        const e = 1 - Math.pow(1-t, 2);  // ease-out
+
+        // Sphere: rapid expansion + fade after initial burst
+        sphere.scale.setScalar(1 + e*6.5);
+        sMat.opacity = t < 0.22 ? 1.0 : Math.max(0, 1.0 - ((t-0.22)/0.78)*1.5);
+
+        // Bolts: spread outward + fade
+        boltData.forEach(b => {
+            const spread = 1.0 + e*3.0;
+            b.mesh.position.x = pos.x + b.cos * spread;
+            b.mesh.position.z = pos.z + b.sin * spread;
+            b.mat.opacity = Math.max(0, 0.95 - t*1.7);
+        });
+
+        // Ring: expand + fade
+        const rs = 1 + e*12;
+        ring.scale.set(rs, rs, 1);
+        rMat.opacity = Math.max(0, 0.90 - t*1.4);
+
+        if (t < 1) {
+            requestAnimationFrame(tick);
+        } else {
+            scene.remove(sphere); sGeo.dispose(); sMat.dispose();
+            boltData.forEach(b => { scene.remove(b.mesh); b.mat.dispose(); });
+            bGeo.dispose();
+            scene.remove(ring); rGeo.dispose(); rMat.dispose();
+        }
+    })();
+}
+
+// ── MARK HIT VFX — blue burst when hitting an already-marked enemy ──
+function spawnMarkHitFX(pos) {
+    if (!scene) return;
+    const t0 = performance.now(), dur = 340;
+    const rGeo = new THREE.TorusGeometry(0.38, 0.08, 6, 16);
+    const rMat = new THREE.MeshBasicMaterial({ color:0x3399ff, transparent:true, opacity:0.85 });
+    const ring = new THREE.Mesh(rGeo, rMat);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.copy(pos).add(new THREE.Vector3(0, 1.2, 0));
+    scene.add(ring);
+    // Brief blue DOM flash
+    const fl = document.createElement('div');
+    fl.style.cssText = 'position:fixed;inset:0;background:rgba(30,120,255,0.16);pointer-events:none;z-index:9998;transition:opacity 0.22s';
+    document.body.appendChild(fl);
+    requestAnimationFrame(() => { fl.style.opacity='0'; setTimeout(()=>fl.remove(), 240); });
+    (function tick() {
+        const t = Math.min(1, (performance.now()-t0)/dur);
+        const e = 1 - Math.pow(1-t, 2);
+        const s = 1 + e*3.8;
+        ring.scale.set(s, s, 1);
+        rMat.opacity = Math.max(0, 0.85 - t*1.3);
+        if (t < 1) requestAnimationFrame(tick);
+        else { scene.remove(ring); rGeo.dispose(); rMat.dispose(); }
+    })();
+}
+
 function applyDamageToPlayer(dmgOverride, attackerEntry) {
     if(GAME_STATE.player.hp<=0||GAME_STATE.player.isDashing) return;
+    // Hyperarmor: invulnerable during awakening animation
+    if(AwakeningController.inputLocked()) return;
     const baseDmg = (dmgOverride !== undefined) ? dmgOverride : GAME_STATE.enemy.damage;
     const incomingDmg=Math.round(baseDmg*AwakeningController.getDamageReceiveMul()*GAME_STATE.player.damageTakenMul);
     GAME_STATE.player.hp=Math.max(0,GAME_STATE.player.hp-incomingDmg);
@@ -2854,7 +3464,7 @@ function updateWalkAnimation(delta,now) {
         const prog=(now-GAME_STATE.player.attackStartTime)/wDur;
         if(prog<1.0){
             // ── Resolve this hit's animation definition ──
-            const animKey = wep===WEAPONS.KATANA ? 'KATANA' : 'SPEAR';
+            const animKey = wep===WEAPONS.KATANA ? 'KATANA' : wep===WEAPONS.CLEAVER ? 'CLEAVER' : 'SPEAR';
             const hitIdx  = Math.max(0, (combatFX.activeM1Step||1) - 1);
             const h       = ANIM_MAP[animKey][hitIdx];
  
