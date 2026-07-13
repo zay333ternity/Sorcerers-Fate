@@ -288,63 +288,6 @@
             background:linear-gradient(90deg,#7c3aed,#c084fc);
             box-shadow:0 0 8px rgba(168,85,247,0.65);
         }
-
-        /* ── Rika Manifestation Gauge (Yuta only) ── */
-        #rika-gauge-wrap {
-            position:absolute; bottom:56px; left:50%; transform:translateX(-50%);
-            display:none; flex-direction:column; align-items:center; gap:4px;
-            opacity:0; transition:opacity 0.5s; pointer-events:none;
-        }
-        #rika-gauge-wrap.game-visible { display:flex; opacity:1; }
-        #rika-gauge-label {
-            color:#ff5fc4; font-size:9px; font-weight:700; letter-spacing:2px;
-            text-transform:uppercase; text-shadow:0 0 8px rgba(255,95,196,0.7);
-        }
-        #rika-gauge-outer {
-            width:180px; height:6px; background:#1a0e15; border-radius:3px;
-            border:1px solid #6e1f4a; overflow:hidden;
-        }
-        #rika-gauge-fill {
-            height:100%; width:0%; border-radius:3px;
-            background:linear-gradient(90deg,#a3195b,#ff5fc4);
-            transition:width 0.12s ease-out;
-        }
-        #rika-gauge-text { color:#ff8fd4; font-size:8px; font-weight:600; }
-        #rika-gauge-wrap.tier-ready #rika-gauge-fill {
-            box-shadow:0 0 8px rgba(255,95,196,0.65);
-        }
-        #rika-gauge-wrap.tier-ready #rika-gauge-label {
-            animation:rika-ready-pulse 1.1s ease-in-out infinite;
-        }
-        @keyframes rika-ready-pulse {
-            0%,100% { text-shadow:0 0 8px rgba(255,95,196,0.7); }
-            50%      { text-shadow:0 0 16px rgba(255,95,196,1), 0 0 26px rgba(255,60,180,0.6); }
-        }
-
-        /* ── Copy Technique display (above Yuta's S1 icon) ── */
-        .ab-copy-lbl {
-            position:absolute; bottom:100%; left:50%; transform:translateX(-50%);
-            margin-bottom:6px; white-space:nowrap;
-            font-size:10px; font-weight:700; letter-spacing:0.5px;
-            padding:3px 8px; border-radius:4px;
-            background:rgba(10,4,12,0.85); pointer-events:none;
-            opacity:0; transition:opacity 0.25s;
-        }
-        .ab-copy-common    { color:#e0d8e8; border:1px solid #8a7a94; }
-        .ab-copy-rare      { color:#c9a9ff; border:1px solid #9b59ff; text-shadow:0 0 6px rgba(155,89,255,0.6); }
-        .ab-copy-legendary { color:#ffe14f; border:1px solid #ffcf3f; text-shadow:0 0 8px rgba(255,225,79,0.85); animation:rika-ready-pulse 0.8s ease-in-out infinite; }
-
-        /* Queen's Protection defensive glow on player panel */
-        .player-panel.queens-protection-active {
-            border-color:#ff5fc4 !important;
-            box-shadow:0 0 18px rgba(255,95,196,0.55) !important;
-            animation:queens-pulse 1.0s ease-in-out infinite;
-        }
-        @keyframes queens-pulse {
-            0%,100% { box-shadow:0 0 12px rgba(255,95,196,0.4); }
-            50%      { box-shadow:0 0 26px rgba(255,95,196,0.75); }
-        }
-
         /* Active awakening pulse on player panel */
         .player-panel.awakening-active {
             border-color:#7c3aed !important;
@@ -411,7 +354,55 @@
             padding:0 2px;
         }
         .ab-slot.ab-ready .ab-name-lbl { color:#aaa; }
- 
+
+        /* ── Uraume "Frozen Servant" ice-themed ability bar skin (additive — scoped
+             entirely under #ability-bar.theme-uraume so it never touches Toji/
+             Nanami/Naoya's shared .ab-slot styling) ── */
+        #ability-bar.theme-uraume .ab-slot {
+            background:linear-gradient(160deg, rgba(18,38,58,0.62), rgba(6,14,24,0.82));
+            border:1px solid #3fa8d6;
+            box-shadow:0 0 10px rgba(120,210,255,0.18) inset, 0 0 6px rgba(90,190,255,0.20);
+        }
+        #ability-bar.theme-uraume .ab-slot.ab-ready {
+            border-color:#a8ecff; box-shadow:0 0 12px rgba(160,230,255,0.65);
+        }
+        #ability-bar.theme-uraume .ab-cooldown-fill {
+            background:linear-gradient(0deg,rgba(80,190,255,0.32),rgba(200,240,255,0.22));
+        }
+        #ability-bar.theme-uraume .ab-key-lbl { color:#9fe0ff; text-shadow:0 0 6px rgba(120,210,255,0.8); }
+        #ability-bar.theme-uraume .ab-slot.ab-ready .ab-key-lbl { color:#e4faff; }
+        #ability-bar.theme-uraume .ab-name-lbl { color:#6fa8c0; }
+        #ability-bar.theme-uraume .ab-slot.ab-ready .ab-name-lbl { color:#d8f4ff; }
+        /* Frost Calm: Maximum Output — S1 glows while the awakening upgrade is armed */
+        #ability-bar.theme-uraume .ab-slot#ab-slot-s1.ab-glow-ice {
+            border-color:#bdf3ff; box-shadow:0 0 22px 6px rgba(140,225,255,0.85);
+            animation: uraumeIceGlow 1.1s ease-in-out infinite;
+        }
+        @keyframes uraumeIceGlow {
+            0%,100% { box-shadow:0 0 14px 3px rgba(140,225,255,0.55); }
+            50%      { box-shadow:0 0 26px 8px rgba(190,240,255,0.95); }
+        }
+
+        /* ── Uraume Freeze Meter — only rendered while an enemy has freeze buildup ── */
+        .freeze-meter-bar {
+            position:absolute; width:48px; height:5px;
+            background:rgba(6,18,28,0.85); border:1px solid #1a3a4a; border-radius:2px;
+            transform:translate(-50%,-50%); display:none; overflow:hidden;
+        }
+        .freeze-meter-fill {
+            height:100%; width:0%; border-radius:2px;
+            background:linear-gradient(90deg,#4fc3ff,#dff6ff);
+            transition:width 0.12s linear;
+        }
+        .freeze-meter-bar.freeze-full .freeze-meter-fill {
+            background:linear-gradient(90deg,#8fe8ff,#ffffff);
+            animation: freezeFullPulse 0.7s ease-in-out infinite;
+        }
+        @keyframes freezeFullPulse {
+            0%,100% { filter:brightness(1); }
+            50%      { filter:brightness(1.6); }
+        }
+
         /* ── Settings Modal ── */
         #settings-modal {
             display:none; position:fixed; inset:0;
@@ -554,6 +545,275 @@
             margin-top:14px; color:#6d6885; font-size:9px; font-weight:700;
             letter-spacing:1px; text-transform:uppercase; text-align:center;
         }
+
+        /* ══════════════════════════════════════════════════
+           PHASE 1 ADDITIONS — Roguelike Perk System (additive)
+           ══════════════════════════════════════════════════ */
+
+        /* ── Perk screen top controls (Reveal All / Rerolls) ── */
+        .perk-controls-row {
+            display:flex; align-items:center; justify-content:center; gap:18px;
+            margin-bottom:16px;
+        }
+        .perk-ctrl-btn {
+            background:rgba(124,58,237,0.14); border:1px solid #4c3a7a; color:#d8cdfa;
+            font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+            padding:8px 16px; border-radius:8px; cursor:pointer; transition:all 0.2s ease;
+        }
+        .perk-ctrl-btn:hover:not(:disabled) { background:rgba(124,58,237,0.32); border-color:#7c3aed; }
+        .perk-ctrl-btn:disabled { opacity:0.35; cursor:not-allowed; }
+        .perk-reroll-count {
+            color:#fbbf24; font-size:11px; font-weight:800; letter-spacing:1px;
+        }
+
+        /* ── Face-down card state ── */
+        .perk-card { perspective:900px; position:relative; overflow:visible; }
+        .perk-card-inner {
+            position:relative; width:100%; flex:1; display:flex; flex-direction:column;
+            transition:transform 0.55s cubic-bezier(.2,.9,.25,1);
+            transform-style:preserve-3d;
+        }
+        .perk-card.revealed .perk-card-inner { transform: rotateY(180deg); }
+        .perk-card-face { backface-visibility:hidden; width:100%; }
+        .perk-card-face.back {
+            position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+            flex-direction:column; gap:10px;
+        }
+        .perk-card-face.front { transform:rotateY(180deg); display:flex; flex-direction:column; height:100%; }
+        .perk-back-symbol {
+            font-size:40px; color:#4c3a7a; text-shadow:0 0 18px rgba(124,58,237,0.5);
+        }
+        .perk-back-hint {
+            color:#5c5578; font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+        }
+        .perk-card.pickable { cursor:pointer; }
+        .perk-card.pickable:hover .perk-card-inner { transform:rotateY(180deg) translateY(-2px); }
+
+        /* Hover micro-interactions for unrevealed cards */
+        .perk-card.hovershake { animation: perkHoverShake 0.35s ease; }
+        @keyframes perkHoverShake {
+            0%,100% { transform:translateY(0) rotate(0); }
+            25% { transform:translateY(-2px) rotate(-1deg); }
+            75% { transform:translateY(-2px) rotate(1deg); }
+        }
+
+        /* ── Rarity reveal animations (escalating drama by grade) ── */
+        .perk-card.revealfx-GRADE_4 .perk-card-face.front { animation: perkRevealSimple 0.5s ease; }
+        .perk-card.revealfx-GRADE_3 .perk-card-face.front { animation: perkRevealPulse 0.7s ease; }
+        .perk-card.revealfx-GRADE_2 .perk-card-face.front { animation: perkRevealShakeGlow 0.8s ease; }
+        .perk-card.revealfx-GRADE_1 .perk-card-face.front { animation: perkRevealDramatic 1.1s ease; }
+        .perk-card.revealfx-SPECIAL_GRADE .perk-card-face.front { animation: perkRevealSpecial 1.6s ease; }
+        .perk-card.revealfx-SPECIAL_GRADE.done {
+            box-shadow:0 0 26px rgba(239,68,68,0.65), 0 0 54px rgba(239,68,68,0.28);
+            animation: perkSpecialAura 2.2s ease-in-out infinite;
+        }
+        @keyframes perkRevealSimple { from{ opacity:0.4; transform:rotateY(180deg) scale(0.94);} to{ opacity:1; transform:rotateY(180deg) scale(1);} }
+        @keyframes perkRevealPulse {
+            0%{ box-shadow:0 0 0 rgba(74,222,128,0); }
+            40%{ box-shadow:0 0 24px rgba(74,222,128,0.65); }
+            100%{ box-shadow:0 0 10px rgba(74,222,128,0.25); }
+        }
+        @keyframes perkRevealShakeGlow {
+            0%,100%{ transform:rotateY(180deg) translateX(0); }
+            15%{ transform:rotateY(180deg) translateX(-4px); }
+            30%{ transform:rotateY(180deg) translateX(4px); }
+            45%{ transform:rotateY(180deg) translateX(-3px); }
+            60%{ transform:rotateY(180deg) translateX(3px); }
+            75%{ transform:rotateY(180deg) translateX(-1px); box-shadow:0 0 26px rgba(168,85,247,0.6); }
+        }
+        @keyframes perkRevealDramatic {
+            0%,100%{ transform:rotateY(180deg) translateX(0) scale(1); filter:brightness(1); }
+            10%{ transform:rotateY(180deg) translateX(-6px) scale(1.02); filter:brightness(1.6); }
+            20%{ transform:rotateY(180deg) translateX(6px) scale(1.02); filter:brightness(1); }
+            30%{ transform:rotateY(180deg) translateX(-5px) scale(1.02); filter:brightness(1.6); }
+            40%{ transform:rotateY(180deg) translateX(5px) scale(1.02); filter:brightness(1); }
+            55%{ transform:rotateY(180deg) translateX(-2px) scale(1.03); filter:brightness(1.4); }
+            70%{ box-shadow:0 0 30px rgba(251,191,36,0.85); }
+            100%{ box-shadow:0 0 16px rgba(168,85,247,0.5); }
+        }
+        @keyframes perkRevealSpecial {
+            0%,100%{ transform:rotateY(180deg) translateX(0) scale(1); filter:brightness(1) saturate(1); }
+            8%{ transform:rotateY(180deg) translateX(-7px); filter:brightness(1.8) saturate(1.4); }
+            16%{ transform:rotateY(180deg) translateX(7px); }
+            24%{ transform:rotateY(180deg) translateX(-6px); filter:brightness(1.9); }
+            32%{ transform:rotateY(180deg) translateX(6px); }
+            40%{ transform:rotateY(180deg) translateX(-4px); box-shadow:0 0 34px rgba(239,68,68,0.9); }
+            48%{ transform:rotateY(180deg) translateX(4px); }
+            60%{ transform:rotateY(180deg) translateX(-1px) scale(1.06); box-shadow:0 0 48px rgba(239,68,68,1); }
+            75%{ transform:rotateY(180deg) scale(1.08); box-shadow:0 0 60px rgba(239,68,68,1),0 0 90px rgba(251,191,36,0.6); }
+            100%{ transform:rotateY(180deg) scale(1); box-shadow:0 0 24px rgba(239,68,68,0.65); }
+        }
+        @keyframes perkSpecialAura {
+            0%,100%{ box-shadow:0 0 22px rgba(239,68,68,0.55), 0 0 46px rgba(239,68,68,0.22); }
+            50%{ box-shadow:0 0 34px rgba(239,68,68,0.85), 0 0 68px rgba(239,68,68,0.4); }
+        }
+        .perk-special-banner {
+            position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+            background:linear-gradient(90deg,#fbbf24,#ef4444); color:#1a0500;
+            font-size:9px; font-weight:900; letter-spacing:2px; padding:3px 10px; border-radius:6px;
+            opacity:0; white-space:nowrap;
+        }
+        .perk-card.revealfx-SPECIAL_GRADE.done .perk-special-banner { opacity:1; }
+
+        .perk-card-icon { font-size:26px; margin-bottom:8px; }
+        .perk-card-buffs { color:#8fe0a8; font-size:11px; font-weight:700; margin-top:10px; }
+        .perk-select-pick-btn {
+            margin-top:12px; align-self:center; background:rgba(124,58,237,0.2); border:1px solid #7c3aed;
+            color:#fff; font-size:10px; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+            padding:7px 14px; border-radius:8px; opacity:0; pointer-events:none; transition:opacity 0.25s ease;
+        }
+        .perk-card.revealed .perk-select-pick-btn { opacity:1; pointer-events:auto; }
+
+        /* ── Selected-card pick animation ── */
+        .perk-card.chosen { animation: perkChosenPulse 0.5s ease forwards; z-index:5; }
+        @keyframes perkChosenPulse {
+            0%{ transform:rotateY(180deg) scale(1); }
+            50%{ transform:rotateY(180deg) scale(1.12); box-shadow:0 0 50px rgba(255,255,255,0.6); }
+            100%{ transform:rotateY(180deg) scale(1.02); opacity:0.0; }
+        }
+
+        /* ── Active Perk HUD (compact strip, bottom-left) ── */
+        #active-perk-hud {
+            position:fixed; left:20px; bottom:20px; z-index:400;
+            display:none; flex-direction:column; gap:6px; align-items:flex-start;
+        }
+        #active-perk-hud.game-visible { display:flex; }
+        .aph-icons-row { display:flex; gap:6px; background:rgba(6,4,18,0.72); border:1px solid #2a2245;
+            padding:7px 10px; border-radius:10px; backdrop-filter:blur(3px); }
+        .aph-icon {
+            width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+            font-size:14px; background:rgba(255,255,255,0.05); border:1.5px solid #555; cursor:default; position:relative;
+        }
+        .aph-icon.rarity-GRADE_4 { border-color:#9ca3af; }
+        .aph-icon.rarity-GRADE_3 { border-color:#4ade80; }
+        .aph-icon.rarity-GRADE_2 { border-color:#60a5fa; }
+        .aph-icon.rarity-GRADE_1 { border-color:#a855f7; box-shadow:0 0 6px rgba(168,85,247,0.5); }
+        .aph-icon.rarity-SPECIAL_GRADE { border-color:#ef4444; box-shadow:0 0 8px rgba(239,68,68,0.6); }
+        .aph-icon .aph-lock { position:absolute; top:-5px; right:-5px; font-size:9px; }
+        .aph-icon.proc-active {
+            animation: aphProcPulse 0.9s ease-in-out infinite;
+        }
+        @keyframes aphProcPulse {
+            0%,100% { box-shadow:0 0 4px rgba(255,255,255,0.15); }
+            50% { box-shadow:0 0 14px rgba(255,255,255,0.85); }
+        }
+        .aph-count { color:#c9c2e0; font-size:10px; font-weight:800; letter-spacing:1px; }
+        .aph-tooltip {
+            position:absolute; bottom:36px; left:0; background:#0e0b1e; border:1px solid #4c3a7a;
+            border-radius:8px; padding:8px 10px; width:180px; display:none; pointer-events:none; z-index:410;
+        }
+        .aph-icon:hover .aph-tooltip { display:block; }
+        .aph-tooltip-name { color:#fff; font-size:11px; font-weight:800; margin-bottom:3px; }
+        .aph-tooltip-grade { font-size:9px; font-weight:700; text-transform:uppercase; margin-bottom:4px; }
+        .aph-tooltip-desc { color:#a79fc4; font-size:10px; line-height:1.4; }
+
+        /* ── TAB Build Menu ── */
+        #build-menu-overlay {
+            position:fixed; inset:0; z-index:9400; display:none; align-items:center; justify-content:center;
+            background:rgba(2,2,8,0.88); backdrop-filter:blur(4px); opacity:0; transition:opacity 0.25s ease;
+        }
+        #build-menu-overlay.open { display:flex; }
+        #build-menu-overlay.visible { opacity:1; }
+        .build-menu-box {
+            width:min(760px,92vw); max-height:82vh; overflow-y:auto; background:rgba(10,8,26,0.97);
+            border:1px solid #2a2a4a; border-radius:16px; padding:26px 30px;
+        }
+        .build-menu-title { color:#fff; font-size:22px; font-weight:900; letter-spacing:3px; margin-bottom:4px; }
+        .build-menu-sub { color:#8f86ab; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:18px; }
+        .build-stats-grid {
+            display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px;
+        }
+        .build-stat-cell { background:rgba(255,255,255,0.03); border:1px solid #241f3a; border-radius:8px; padding:9px 12px; }
+        .build-stat-label { color:#726a92; font-size:9px; letter-spacing:1px; text-transform:uppercase; }
+        .build-stat-value { color:#e8e2f8; font-size:15px; font-weight:800; margin-top:2px; }
+        .build-grade-group { margin-bottom:16px; }
+        .build-grade-heading {
+            font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+            padding-bottom:6px; margin-bottom:8px; border-bottom:1px solid #241f3a;
+        }
+        .build-perk-row { display:flex; align-items:flex-start; gap:10px; padding:6px 0; }
+        .build-perk-icon { font-size:18px; width:26px; text-align:center; }
+        .build-perk-name { color:#fff; font-size:12px; font-weight:700; }
+        .build-perk-lock { font-size:10px; margin-left:6px; }
+        .build-perk-desc { color:#a79fc4; font-size:11px; line-height:1.4; margin-top:1px; }
+        .build-menu-close-hint { text-align:center; color:#5c5578; font-size:9px; letter-spacing:1px; text-transform:uppercase; margin-top:6px; }
+
+        /* ── Perk Replacement Modal (triggered at 10/10 capacity) ── */
+        #perk-replace-overlay {
+            position:fixed; inset:0; z-index:9600; display:none; align-items:center; justify-content:center;
+            background:rgba(2,2,8,0.9); backdrop-filter:blur(4px);
+        }
+        #perk-replace-overlay.open { display:flex; }
+        .replace-box { width:min(620px,90vw); max-height:80vh; overflow-y:auto; background:rgba(10,8,26,0.98);
+            border:1px solid #ef4444; border-radius:16px; padding:24px 26px; }
+        .replace-title { color:#fff; font-size:18px; font-weight:900; letter-spacing:2px; margin-bottom:4px; }
+        .replace-sub { color:#c99; font-size:11px; margin-bottom:16px; }
+        .replace-perk-row {
+            display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; cursor:pointer;
+            border:1px solid #241f3a; margin-bottom:6px; transition:border-color 0.15s ease, background 0.15s ease;
+        }
+        .replace-perk-row:hover { border-color:#7c3aed; background:rgba(124,58,237,0.1); }
+        .replace-perk-row.locked { opacity:0.4; cursor:not-allowed; }
+        .replace-perk-row.locked:hover { border-color:#241f3a; background:none; }
+        .replace-cancel-btn {
+            margin-top:14px; width:100%; background:rgba(255,255,255,0.05); border:1px solid #443a66; color:#cfc7e8;
+            font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; padding:10px; border-radius:8px; cursor:pointer;
+        }
+
+        /* ── Death Screen ── */
+        #death-screen-overlay {
+            position:fixed; inset:0; z-index:9700; display:none; align-items:center; justify-content:center;
+            background:rgba(2,2,8,0.92); backdrop-filter:blur(6px); opacity:0; transition:opacity 0.4s ease;
+        }
+        #death-screen-overlay.open { display:flex; }
+        #death-screen-overlay.visible { opacity:1; }
+        .death-box { text-align:center; }
+        .death-heading { color:#e74c3c; font-size:34px; font-weight:900; letter-spacing:6px;
+            text-shadow:0 0 30px rgba(231,76,60,0.6); margin-bottom:26px; }
+        .death-stats-row { display:flex; gap:16px; justify-content:center; margin-bottom:30px; flex-wrap:wrap; }
+        .death-stat { background:rgba(255,255,255,0.04); border:1px solid #2a2a4a; border-radius:10px; padding:12px 20px; min-width:120px; }
+        .death-stat-label { color:#847bab; font-size:9px; letter-spacing:1px; text-transform:uppercase; }
+        .death-stat-value { color:#fff; font-size:19px; font-weight:800; margin-top:4px; }
+        .death-btn-row { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+        .death-btn {
+            background:rgba(124,58,237,0.16); border:1px solid #7c3aed; color:#fff;
+            font-size:12px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+            padding:12px 24px; border-radius:10px; cursor:pointer; transition:all 0.2s ease;
+        }
+        .death-btn:hover { background:rgba(124,58,237,0.35); }
+        .death-btn.secondary { border-color:#443a66; background:rgba(255,255,255,0.03); }
+
+        /* ── Small floating perk flash message (Last Stand / Perfect Dodge) ── */
+        #perk-flash-msg {
+            position:fixed; top:26%; left:50%; transform:translate(-50%,-50%); z-index:600;
+            font-size:22px; font-weight:900; letter-spacing:3px; text-shadow:0 0 20px rgba(0,0,0,0.8);
+            opacity:0; pointer-events:none; transition:opacity 0.25s ease, transform 0.25s ease;
+        }
+        #perk-flash-msg.show { opacity:1; transform:translate(-50%,-60%); }
+
+        /* ── TAB hint (small persistent reminder) ── */
+        #tab-build-hint {
+            position:fixed; right:20px; bottom:20px; z-index:400; display:none;
+            color:#7c72a0; font-size:10px; font-weight:700; letter-spacing:1px;
+            background:rgba(6,4,18,0.6); border:1px solid #2a2245; padding:6px 10px; border-radius:8px;
+        }
+        #tab-build-hint.game-visible { display:block; }
+
+        /* ── Perk-picked toast notification ── */
+        #perk-pick-toast {
+            position:fixed; top:20px; left:50%; transform:translate(-50%,-140%); z-index:500;
+            display:flex; align-items:center; gap:12px; background:rgba(10,8,26,0.95);
+            border:1px solid #7c3aed; border-radius:12px; padding:12px 20px 12px 14px;
+            box-shadow:0 8px 30px rgba(0,0,0,0.5); transition:transform 0.4s cubic-bezier(.2,.9,.25,1), opacity 0.4s ease;
+            opacity:0; pointer-events:none; max-width:380px;
+        }
+        #perk-pick-toast.show { transform:translate(-50%,0); opacity:1; }
+        .toast-icon { font-size:28px; flex-shrink:0; }
+        .toast-body { text-align:left; }
+        .toast-title { color:#8fe0a8; font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:2px; }
+        .toast-name { color:#fff; font-size:14px; font-weight:800; }
+        .toast-grade { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-left:6px; padding:1px 6px; border-radius:4px; }
+        .toast-desc { color:#a79fc4; font-size:11px; margin-top:2px; line-height:1.35; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -622,7 +882,6 @@
             <li><strong>SPACE</strong> — Attack</li>
             <li><strong>SHIFT</strong> — Dash Burst</li>
             <li class="ctrl-swap"><strong>Q / E</strong> — Swap Weapons</li>
-            <li class="ctrl-rika" style="display:none;"><strong>R</strong> — Summon Rika (25%+ gauge)</li>
             <li><strong>G</strong> — Awakening (meter full)</li>
         </ul>
     </div>
@@ -637,21 +896,10 @@
         <div id="awakening-ready-hint">[ G ] AWAKEN</div>
     </div>
 </div>
-
-<!-- ── Rika Manifestation Gauge (Yuta only) ── -->
-<div id="rika-gauge-wrap">
-    <div id="rika-gauge-label">RIKA MANIFESTATION</div>
-    <div id="rika-gauge-outer"><div id="rika-gauge-fill"></div></div>
-    <div style="display:flex;gap:12px;align-items:center;">
-        <div id="rika-gauge-text">0</div>
-        <div style="color:#ff8fd4;font-size:8px;letter-spacing:1px;">[ R ] SUMMON</div>
-    </div>
-</div>
  
 <!-- ── Ability Bar ── -->
 <div id="ability-bar">
     <div class="ab-slot" id="ab-slot-s1">
-        <div class="ab-copy-lbl" id="ab-copy-technique"></div>
         <div class="ab-cooldown-fill" id="ab-fill-s1"></div>
         <div class="ab-key-lbl" id="ab-key-s1">1</div>
         <div class="ab-name-lbl" id="ab-name-s1">Flurry</div>
@@ -697,10 +945,58 @@
 <!-- ── Perk Selection overlay (additive) ── -->
 <div id="perk-select-overlay">
     <div class="perk-select-inner">
-        <div class="perk-select-title">WAVE CLEARED</div>
+        <div class="perk-select-title" id="perk-select-title">CHOOSE YOUR FATE</div>
         <div class="perk-select-sub">Choose Your Perk</div>
         <div class="perk-pity-readout" id="perk-pity-readout"></div>
+        <div class="perk-controls-row">
+            <button class="perk-ctrl-btn" id="perk-reveal-all-btn">Reveal All</button>
+            <div class="perk-reroll-count" id="perk-reroll-readout">Rerolls Remaining: 0</div>
+            <button class="perk-ctrl-btn" id="perk-reroll-btn">Reroll</button>
+        </div>
         <div class="perk-card-row" id="perk-card-row"></div>
+    </div>
+</div>
+
+<!-- ── Perk Replacement Modal (additive) ── -->
+<div id="perk-replace-overlay">
+    <div class="replace-box">
+        <div class="replace-title">PERKS FULL — 10 / 10</div>
+        <div class="replace-sub">Choose an existing perk to replace with your new perk.</div>
+        <div id="perk-replace-list"></div>
+        <button class="replace-cancel-btn" id="perk-replace-cancel">Keep Current Perks (Discard New)</button>
+    </div>
+</div>
+
+<!-- ── Active Perk HUD (additive) ── -->
+<div id="active-perk-hud">
+    <div class="aph-icons-row" id="aph-icons-row"></div>
+    <div class="aph-count" id="aph-count">Perks 0 / 10</div>
+</div>
+<div id="tab-build-hint">[ TAB ] BUILD</div>
+<div id="perk-flash-msg"></div>
+<div id="perk-pick-toast"></div>
+
+<!-- ── TAB Build Menu (additive) ── -->
+<div id="build-menu-overlay">
+    <div class="build-menu-box">
+        <div class="build-menu-title">RUN BUILD</div>
+        <div class="build-menu-sub">Current Run Only — Not A Permanent Inventory</div>
+        <div class="build-stats-grid" id="build-stats-grid"></div>
+        <div id="build-perk-groups"></div>
+        <div class="build-menu-close-hint">[ TAB ] CLOSE</div>
+    </div>
+</div>
+
+<!-- ── Death Screen (additive) ── -->
+<div id="death-screen-overlay">
+    <div class="death-box">
+        <div class="death-heading">YOU DIED</div>
+        <div class="death-stats-row" id="death-stats-row"></div>
+        <div class="death-btn-row">
+            <button class="death-btn" id="death-btn-again">Play Again</button>
+            <button class="death-btn secondary" id="death-btn-charselect">Character Select</button>
+            <button class="death-btn secondary" id="death-btn-mainmenu">Main Menu</button>
+        </div>
     </div>
 </div>
  
@@ -808,7 +1104,7 @@ const CharacterData = {
         strengths:['Highest Mobility','Extremely Fast Attacks','Strong Combo Pressure','Unique Crowd Control Through Projection','Excellent Chase Potential'],
         weaknesses:['Lower Durability','Requires Maintaining Combos','Mistakes Are Punished Heavily','High Skill Ceiling'],
         weapons:['None — Projection Sorcery'],
-        image:'naoya.jpeg',
+        image:'naoyapfp.jpeg',
         playable:true,
         color:'#7fd4ff'
         // NOTE: no `awakening` block yet — Naoya's awakening is out of scope for this
@@ -817,31 +1113,27 @@ const CharacterData = {
         // cosmetic gap to be closed when Naoya's abilities/awakening are implemented.
     },
 
-    // NOTE: keyed 'YUTA_OKKOTSU' (not 'YUTA') deliberately — the locked "Wave
-    // Exclusive" entry below already has id:'YUTA' as a narrative hook and must
-    // stay completely unchanged per spec. Every CharacterData lookup in this
-    // file is by object key (CharacterData[id]), never a scan of the `.id`
-    // field, so this coexists safely with zero risk of collision.
-    YUTA_OKKOTSU: {
-        id:'YUTA_OKKOTSU',
-        name:'Yuta Okkotsu',
-        title:'The Prodigy Second to The Strongest',
-        role:'Hybrid Technique Specialist',
-        difficulty:'Extreme',
-        stars:5,
-        combatStyle:'Adaptive Swordsmanship',
-        description:'A hybrid fighter who combines katana skill, randomly copied cursed techniques, and Rika\u2019s monstrous assistance. Yuta adapts mid-fight, blending swordplay with unpredictable borrowed power.',
-        strengths:['Versatile Kit','Randomized High-Value Techniques','Rika Summon Support','Strong Crowd Control'],
-        weaknesses:['Copy Technique Is Unpredictable','Resource Management Required','Needs Gauge Built Up For Rika'],
-        weapons:['Yuta\u2019s Katana','Borrowed Curses','Rika (Cursed Womb: Death Painting)'],
-        image:'yuta.jpeg',
+    URAUME: {
+        id:'URAUME',
+        name:'Uraume',
+        title:'The Frozen Servant',
+        role:'Crowd Control / Area Denial',
+        difficulty:'Moderate',
+        stars:3,
+        combatStyle:'Ice Control / Battlefield Denial',
+        description:'A master of ice manipulation who freezes the battlefield, controls enemy movement, and punishes those trapped in eternal frost.',
+        strengths:['Strong Crowd Control','Battlefield Denial','Freeze Lockdown','Great Against Groups'],
+        weaknesses:['Lower Single-Target Burst','Requires Positioning','Freeze Buildup Takes Setup'],
+        weapons:['Frost Technique'],
+        image:'uraume.jpeg',
         playable:true,
-        color:'#ff5fc4'
-        // NOTE: no `awakening` block yet, same pattern as Naoya above — Yuta's
-        // own unique "True Love Awakening" is explicitly out of scope for this
-        // phase (see spec). AwakeningController falls back to Toji's generic
-        // defaults for this charId in the meantime; closing that cosmetic gap
-        // is future work alongside the deferred True Love Awakening/Domain kit.
+        color:'#8fe0ff',
+        awakening:{
+            name:'FROZEN DOMINATION',
+            description:'Snow begins to fall and ice spreads from Uraume\'s feet as cursed energy intensifies into absolute cold.',
+            duration:24,
+            buffs:{ damageMultiplier:1.15, defenseMultiplier:1.12, speedMultiplier:1.12, cooldownReduction:0.85 }
+        }
     },
  
     MEGUMI: {
@@ -1043,6 +1335,10 @@ const MenuUI = {
             msg.style.opacity = '1';
             setTimeout(() => { msg.style.opacity = '0'; }, 1600);
 
+            // Reset perk-system run state (additive — does not touch combat internals)
+            if (typeof PerkSystem !== 'undefined') PerkSystem.resetForNewRun();
+            if (typeof ActivePerkHUD !== 'undefined') ActivePerkHUD.show();
+
             // Hand off to the wave manager (additive — does not touch combat internals)
             WaveManager.startRun();
 
@@ -1118,6 +1414,58 @@ function _applyNanamiGlasses(charId, rig) {
     upper.add(glassGroup);
 }
 
+// ── Uraume cosmetics: long flowing white hair (small crimson back-layer accent)
+// plus a thin white collar peeking above the black outer robe. Built once per
+// character-select (mirrors _applyNanamiGlasses' add/remove-by-name pattern) and
+// parented to rig.upper so it bobs naturally with the existing walk animation.
+// The hair group is also given a tiny idle sway, driven every frame from
+// UraumeVFX.updateHairSway() (see runGameLoop) — a no-op for every other character.
+function _applyUraumeCosmetics(charId, rig) {
+    const upper = rig && rig.upper;
+    if (!upper) return;
+    const old = upper.getObjectByName('uraume_cosmetics');
+    if (old) upper.remove(old);
+    if (charId !== 'URAUME') return;
+
+    const group = new THREE.Group();
+    group.name = 'uraume_cosmetics';
+
+    // White collar sliver — hints at the white inner shirt beneath the black robe
+    const collarMat = new THREE.MeshStandardMaterial({ color:0xf0f2f5, roughness:0.7 });
+    const collar = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.07, 0.46), collarMat);
+    collar.position.set(0, 1.905, 0);
+    collar.castShadow = true;
+    group.add(collar);
+
+    // Long flowing white hair — a handful of thin cascading strands down the back
+    const hairMat = new THREE.MeshStandardMaterial({ color:0xf1f3f6, roughness:0.55 });
+    const hairGroup = new THREE.Group();
+    hairGroup.name = 'uraume_hair_sway';
+    const strandDefs = [
+        { w:0.14, h:0.98, x:-0.13, y:1.78, z:-0.27 },
+        { w:0.14, h:0.92, x: 0.13, y:1.78, z:-0.27 },
+        { w:0.10, h:0.80, x:-0.03, y:1.72, z:-0.30 },
+        { w:0.10, h:0.80, x: 0.03, y:1.72, z:-0.30 }
+    ];
+    strandDefs.forEach(s => {
+        const strand = new THREE.Mesh(new THREE.BoxGeometry(s.w, s.h, 0.09), hairMat);
+        strand.position.set(s.x, s.y - s.h/2, s.z);
+        strand.castShadow = true;
+        hairGroup.add(strand);
+    });
+
+    // Small crimson accent — a single thin strand tucked on the BACK layer only,
+    // mostly hidden behind the white strands (subtle accent, never dominant)
+    const crimsonMat = new THREE.MeshStandardMaterial({ color:0x7a1420, roughness:0.5 });
+    const crimsonStrand = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.70, 0.06), crimsonMat);
+    crimsonStrand.position.set(0, 1.78 - 0.35, -0.335);
+    crimsonStrand.castShadow = true;
+    hairGroup.add(crimsonStrand);
+
+    group.add(hairGroup);
+    upper.add(group);
+}
+
 function _applyCharacterConfig(charId) {
     const char = CharacterData[charId];
     if(!char) return;
@@ -1141,6 +1489,13 @@ function _applyCharacterConfig(charId) {
             awakeningLabel: 'VENGEANCE OF ZENIN', awakeningColor: '#4fc3ff',
             cutsceneType: 'naoya'   // drives Naoya-specific ~1.2 s speed-burst awakening
         });
+    } else if(charId === 'URAUME'){
+        AwakeningController.setConfig({
+            displayName: 'FROZEN DOMINATION', damageMul: 1.20, damageReceiveMul: 0.88,
+            speedMul: 1.12, meterGain: 7, activeDuration: 24000,
+            awakeningLabel: 'FROZEN DOMINATION', awakeningColor: '#8fe0ff',
+            cutsceneType: 'uraume'   // drives Uraume-specific quick frost-spread awakening
+        });
     } else {
         // Toji (default)
         AwakeningController.setConfig({
@@ -1154,7 +1509,7 @@ function _applyCharacterConfig(charId) {
     AbilitySystem.setCharacter(charId);
 
     // Weapon
-    const startWep = (charId === 'NANAMI') ? WEAPONS.CLEAVER : (charId === 'NAOYA') ? WEAPONS.FISTS : (charId === 'YUTA_OKKOTSU') ? WEAPONS.YUTA_KATANA : WEAPONS.KATANA;
+    const startWep = (charId === 'NANAMI') ? WEAPONS.CLEAVER : (charId === 'NAOYA') ? WEAPONS.FISTS : (charId === 'URAUME') ? WEAPONS.FROST : WEAPONS.KATANA;
     GAME_STATE.player.currentWeapon = startWep;
     const wepNameEl = document.getElementById('current-weapon-name');
     if(wepNameEl) wepNameEl.innerText = startWep.name;
@@ -1178,14 +1533,15 @@ function _applyCharacterConfig(charId) {
         if(rm.hr) rm.hr.color.setHex(0xc9c25a);   // pale blonde/olive hair
         if(rm.sh) rm.sh.color.setHex(0x1f1f1f);   // dark sandals
         rm.sw.roughness = 0.62;   // slightly glossier — silk-like kimono fabric
-    } else if(rm && charId === 'YUTA_OKKOTSU'){
-        // Reference: cream/white high-collar zip jacket, black trousers, dark navy hair, white sneakers
-        if(rm.sw) rm.sw.color.setHex(0xe9e6db);   // cream/off-white jacket
-        if(rm.pt) rm.pt.color.setHex(0x15151b);   // black trousers
-        if(rm.sk) rm.sk.color.setHex(0xdba878);   // skin tone
-        if(rm.hr) rm.hr.color.setHex(0x181b26);   // dark navy-black hair
-        if(rm.sh) rm.sh.color.setHex(0xe8e8e2);   // white sneakers
-        rm.sw.roughness = 0.68;
+    } else if(rm && charId === 'URAUME'){
+        // Reference: black outer robe, pale cold skin, white hair (crimson accent added
+        // separately via _applyUraumeCosmetics), dark pants/sandals — no armor.
+        if(rm.sw) rm.sw.color.setHex(0x0c0c10);   // black outer robe
+        if(rm.pt) rm.pt.color.setHex(0x15151a);   // dark pants
+        if(rm.sk) rm.sk.color.setHex(0xd9c7c0);   // pale, cold skin tone
+        if(rm.hr) rm.hr.color.setHex(0xf1f3f6);   // white hair (dominant)
+        if(rm.sh) rm.sh.color.setHex(0x0e0e12);   // dark sandals
+        rm.sw.roughness = 0.70;
     } else if(rm){
         // Toji — reset to original dark colours
         if(rm.sw) rm.sw.color.setHex(0x080808);
@@ -1201,11 +1557,19 @@ function _applyCharacterConfig(charId) {
     // resetting to 1:1 for every other character keeps their weapons correctly sized.
     if(pMesh){
         if(charId === 'NAOYA') pMesh.scale.set(0.94, 1.04, 0.94);
+        else if(charId === 'URAUME') pMesh.scale.set(0.92, 1.08, 0.90);   // tall, slim, elegant
         else pMesh.scale.set(1, 1, 1);
     }
 
     // Nanami glasses — add/remove circular lens frames on the player rig
     _applyNanamiGlasses(charId, GAME_STATE.player.rig);
+
+    // Uraume — long white hair (crimson back-layer accent) + white collar underlayer
+    _applyUraumeCosmetics(charId, GAME_STATE.player.rig);
+
+    // Uraume ice-themed ability bar skin (additive CSS class toggle only)
+    const abilityBarEl = document.getElementById('ability-bar');
+    if(abilityBarEl) abilityBarEl.classList.toggle('theme-uraume', charId === 'URAUME');
 
     // Attach the correct starting weapon model to the hand bone
     WeaponAttachmentSystem.attach(startWep);
@@ -1214,13 +1578,8 @@ function _applyCharacterConfig(charId) {
     const ctrlEl = document.getElementById('controls-overlay');
     if(ctrlEl){
         const qeHint = ctrlEl.querySelector('.ctrl-swap');
-        if(qeHint) qeHint.style.display = (charId==='NANAMI' || charId==='NAOYA' || charId==='YUTA_OKKOTSU') ? 'none' : '';
-        const rikaHint = ctrlEl.querySelector('.ctrl-rika');
-        if(rikaHint) rikaHint.style.display = (charId==='YUTA_OKKOTSU') ? '' : 'none';
+        if(qeHint) qeHint.style.display = (charId==='NANAMI' || charId==='NAOYA' || charId==='URAUME') ? 'none' : '';
     }
-
-    // Rika Manifestation gauge — only Yuta uses this meter (additive HUD element)
-    RikaGaugeSystem.setCharacter(charId);
 }
  
 const WEAPONS = {
@@ -1238,11 +1597,13 @@ const WEAPONS = {
     // leaves the hand bone empty for this key). 4th hit activates Projection.
     FISTS:   { name:"Naoya's Fists",            damage:14, range:2.8, attackSpeed:210, knockback:6,  special:"projection",
                hitstopDur:60,  shakeMag:0.15, arcForward:0.22, arcAngle:0.95 },
-    // Yuta's Katana — balanced adaptive swordsmanship: quicker than Toji's heavy
-    // blade, hits softer per-swing but the 4-hit string carries unique per-hit
-    // effects (pull / small AoE / knockback) applied in executeAttackPipeline.
-    YUTA_KATANA: { name:"Yuta's Katana",        damage:18, range:3.6, attackSpeed:380, knockback:10, special:"cursed",
-               hitstopDur:80,  shakeMag:0.20, arcForward:0.32, arcAngle:1.30 }
+    // Frost — Uraume's ice-reinforced unarmed technique: calm, deliberate strikes.
+    // No hand model attached (bare technique, like Naoya's Fists); "special":"freeze"
+    // is descriptive only — the actual freeze buildup is applied additively from
+    // executeAttackPipeline (see the URAUME block there), the same convention used
+    // for Naoya's Projection passive.
+    FROST:   { name:"Ice Reinforced Combat",     damage:16, range:2.9, attackSpeed:260, knockback:7,  special:"freeze",
+               hitstopDur:70,  shakeMag:0.16, arcForward:0.24, arcAngle:0.90 }
 };
 const GAME_STATE = {
     player: {
@@ -1280,7 +1641,15 @@ const GAME_STATE = {
         //    system yet — mirrors the project's existing "future expansion" pattern) ──
         cursedEnergyRegenMul: 1.0,
         domainPowerMul: 1.0,
-        shikigamiDamageMul: 1.0
+        shikigamiDamageMul: 1.0,
+
+        // ── PHASE 1: Roguelike Perk System runtime fields (additive) ──
+        rerolls: 0,                 // perk-screen rerolls available, carries over
+        dashDistanceMul: 1.0,       // multiplies dash travel distance
+        staticSpeedMul: 1.0,        // permanent flat speed bonuses from perks (e.g. Quick Step)
+        cursedMomentumStacks: 0,    // Cursed Momentum: +3% move speed per kill, cap 10 stacks
+        perkFlags: {},              // boolean/condition flags consumed by PerkSystem hooks
+        perksCapacity: 10
     },
  
     enemy: {
@@ -1356,58 +1725,6 @@ const combatFX = {
     inputBuffer: false,
     inputBufferExpiry: 0
 };
-
-// ════════════════════════════════════════════════════════
-// RIKA MANIFESTATION GAUGE — new, fully additive resource system.
-// Separate from Awakening (TOJI_AWAKENING_STATE/AwakeningController) —
-// its own meter, its own HUD bar, its own state object. Only Yuta uses
-// it; every method below is a no-op (or simply doesn't get called) for
-// every other character, so nothing about Toji/Nanami/Naoya changes.
-// Modular by design: RIKA_GAUGE_STATE.value is a plain 0-100 number and
-// RikaGaugeSystem.add()/spend() are the only two mutators, so future
-// Rika mechanics (a 5th tier, alternate gain sources, etc.) can hook in
-// without touching the rest of the file.
-// ════════════════════════════════════════════════════════
-const RIKA_GAUGE_STATE = {
-    value: 0,        // 0–100
-    active: false     // true only while currentCharacterId === 'YUTA_OKKOTSU'
-};
-const RikaGaugeSystem = {
-    setCharacter(charId) {
-        RIKA_GAUGE_STATE.active = (charId === 'YUTA_OKKOTSU');
-        RIKA_GAUGE_STATE.value = 0;
-        const wrap = document.getElementById('rika-gauge-wrap');
-        if (wrap) wrap.classList.toggle('game-visible', RIKA_GAUGE_STATE.active);
-        this._refreshUI();
-    },
-    add(amount) {
-        if (!RIKA_GAUGE_STATE.active || !amount) return;
-        RIKA_GAUGE_STATE.value = Math.max(0, Math.min(100, RIKA_GAUGE_STATE.value + amount));
-        this._refreshUI();
-    },
-    spend(amount) {
-        RIKA_GAUGE_STATE.value = Math.max(0, RIKA_GAUGE_STATE.value - amount);
-        this._refreshUI();
-    },
-    // Highest manifestation tier currently affordable: 0, 25, 50, 75, or 100
-    currentTier() {
-        const v = RIKA_GAUGE_STATE.value;
-        if (v >= 100) return 100;
-        if (v >= 75) return 75;
-        if (v >= 50) return 50;
-        if (v >= 25) return 25;
-        return 0;
-    },
-    _refreshUI() {
-        const fill = document.getElementById('rika-gauge-fill');
-        const txt  = document.getElementById('rika-gauge-text');
-        const wrap = document.getElementById('rika-gauge-wrap');
-        if (fill) fill.style.width = RIKA_GAUGE_STATE.value + '%';
-        if (txt)  txt.innerText = Math.round(RIKA_GAUGE_STATE.value);
-        if (wrap) wrap.classList.toggle('tier-ready', this.currentTier() >= 25);
-    }
-};
-
  
 // ════════════════════════════════════════════════════════
 // TOJI AWAKENING — "THE ONE WHO LEFT IT ALL BEHIND"
@@ -1429,6 +1746,11 @@ const TOJI_AWAKENING_STATE = {
     naoyaBurstDone:      false,
     naoyaOrigAttackSpeedMul: 1.0,
     naoyaOrigAttackCooldownMs: 0,
+    // Uraume FROZEN DOMINATION awakening fx/state
+    uraumeBurstDone:   false,
+    uraumeFrostGroup:  null,   // ground ice-spread ring, grown during the cutscene
+    uraumeSnowGroup:   null,   // falling snow particles, persists for the whole active duration
+    uraumeS1Ready:     false,  // true while Frost Calm: Maximum Output is armed (consumed on use)
 };
  
 const AwakeningController = {
@@ -1489,6 +1811,13 @@ const AwakeningController = {
         }
         if (this._cfg.cutsceneType === 'naoya') {
             // Naoya stays visible — short speed-burst cutscene, no held pose needed
+            return;
+        }
+        if (this._cfg.cutsceneType === 'uraume') {
+            // Uraume stays fully visible — quick, gameplay-focused frost-spread cutscene.
+            // Not a transformation, not armor, not a cinematic (per design brief).
+            s.uraumeBurstDone = false;
+            s.uraumeFrostGroup = null;
             return;
         }
         // Toji: hide player for cinematic
@@ -1567,6 +1896,11 @@ const AwakeningController = {
         // Damage & durability buffs live in getDamageMul / getDamageReceiveMul
         // Remove black hole if still present (Toji only)
         if(s.blackHole) { scene.remove(s.blackHole); s.blackHole = null; }
+        // Uraume: arm the Frost Calm: Maximum Output upgrade + start falling snow
+        if (this._cfg.cutsceneType === 'uraume') {
+            s.uraumeS1Ready = true;
+            this._spawnUraumeSnow();
+        }
         // Visual: purple glow on player panel
         document.querySelector('.player-panel')?.classList.add('awakening-active');
         this._refreshMeterUI();
@@ -1588,6 +1922,13 @@ const AwakeningController = {
             GAME_STATE.player.attackSpeedMul = s.naoyaOrigAttackSpeedMul !== undefined ? s.naoyaOrigAttackSpeedMul : 1.0;
             GAME_STATE.player.attackCooldownMs = s.naoyaOrigAttackCooldownMs || 0;
         }
+        // Uraume: disarm the S1 upgrade + stop falling snow
+        if (this._cfg.cutsceneType === 'uraume') {
+            s.uraumeS1Ready = false;
+            this._clearUraumeSnow();
+            const s1Slot = document.getElementById('ab-slot-s1');
+            if (s1Slot) s1Slot.classList.remove('ab-glow-ice');
+        }
         // Reset meter
         s.meter = 0;
         document.querySelector('.player-panel')?.classList.remove('awakening-active');
@@ -1600,6 +1941,7 @@ const AwakeningController = {
         if(TOJI_AWAKENING_STATE.phase !== 'cutscene') return false;
         // Nanami awakening: no cinematic camera override — stays in normal gameplay view
         if(this._cfg.cutsceneType === 'nanami') return false;
+        if(this._cfg.cutsceneType === 'uraume') return false;   // gameplay-focused — no camera hijack
         if(this._cfg.cutsceneType === 'naoya') {
             // Short, subtle zoom toward Naoya — player still reads the action, not a full cutscene
             const elapsed = performance.now() - TOJI_AWAKENING_STATE.cutsceneStart;
@@ -1678,6 +2020,29 @@ const AwakeningController = {
                 return;
             }
 
+            // ── Uraume FROZEN DOMINATION awakening (ice spreads from feet → frost
+            //    burst) — quick, smooth, gameplay-focused, same spirit as Nanami's ──
+            if (this._cfg.cutsceneType === 'uraume') {
+                if (el >= 0 && !s.uraumeFrostGroup) this._spawnUraumeFrost();
+                if (s.uraumeFrostGroup) {
+                    const grow = Math.min(1, el / 900);
+                    s.uraumeFrostGroup.scale.set(grow, 1, grow);
+                    const mat = s.uraumeFrostGroup.userData.ringMat;
+                    if (mat) mat.opacity = 0.75 * Math.min(1, grow * 1.4);
+                }
+                if (el >= 900 && !s.uraumeBurstDone) {
+                    s.uraumeBurstDone = true;
+                    this._spawnUraumeBurst();
+                    combatFX.shakeIntensity = Math.max(combatFX.shakeIntensity, 0.22);
+                }
+                if (el >= 1500 && s.uraumeFrostGroup) {
+                    scene.remove(s.uraumeFrostGroup);
+                    s.uraumeFrostGroup = null;
+                }
+                if (el >= 1700) this._startActive();
+                return;
+            }
+
             // ── Toji awakening (original — unchanged) ──
                         // Phase 2 (1.5 s): spawn black hole
             if(el >= 1500 && !s.blackHole) this._spawnBlackHole();
@@ -1712,6 +2077,7 @@ const AwakeningController = {
         }
  
         if(s.phase === 'active') {
+            if (this._cfg.cutsceneType === 'uraume' && s.uraumeSnowGroup) this._updateUraumeSnow(delta, now);
             if(now - s.activeStart >= (this._cfg.activeDuration || s.activeDuration)) this._endActive();
         }
     },
@@ -1799,6 +2165,106 @@ const AwakeningController = {
         setTimeout(() => { fl.style.opacity = '0'; setTimeout(() => fl.remove(), 350); }, 60);
     },
 
+    // ── Uraume FROZEN DOMINATION awakening FX ──────────────────────
+    // Ice spreading from the feet — a flat expanding ring on the ground.
+    _spawnUraumeFrost() {
+        if (!pMesh || !scene) return;
+        const ringMat = new THREE.MeshBasicMaterial({ color:0xbdeeff, transparent:true, opacity:0.0, side:THREE.DoubleSide });
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.4, 2.6, 28), ringMat);
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.copy(pMesh.position); ring.position.y = 0.05;
+        ring.scale.set(0.01, 1, 0.01);
+        ring.userData.ringMat = ringMat;
+        scene.add(ring);
+        TOJI_AWAKENING_STATE.uraumeFrostGroup = ring;
+    },
+
+    // Cyan/white cursed-energy burst — the moment the cutscene resolves into full power
+    _spawnUraumeBurst() {
+        if (!pMesh || !scene) return;
+        const pos = pMesh.position.clone();
+        const rGeo = new THREE.TorusGeometry(0.65, 0.10, 6, 24);
+        const rMat = new THREE.MeshBasicMaterial({ color:0xbdeeff, transparent:true, opacity:0.9 });
+        const ring = new THREE.Mesh(rGeo, rMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.copy(pos); ring.position.y = 0.3;
+        scene.add(ring);
+        // A handful of crystal shard fragments bursting outward alongside the ring
+        const shardMat = new THREE.MeshBasicMaterial({ color:0xeaf9ff, transparent:true, opacity:0.9 });
+        const shards = [];
+        for (let i = 0; i < 10; i++) {
+            const ang = (i / 10) * Math.PI * 2;
+            const s = new THREE.Mesh(new THREE.PlaneGeometry(0.10, 0.30), shardMat.clone());
+            s.position.copy(pos).add(new THREE.Vector3(0, 0.9, 0));
+            s.userData.dir = new THREE.Vector3(Math.cos(ang), 0.35 + Math.random()*0.3, Math.sin(ang));
+            scene.add(s); shards.push(s);
+        }
+        const t0 = performance.now(), dur = 620;
+        (function tick() {
+            const t = Math.min(1, (performance.now() - t0) / dur);
+            const e = 1 - Math.pow(1 - t, 2);
+            ring.scale.set(1 + e * 8, 1 + e * 8, 1);
+            rMat.opacity = Math.max(0, 0.9 - t * 1.2);
+            shards.forEach(s => {
+                s.position.addScaledVector(s.userData.dir, 0.14);
+                s.material.opacity = Math.max(0, 0.9 - t * 1.2);
+            });
+            if (t < 1) requestAnimationFrame(tick);
+            else {
+                scene.remove(ring); rGeo.dispose(); rMat.dispose();
+                shards.forEach(s => { scene.remove(s); s.geometry.dispose(); s.material.dispose(); });
+            }
+        })();
+        // Ice-blue DOM flash — distinct tint from every other character's awakening flash
+        const fl = document.createElement('div');
+        fl.style.cssText = 'position:fixed;inset:0;background:rgba(140,220,255,0.20);pointer-events:none;z-index:9999;transition:opacity 0.34s';
+        document.body.appendChild(fl);
+        setTimeout(() => { fl.style.opacity = '0'; setTimeout(() => fl.remove(), 370); }, 65);
+    },
+
+    // Falling snow — spawned once on activation, persists for the whole active duration
+    _spawnUraumeSnow() {
+        if (!scene) return;
+        this._clearUraumeSnow();
+        const group = new THREE.Group();
+        const flakeMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.55 });
+        const flakes = [];
+        for (let i = 0; i < 60; i++) {
+            const f = new THREE.Mesh(new THREE.PlaneGeometry(0.10, 0.10), flakeMat);
+            f.position.set((Math.random()-0.5)*36, Math.random()*16+2, (Math.random()-0.5)*36);
+            f.userData.fallSpeed = 1.4 + Math.random()*1.6;
+            f.userData.drift = (Math.random()-0.5)*0.6;
+            group.add(f); flakes.push(f);
+        }
+        group.userData.flakes = flakes;
+        scene.add(group);
+        TOJI_AWAKENING_STATE.uraumeSnowGroup = group;
+    },
+
+    _updateUraumeSnow(delta, now) {
+        const group = TOJI_AWAKENING_STATE.uraumeSnowGroup;
+        if (!group || !pMesh) return;
+        group.userData.flakes.forEach(f => {
+            f.position.y -= f.userData.fallSpeed * delta;
+            f.position.x += Math.sin(now*0.001 + f.position.y) * f.userData.drift * delta;
+            if (f.position.y < 0) {
+                f.position.y = 16;
+                f.position.x = pMesh.position.x + (Math.random()-0.5)*36;
+                f.position.z = pMesh.position.z + (Math.random()-0.5)*36;
+            }
+        });
+    },
+
+    _clearUraumeSnow() {
+        const s = TOJI_AWAKENING_STATE;
+        if (s.uraumeSnowGroup && scene) {
+            scene.remove(s.uraumeSnowGroup);
+            s.uraumeSnowGroup.userData.flakes.forEach(f => { f.geometry.dispose(); });
+            s.uraumeSnowGroup.userData.flakes[0] && s.uraumeSnowGroup.userData.flakes[0].material.dispose();
+        }
+        s.uraumeSnowGroup = null;
+    },
+
     // ── Meter UI ─────────────────────────────────────────
     _refreshMeterUI() {
         const m = TOJI_AWAKENING_STATE.meter;
@@ -1816,7 +2282,7 @@ const AwakeningController = {
 // ════════════════════════════════════════════════════════
 const KEYBINDS = {
     S1:'Digit1', S2:'Digit2', S3:'Digit3', S4:'Digit4',
-    Awakening:'KeyG', Dash:'ShiftLeft', RikaSummon:'KeyR'
+    Awakening:'KeyG', Dash:'ShiftLeft'
 };
 function keybindLabel(code) {
     return code.replace('Digit','').replace('Key','')
@@ -1937,11 +2403,11 @@ const AbilitySystem = {
         S3:{ name:'Zenin Edge',                  cd:10000, lastUsed:0 },
         S4:{ name:'Projection Pursuit',          cd:13000, lastUsed:0 }
     },
-    _DEFS_YUTA: {
-        S1:{ name:'Borrowed Curse',              cd:9000,  lastUsed:0 },
-        S2:{ name:'Blade Combination',           cd:8000,  lastUsed:0 },
-        S3:{ name:'Cursed Speech',               cd:14000, lastUsed:0 },
-        S4:{ name:'Love Burst',                  cd:11000, lastUsed:0 }
+    _DEFS_URAUME: {
+        S1:{ name:'❄ Frost Calm',                cd:9000,  lastUsed:0 },
+        S2:{ name:'🧊 Ice Fall',                  cd:12000, lastUsed:0 },
+        S3:{ name:'🔷 Frozen Prison',             cd:15000, lastUsed:0 },
+        S4:{ name:'🌨 Ice Field',                 cd:17000, lastUsed:0 }
     },
     defs: {   // default to Toji so pre-game UI is safe
         S1:{ name:'Split Soul Flurry',       cd:8000,  lastUsed:0 },
@@ -1950,7 +2416,7 @@ const AbilitySystem = {
         S4:{ name:'Mirage Step',             cd:10000, lastUsed:0 }
     },
     setCharacter(charId) {
-        const src = charId==='NANAMI' ? this._DEFS_NANAMI : charId==='NAOYA' ? this._DEFS_NAOYA : charId==='YUTA_OKKOTSU' ? this._DEFS_YUTA : this._DEFS_TOJI;
+        const src = charId==='NANAMI' ? this._DEFS_NANAMI : charId==='NAOYA' ? this._DEFS_NAOYA : charId==='URAUME' ? this._DEFS_URAUME : this._DEFS_TOJI;
         this.defs = {};
         for(const k in src) this.defs[k] = Object.assign({}, src[k], { lastUsed:0 });
         ['S1','S2','S3','S4'].forEach(k => {
@@ -1969,7 +2435,7 @@ const AbilitySystem = {
         ab.lastUsed=now;
         if(currentCharacterId==='NANAMI') this['_nanami_'+key.toLowerCase()]();
         else if(currentCharacterId==='NAOYA') this['_naoya_'+key.toLowerCase()]();
-        else if(currentCharacterId==='YUTA_OKKOTSU') this['_yuta_'+key.toLowerCase()]();
+        else if(currentCharacterId==='URAUME') this['_uraume_'+key.toLowerCase()]();
         else this['_'+key.toLowerCase()]();
     },
  
@@ -2273,132 +2739,97 @@ const AbilitySystem = {
     },
 
     // ════════════════════════════════════════════════════
-    // YUTA ABILITIES — hybrid swordsmanship + randomized copied
-    // techniques + Rika-gauge-building crowd control/burst damage.
-    // Reuses: ABILITY_ANIMS.S1-S4 (generic arm-swing frames, same as
-    // every other character), _mkAbWep/applyDamageToEnemy/_findMeleeTarget
-    // (same hit pipeline everyone else's abilities use), RikaGaugeSystem
-    // (new, additive — see its own block below).
+    // URAUME ABILITIES — ice control / area denial. Reuses the same hit
+    // pipeline every other character's abilities use (_mkAbWep/applyDamageToEnemy),
+    // plus the new UraumeFreezeSystem (Freeze Meter / Frozen State / Ice Field)
+    // for the freeze-specific mechanics, exactly the way Naoya's abilities reuse
+    // NaoyaProjectionSystem without touching it.
     // ════════════════════════════════════════════════════
-    // S1 — Borrowed Curse: randomly "copies" a technique from a weighted
-    // pool (common/rare/legendary) and fires it. Purely additive — no
-    // existing ability/animation code is touched, this just orchestrates
-    // the same _mkAbWep/applyDamageToEnemy pipeline with different numbers
-    // and VFX per rarity, and displays the rolled name above the S1 icon.
-    _YUTA_COPY_POOL: [
-        { name:'Small Cursed Blast',      rarity:'common',    weight:40, dmgMul:0.9,  kb:8,  color:0xff7fd4 },
-        { name:'Reinforcement Burst',     rarity:'common',    weight:30, dmgMul:0.8,  kb:14, color:0xffb3e6 },
-        { name:'Cursed Speech Echo',      rarity:'rare',      weight:12, dmgMul:1.3,  kb:10, color:0x9b59ff },
-        { name:'Technique Slash',         rarity:'rare',      weight:10, dmgMul:1.5,  kb:16, color:0xffffff },
-        { name:'Projectile Curse',        rarity:'rare',      weight:5,  dmgMul:1.4,  kb:12, color:0xff4fb0 },
-        { name:'Shrine-Style Slash',      rarity:'legendary', weight:1.6,dmgMul:2.6,  kb:26, color:0xffe14f },
-        { name:'Sky Manipulation Strike', rarity:'legendary', weight:0.9,dmgMul:2.8,  kb:30, color:0x4fd2ff },
-        { name:"Jacob's Ladder Beam",     rarity:'legendary', weight:0.5,dmgMul:3.4,  kb:36, color:0xff2f6b }
-    ],
-    _rollCopyTechnique() {
-        const pool=this._YUTA_COPY_POOL;
-        const total=pool.reduce((s,t)=>s+t.weight,0);
-        let r=Math.random()*total;
-        for(const t of pool){ if((r-=t.weight)<=0) return t; }
-        return pool[0];
-    },
-    _yuta_s1() {
+    // S1 — Frost Calm: wide forward cone. Damage + slow + freeze buildup + push.
+    // While the awakening's Frost Calm: Maximum Output is armed (TOJI_AWAKENING_
+    // STATE.uraumeS1Ready), this single cast is upgraded, then reverts.
+    _uraume_s1() {
+        if(!pMesh) return;
         AbilityAnimController.play(ABILITY_ANIMS.S1);
-        const tech=this._rollCopyTechnique();
-        const lbl=document.getElementById('ab-copy-technique');
-        if(lbl){
-            lbl.innerText=tech.name;
-            lbl.className='ab-copy-lbl ab-copy-'+tech.rarity;
-            lbl.style.opacity='1';
-            clearTimeout(this._copyLblTimer);
-            this._copyLblTimer=setTimeout(()=>{ lbl.style.opacity='0'; },2600);
+        const maxOutput = TOJI_AWAKENING_STATE.uraumeS1Ready === true;
+        const range   = maxOutput ? 12 : 7.5;
+        const halfAng = maxOutput ? 1.00 : 0.68;
+        const dmg     = maxOutput ? 32 : 20;
+        const freezeAmt = maxOutput ? 34 : 20;
+        const pushDist  = maxOutput ? 5.5 : 3.2;
+        const targets = _uraumeConeTargets(range, halfAng);
+        targets.forEach(entry => {
+            if(entry.state.hp<=0) return;
+            const dir=new THREE.Vector3().subVectors(entry.mesh.position,pMesh.position).normalize();
+            applyDamageToEnemy(_mkAbWep(dmg,10,maxOutput?190:120,maxOutput?0.36:0.22),dir,2,entry);
+            if(entry.state.hp>0){
+                UraumeFreezeSystem.addFreeze(entry, freezeAmt);
+                UraumeFreezeSystem.applySlow(entry, 0.55, 2600);
+                entry.mesh.position.addScaledVector(dir, pushDist);
+                entry.mesh.position.x=Math.max(-38,Math.min(38,entry.mesh.position.x));
+                entry.mesh.position.z=Math.max(-38,Math.min(38,entry.mesh.position.z));
+            }
+        });
+        UraumeVFX.spawnFrostCone(pMesh.position.clone(), GAME_STATE.player.rotation, range, halfAng, maxOutput);
+        if (maxOutput) {
+            // Upgrade consumed — S1 returns to its normal appearance/behavior
+            TOJI_AWAKENING_STATE.uraumeS1Ready = false;
         }
-        spawnCopyRingVFX(tech);
-        setTimeout(()=>{
-            if(!eMesh||GAME_STATE.enemy.hp<=0) return;
-            if(pMesh.position.distanceTo(eMesh.position)>7.5) return;
-            const wep=WEAPONS.YUTA_KATANA;
-            const dir=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
-            const isLegendary=tech.rarity==='legendary';
-            applyDamageToEnemy(_mkAbWep(Math.round(wep.damage*tech.dmgMul),tech.kb,isLegendary?200:110,isLegendary?0.40:0.22),dir,isLegendary?4:2);
-            spawnPinkTechniqueImpactVFX(eMesh.position.clone(),tech.color,isLegendary);
-            RikaGaugeSystem.add(tech.rarity==='legendary'?18:tech.rarity==='rare'?10:6);
-        },340);
     },
 
-    // S2 — Blade Combination: 4-part combo extender (dash slash, upward
-    // launcher, air follow-up, ground slam). Doesn't touch the M1 string
-    // itself — just chains its own sequence of hits via the same
-    // applyDamageToEnemy pipeline, so it can freely lead back into M1,
-    // Borrowed Curse, or Love Burst afterward.
-    _yuta_s2() {
-        if(!eMesh||GAME_STATE.enemy.hp<=0) return;
+    // S2 — Ice Fall: ice pillars erupt in an area ahead of Uraume. AoE damage,
+    // knockback, freeze buildup, temporary ice formations (visual only).
+    _uraume_s2() {
+        if(!pMesh) return;
         AbilityAnimController.play(ABILITY_ANIMS.S2);
-        const wep=WEAPONS.YUTA_KATANA;
-        const dir0=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
-        const gap=Math.max(0,pMesh.position.distanceTo(eMesh.position)-1.6);
-        pMesh.position.addScaledVector(dir0,Math.min(4.2,gap));
-        pMesh.position.x=Math.max(-38,Math.min(38,pMesh.position.x));
-        pMesh.position.z=Math.max(-38,Math.min(38,pMesh.position.z));
-        GAME_STATE.player.position.copy(pMesh.position);
-        const beats=[
-            { delay:0,   dmgMul:0.65, kb:6,  hitstop:70,  shake:0.16, step:1 },   // dash slash
-            { delay:180, dmgMul:0.55, kb:4,  hitstop:80,  shake:0.14, step:2 },   // upward launcher
-            { delay:340, dmgMul:0.70, kb:6,  hitstop:90,  shake:0.18, step:3 },   // air follow-up
-            { delay:520, dmgMul:1.10, kb:22, hitstop:170, shake:0.32, step:4 }    // ground slam
-        ];
-        beats.forEach(b=>{
-            setTimeout(()=>{
-                if(GAME_STATE.enemy.hp<=0) return;
-                if(pMesh.position.distanceTo(eMesh.position)>wep.range+2.2) return;
-                const d=new THREE.Vector3().subVectors(eMesh.position,pMesh.position).normalize();
-                applyDamageToEnemy(_mkAbWep(Math.round(wep.damage*b.dmgMul),b.kb,b.hitstop,b.shake),d,b.step);
-                spawnBladeTrailFX(eMesh.position.clone());
-                RikaGaugeSystem.add(3);   // combo-chain gauge gain
-            },b.delay);
-        });
-    },
-
-    // S3 — Cursed Speech ("Don't Move."): short, powerful freeze on every
-    // living enemy in range. Reuses state.hitstunEndTime — the exact same
-    // field the existing hit-pipeline already uses to freeze movement AND
-    // attacks — so no enemy-AI code needed to change at all.
-    _yuta_s3() {
-        AbilityAnimController.play(ABILITY_ANIMS.S3);
-        const CURSED_SPEECH_RADIUS=9.0, FREEZE_MS=1500;
-        const now=performance.now();
-        let hitAny=false;
+        const awakened = AwakeningController.isActive();
+        const fwd = new THREE.Vector3(Math.sin(GAME_STATE.player.rotation),0,Math.cos(GAME_STATE.player.rotation));
+        const center = pMesh.position.clone().addScaledVector(fwd, awakened?7.5:5.5);
+        const radius = awakened?6.5:5.0;
+        const dmg = awakened?27:18;
+        const freezeAmt = awakened?26:16;
         GAME_STATE.enemies.forEach(entry=>{
-            if(!entry||entry.state.hp<=0) return;
-            if(pMesh.position.distanceTo(entry.mesh.position)>CURSED_SPEECH_RADIUS) return;
-            entry.state.hitstunEndTime=Math.max(entry.state.hitstunEndTime,now+FREEZE_MS);
-            hitAny=true;
-            spawnCursedSpeechFlicker(entry.mesh);
+            if(!entry||!entry.state||entry.state.hp<=0) return;
+            if(entry.mesh.position.distanceTo(center)>radius) return;
+            const dir=new THREE.Vector3().subVectors(entry.mesh.position,pMesh.position).normalize();
+            applyDamageToEnemy(_mkAbWep(dmg,16,150,0.30),dir,2,entry);
+            if(entry.state.hp>0){
+                UraumeFreezeSystem.addFreeze(entry, freezeAmt);
+                entry.mesh.position.addScaledVector(dir, awakened?3.6:2.4);
+                entry.mesh.position.x=Math.max(-38,Math.min(38,entry.mesh.position.x));
+                entry.mesh.position.z=Math.max(-38,Math.min(38,entry.mesh.position.z));
+            }
         });
-        if(hitAny) RikaGaugeSystem.add(6);
-        spawnCursedSpeechOverlay();
+        UraumeVFX.spawnIcePillars(center, radius, awakened);
     },
 
-    // S4 — Love Burst: Yuta's own cursed energy — stabs the katana into the
-    // ground, a pink shockwave erupts outward. Explicitly does NOT summon
-    // Rika (per spec — Rika is its own separate manifestation system below).
-    _yuta_s4() {
+    // S3 — Frozen Prison: single-target control. Instantly fills the target's
+    // Freeze Meter, triggering the existing Frozen State (cannot move/attack).
+    _uraume_s3() {
+        if(!eMesh || !GAME_STATE.enemy || GAME_STATE.enemy.hp<=0) return;
+        const targetEntry=_entryForState(GAME_STATE.enemy);
+        if(!targetEntry || !pMesh) return;
+        if(pMesh.position.distanceTo(targetEntry.mesh.position)>9) return;
+        AbilityAnimController.play(ABILITY_ANIMS.S3);
+        const awakened=AwakeningController.isActive();
+        const dir=new THREE.Vector3().subVectors(targetEntry.mesh.position,pMesh.position).normalize();
+        applyDamageToEnemy(_mkAbWep(awakened?18:12,4,90,0.18),dir,3,targetEntry);
+        if(targetEntry.state.hp>0){
+            UraumeFreezeSystem.addFreeze(targetEntry, 100);   // instantly reaches Frozen State
+            UraumeVFX.spawnPrisonCrystal(targetEntry.mesh.position.clone());
+        }
+    },
+
+    // S4 — Ice Field: creates a lingering frozen zone ahead of Uraume. Enemies
+    // inside are slowed and gain freeze buildup faster/passively while standing
+    // in it (battlefield control, not a direct-damage ability).
+    _uraume_s4() {
+        if(!pMesh) return;
         AbilityAnimController.play(ABILITY_ANIMS.S4);
-        const wep=WEAPONS.YUTA_KATANA;
-        const originPos=pMesh.position.clone();
-        setTimeout(()=>{
-            const LOVE_BURST_RADIUS=6.5;
-            GAME_STATE.enemies.forEach(entry=>{
-                if(!entry||entry.state.hp<=0) return;
-                const dist=originPos.distanceTo(entry.mesh.position);
-                if(dist>LOVE_BURST_RADIUS) return;
-                const dir=new THREE.Vector3().subVectors(entry.mesh.position,originPos).normalize();
-                if(dir.lengthSq()===0) dir.set(0,0,1);
-                applyDamageToEnemy(_mkAbWep(Math.round(wep.damage*1.8),30,220,0.46),dir,4,entry);
-            });
-            spawnLoveBurstVFX(originPos);
-            RikaGaugeSystem.add(9);
-        },260);
+        const awakened=AwakeningController.isActive();
+        const fwd=new THREE.Vector3(Math.sin(GAME_STATE.player.rotation),0,Math.cos(GAME_STATE.player.rotation));
+        const center=pMesh.position.clone().addScaledVector(fwd, 3);
+        UraumeFreezeSystem.addZone(center.x, center.z, awakened?9.5:7, awakened?9500:7000, 0.55, awakened?15:9);
     },
 
     updateUI(now) {
@@ -2415,6 +2846,11 @@ const AbilitySystem = {
             // Keep key label in sync with current keybind
             if(lbl) lbl.innerText=keybindLabel(KEYBINDS[key]);
         });
+        // Uraume: S1 glows light-blue while Frost Calm: Maximum Output is armed
+        if (currentCharacterId === 'URAUME') {
+            const s1Slot = document.getElementById('ab-slot-s1');
+            if (s1Slot) s1Slot.classList.toggle('ab-glow-ice', TOJI_AWAKENING_STATE.uraumeS1Ready === true);
+        }
     }
 };
  
@@ -2562,7 +2998,6 @@ function init() {
         buildEnvironment();
         buildEntities();
         WeaponManager.build();
-        RikaSummonSystem.build();
  
         renderer.setAnimationLoop(runGameLoop);
     } catch(e) {
@@ -2874,7 +3309,6 @@ const WeaponManager = {
         this.weapons.KATANA   = this._buildKatana();
         this.weapons.SPEAR    = this._buildSpear();
         this.weapons.CLEAVER  = this._buildCleaver();
-        this.weapons.YUTA_KATANA = this._buildYutaKatana();
         WeaponAttachmentSystem.attach(GAME_STATE.player.currentWeapon);
     },
  
@@ -2958,48 +3392,6 @@ const WeaponManager = {
  
         // Orientation: blade along +Y, tilted forward for natural sweep
         root.rotation.set(-Math.PI * 0.52, 0, 0.06);
-        root.position.set(0.07, -0.20, 0.18);
-        return root;
-    },
-
-    // ══ YUTA'S KATANA — traditional straight blade, red-wrapped grip,
-    //    gold/yellow guard and pommel cap (matches the reference art).
-    //    Separate weapon attachment, same hand-bone parenting pipeline
-    //    as every other weapon — nothing about the attach system changed. ══
-    _buildYutaKatana() {
-        const root = new THREE.Group();
-        const M = this._mesh.bind(this);
-
-        const mBlade  = new THREE.MeshStandardMaterial({ color:0xeef2fa, metalness:0.95, roughness:0.06 });
-        const mEdge   = new THREE.MeshStandardMaterial({ color:0xffffff, metalness:0.98, roughness:0.02 });
-        const mGrip   = new THREE.MeshStandardMaterial({ color:0x7a1f28, roughness:0.85 });   // deep red wrap
-        const mBand   = new THREE.MeshStandardMaterial({ color:0x2a0a0e, roughness:0.9 });
-        const mGuard  = new THREE.MeshStandardMaterial({ color:0xd4af37, metalness:0.7, roughness:0.3 });   // gold guard
-        const mPommel = new THREE.MeshStandardMaterial({ color:0xc9a227, metalness:0.65, roughness:0.32 });
-
-        // ── Grip (red wrap, diagonal-banded) ──
-        M(new THREE.BoxGeometry(0.088, 0.40, 0.088), mGrip, 0, -0.11, 0, root);
-        for (let i = 0; i < 7; i++) {
-            M(new THREE.BoxGeometry(0.098, 0.018, 0.098), mBand, 0, -0.29 + i * 0.088, 0, root);
-        }
-
-        // ── Pommel cap ──
-        M(new THREE.CylinderGeometry(0.052, 0.052, 0.05, 8), mPommel, 0, -0.335, 0, root);
-
-        // ── Circular guard (tsuba) ──
-        const tsuba = M(new THREE.CylinderGeometry(0.135, 0.135, 0.028, 12), mGuard, 0, 0.095, 0, root);
-        tsuba.rotation.x = Math.PI / 2;
-        M(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 8), mGuard, 0, 0.095, 0, root);
-
-        // ── Blade — straight, single-edge, gentle taper toward the tip ──
-        M(new THREE.BoxGeometry(0.11, 1.28, 0.030), mBlade, 0, 0.80, 0, root);
-        // Bright edge strip along one face
-        M(new THREE.BoxGeometry(0.018, 1.28, 0.026), mEdge, -0.048, 0.80, 0, root);
-        // Tip — angled cut
-        const tip = M(new THREE.BoxGeometry(0.11, 0.10, 0.030), mBlade, 0, 1.47, 0, root);
-        tip.rotation.z = -0.30;
-
-        root.rotation.set(-Math.PI * 0.52, 0, 0.05);
         root.position.set(0.07, -0.20, 0.18);
         return root;
     },
@@ -3176,7 +3568,7 @@ const WeaponAttachmentSystem = {
         if (weaponData === WEAPONS.SPEAR)   key = 'SPEAR';
         if (weaponData === WEAPONS.CLEAVER) key = 'CLEAVER';
         if (weaponData === WEAPONS.FISTS)   key = 'FISTS';   // no model registered — hand stays empty (unarmed)
-        if (weaponData === WEAPONS.YUTA_KATANA) key = 'YUTA_KATANA';
+        if (weaponData === WEAPONS.FROST)   key = 'FROST';   // no model registered — bare ice technique, hand stays empty
         const model = WeaponManager.weapons[key];
         if (model) hand.add(model);
         WeaponVisualController.activeWeaponKey = key;
@@ -3233,6 +3625,8 @@ startRun() {
  
     this.waveNumber = 1;
     this.wavesCleared = 0;
+    this._runStartTime = performance.now();
+    this._enemiesDefeated = 0;
  
     this.phase = 'banner-wave';
     this.countdownValue = 3;
@@ -3468,9 +3862,16 @@ _beginWaveClearedSequence() {
  
     // 🧊 freeze combat safely
     this._freezeAllEnemies();
+
+    // 🎲 Reroll grant: +2 rerolls every 5 waves cleared (additive, carries over)
+    if (this.wavesCleared > 0 && this.wavesCleared % 5 === 0) {
+        GAME_STATE.player.rerolls = (GAME_STATE.player.rerolls || 0) + 2;
+    }
  
-    // 🎴 trigger perk system (safe hook)
-    this._startPerkSelection();
+    // 🎴 trigger perk system (safe hook) — only on scheduled perk waves
+    if (typeof isPerkWave === "function" ? isPerkWave(this.wavesCleared) : true) {
+        this._startPerkSelection();
+    }
 },
  
 // ── PERK SYSTEM HOOK (safe entry point) ──
@@ -3510,6 +3911,8 @@ _freezeAllEnemies() {
 },
  
 // ── Called by applyDamageToPlayer instead of old DEFEAT ──
+// NOTE: wrapped further down by PerkSystem to support the Last Stand perk
+// and to launch the new Death Screen (see "PERK SYSTEM — MONKEY-PATCH HOOKS").
 onPlayerDeath() {
     this.active = false;
  
@@ -3551,7 +3954,813 @@ _showEnemyPanel() {
 }
  
 }; // ← end of WaveManager object literal (was missing — caused a syntax error)
- 
+
+// ════════════════════════════════════════════════════════
+// PHASE 1 — COMPLETE ROGUELIKE PERK SYSTEM (100% additive)
+// Nothing in combat.js/wave-manager/abilities/awakening is rewritten.
+// This module only: (a) reads/writes the existing GAME_STATE.player.*
+// stat-hook fields that were already wired into combat, damage, dash,
+// and awakening code, and (b) wraps a small number of existing
+// functions (monkey-patch pattern) to add behavior without touching
+// their original bodies.
+// ════════════════════════════════════════════════════════
+
+// ── Perk wave schedule: wave 3, then every 3 waves, every 2 waves after 20 ──
+function isPerkWave(n) {
+    if (n < 3) return false;
+    if (n === 3) return true;
+    if (n <= 20) return (n - 3) % 3 === 0;
+    return (n - 20) % 2 === 0;
+}
+
+// ── Perk catalog ──────────────────────────────────────────
+// Each perk: id, name, desc, grade, icon, character (optional restriction),
+// buffs (short human-readable list for UI), apply()/remove() (exact inverse
+// pairs so 10/10 replacement can cleanly undo a perk's effect).
+const PERKS = [
+    // ── GRADE 4 (60%) ──
+    { id:'minor_reinforcement', name:'Minor Reinforcement', desc:'A faint reinforcement technique sharpens every strike.', grade:'GRADE_4', icon:'⚔️', buffs:['+5% M1 Damage'],
+      apply(P){ P.damageMul *= 1.05; }, remove(P){ P.damageMul /= 1.05; } },
+    { id:'quick_step', name:'Quick Step', desc:'Lighter footwork lets you cover ground faster.', grade:'GRADE_4', icon:'👣', buffs:['+5% Movement Speed'],
+      apply(P){ P.staticSpeedMul *= 1.05; PerkSystem._recomputeSpeed(); }, remove(P){ P.staticSpeedMul /= 1.05; PerkSystem._recomputeSpeed(); } },
+    { id:'small_vitality', name:'Small Vitality', desc:'Your body toughens, granting more health to work with.', grade:'GRADE_4', icon:'❤️', buffs:['+10% Max HP'],
+      apply(P){ const add = P.maxHp*0.10; P.maxHp += add; P.hp = Math.min(P.maxHp, P.hp+add); },
+      remove(P){ const sub = P.maxHp - (P.maxHp/1.10); P.maxHp -= sub; P.hp = Math.min(P.maxHp, P.hp); } },
+    { id:'recovery_flow', name:'Recovery Flow', desc:'Cursed energy trickles into your wounds while the fight is calm.', grade:'GRADE_4', icon:'💧', buffs:['Regen 2 HP / 5s out of combat'],
+      apply(P){ P.perkFlags.recoveryFlow = true; }, remove(P){ P.perkFlags.recoveryFlow = false; } },
+    { id:'focused_breathing', name:'Focused Breathing', desc:'Controlled breathing shortens the time between dashes.', grade:'GRADE_4', icon:'🌀', buffs:['Dash cooldown -5%'],
+      apply(P){ P.dashCooldownMul *= 0.95; }, remove(P){ P.dashCooldownMul /= 0.95; } },
+
+    // ── GRADE 3 (25%) ──
+    { id:'combat_rhythm', name:'Combat Rhythm', desc:'Landing consecutive strikes builds momentum, up to a cap.', grade:'GRADE_3', icon:'🗡️', buffs:['+2%/hit M1 dmg (max +10%)'],
+      apply(P){ P.comboRampPct += 0.0333; }, remove(P){ P.comboRampPct -= 0.0333; } },
+    { id:'reinforced_body', name:'Reinforced Body', desc:'A defensive shroud of cursed energy softens incoming blows.', grade:'GRADE_3', icon:'🛡️', buffs:['Take 8% less damage'],
+      apply(P){ P.damageTakenMul *= 0.92; }, remove(P){ P.damageTakenMul /= 0.92; } },
+    { id:'sharp_instinct', name:'Sharp Instinct', desc:'You start reading openings your opponents don\'t know they left.', grade:'GRADE_3', icon:'👁️', buffs:['+5% Critical Chance'],
+      apply(P){ P.critChance += 0.05; }, remove(P){ P.critChance -= 0.05; } },
+    { id:'efficient_technique', name:'Efficient Technique', desc:'Your abilities cycle back online faster.', grade:'GRADE_3', icon:'🔮', buffs:['Ability cooldowns -8%'],
+      apply(P){ P.abilityCooldownMul *= 0.92; }, remove(P){ P.abilityCooldownMul /= 0.92; } },
+    { id:'hunters_step', name:"Hunter's Step", desc:'Your dash carries you further than before.', grade:'GRADE_3', icon:'👣', buffs:['+15% Dash Distance'],
+      apply(P){ P.dashDistanceMul *= 1.15; }, remove(P){ P.dashDistanceMul /= 1.15; } },
+
+    // ── GRADE 2 (10%) ──
+    { id:'blood_edge', name:'Blood Edge', desc:'Your basic strikes leave enemies bleeding out over time.', grade:'GRADE_2', icon:'🗡️', buffs:['M1 inflicts Bleed'],
+      apply(P){ P.perkFlags.bloodEdge = true; }, remove(P){ P.perkFlags.bloodEdge = false; } },
+    { id:'cursed_momentum', name:'Cursed Momentum', desc:'Every kill leaves a lingering surge of speed.', grade:'GRADE_2', icon:'⚡', buffs:['+3% move speed/kill (max 30%)'],
+      apply(P){ P.perkFlags.cursedMomentum = true; }, remove(P){ P.perkFlags.cursedMomentum = false; P.cursedMomentumStacks = 0; PerkSystem._recomputeSpeed(); } },
+    { id:'overflow', name:'Overflow', desc:'At full health, your cursed energy overflows into your attacks.', grade:'GRADE_2', icon:'💥', buffs:['+15% dmg at full HP'],
+      apply(P){ P.perkFlags.overflow = true; }, remove(P){ P.perkFlags.overflow = false; } },
+    { id:'predator', name:'Predator', desc:'You capitalize hard on wounded enemies.', grade:'GRADE_2', icon:'🐾', buffs:['+20% dmg vs <30% HP enemies'],
+      apply(P){ P.perkFlags.predator = true; }, remove(P){ P.perkFlags.predator = false; } },
+    { id:'focused_mind', name:'Focused Mind', desc:'Dashing through danger sharpens your focus, freeing up your kit.', grade:'GRADE_2', icon:'🧠', buffs:['Close dashes cut cooldowns by 2s'],
+      apply(P){ P.perkFlags.focusedMind = true; }, remove(P){ P.perkFlags.focusedMind = false; } },
+
+    // ── GRADE 1 (4%) ──
+    { id:'limit_break', name:'Limit Break', desc:'Cornered and bleeding, you fight harder than ever.', grade:'GRADE_1', icon:'💢', buffs:['+35% dmg below 25% HP'],
+      apply(P){ P.perkFlags.limitBreak = true; }, remove(P){ P.perkFlags.limitBreak = false; } },
+    { id:'endless_assault', name:'Endless Assault', desc:'Your combo finishers land with devastating extra force.', grade:'GRADE_1', icon:'♾️', buffs:['Combo finishers +30% dmg'],
+      apply(P){ P.perkFlags.endlessAssault = true; }, remove(P){ P.perkFlags.endlessAssault = false; } },
+    { id:'awakening_catalyst', name:'Awakening Catalyst', desc:'Your awakening meter fills noticeably faster.', grade:'GRADE_1', icon:'✨', buffs:['Awakening fills 20% faster'],
+      apply(P){ P.awakeningGainMul *= 1.20; }, remove(P){ P.awakeningGainMul /= 1.20; } },
+    { id:'cursed_flow', name:'Cursed Flow', desc:'Cursed energy surges through every technique you channel.', grade:'GRADE_1', icon:'🌊', buffs:['Abilities deal 15% more damage'],
+      apply(P){ P.perkFlags.cursedFlow = true; }, remove(P){ P.perkFlags.cursedFlow = false; } },
+    { id:'last_stand', name:'Last Stand', desc:'Once per run, refuse to fall — and rise again.', grade:'GRADE_1', icon:'🛡️', buffs:['Survive 1 fatal hit → 20% HP'],
+      apply(P){ P.perkFlags.lastStand = true; P._lastStandUsed = false; }, remove(P){ P.perkFlags.lastStand = false; } },
+
+    // ── SPECIAL GRADE — universal (1%) ──
+    { id:'cursed_overflow', name:'Cursed Overflow', desc:'A raw surge of cursed energy floods your entire kit.', grade:'SPECIAL_GRADE', icon:'💠', buffs:['+25% Ability Damage','+15% Awakening Gain'],
+      apply(P){ P.perkFlags.cursedOverflow = true; P.awakeningGainMul *= 1.15; }, remove(P){ P.perkFlags.cursedOverflow = false; P.awakeningGainMul /= 1.15; } },
+    { id:'reverse_flow', name:'Reverse Flow', desc:'Killing an Elite-grade curse restores your strength.', grade:'SPECIAL_GRADE', icon:'🔄', buffs:['Heal 10% HP after Elite kills'],
+      apply(P){ P.perkFlags.reverseFlow = true; }, remove(P){ P.perkFlags.reverseFlow = false; } },
+    { id:'limitless_potential', name:'Limitless Potential', desc:'Every facet of your technique grows stronger at once.', grade:'SPECIAL_GRADE', icon:'⭐', buffs:['+10% to all stats'],
+      apply(P){
+          P.damageMul *= 1.10; P.damageTakenMul *= 0.90; P.staticSpeedMul *= 1.10;
+          P.abilityCooldownMul *= 0.90; P.dashCooldownMul *= 0.90;
+          const add = P.maxHp*0.10; P.maxHp += add; P.hp = Math.min(P.maxHp, P.hp+add);
+          PerkSystem._recomputeSpeed();
+      },
+      remove(P){
+          P.damageMul /= 1.10; P.damageTakenMul /= 0.90; P.staticSpeedMul /= 1.10;
+          P.abilityCooldownMul /= 0.90; P.dashCooldownMul /= 0.90;
+          const sub = P.maxHp - (P.maxHp/1.10); P.maxHp -= sub; P.hp = Math.min(P.maxHp, P.hp);
+          PerkSystem._recomputeSpeed();
+      } },
+
+    // ── SPECIAL GRADE — character exclusive ──
+    { id:'heavenly_restriction', name:'Heavenly Restriction', desc:"The curse-less body's true potential is unleashed.", grade:'SPECIAL_GRADE', icon:'⛓️', character:'TOJI',
+      buffs:['+40% Physical Damage','+20% Movement Speed'],
+      apply(P){ P.damageMul *= 1.40; P.staticSpeedMul *= 1.20; PerkSystem._recomputeSpeed(); },
+      remove(P){ P.damageMul /= 1.40; P.staticSpeedMul /= 1.20; PerkSystem._recomputeSpeed(); } },
+    { id:'ratio_perfection', name:'Ratio Perfection', desc:'Every 7:3 strike lands with textbook precision.', grade:'SPECIAL_GRADE', icon:'🎯', character:'NANAMI',
+      buffs:['Ratio attacks deal much higher crit damage'],
+      apply(P){ P.critMul *= 1.5; }, remove(P){ P.critMul /= 1.5; } },
+    { id:'projection_mastery', name:'Projection Mastery', desc:'Your Projection Sorcery snaps into place almost instantly.', grade:'SPECIAL_GRADE', icon:'🖼️', character:'NAOYA',
+      buffs:['Faster/longer Projection','+ Movement Speed'],
+      apply(P){ P.staticSpeedMul *= 1.10; P.abilityCooldownMul *= 0.90; PerkSystem._recomputeSpeed(); },
+      remove(P){ P.staticSpeedMul /= 1.10; P.abilityCooldownMul /= 0.90; PerkSystem._recomputeSpeed(); } },
+    { id:'queens_blessing', name:"Queen's Blessing", desc:"Rika's protection surges through the Rika Gauge.", grade:'SPECIAL_GRADE', icon:'💍', character:'YUTA',
+      buffs:['Rika Gauge fills 40% faster','Rika abilities +20% dmg','Rika costs -15%'],
+      apply(P){ P.abilityCooldownMul *= 0.85; P.damageMul *= 1.20; }, remove(P){ P.abilityCooldownMul /= 0.85; P.damageMul /= 1.20; } }
+];
+
+const GRADE_ORDER = ['GRADE_4','GRADE_3','GRADE_2','GRADE_1','SPECIAL_GRADE'];
+const GRADE_LABEL = { GRADE_4:'Grade 4', GRADE_3:'Grade 3', GRADE_2:'Grade 2', GRADE_1:'Grade 1', SPECIAL_GRADE:'Special Grade' };
+const BASE_RARITY_WEIGHTS = { GRADE_4:60, GRADE_3:25, GRADE_2:10, GRADE_1:4, SPECIAL_GRADE:1 };
+const PERK_TITLES = ['Choose Your Fate','Fate Has Shifted','A New Path Awaits','Your Strength Grows','Choose Your Destiny','Power Calls To You'];
+
+const PerkSystem = {
+    _pendingPerk: null,   // perk waiting on the 10/10 replacement decision
+    _currentCards: [],    // perk objects currently shown on the 3 cards
+    _cardRevealed: [false,false,false],
+
+    // ── Lifecycle ──────────────────────────────────────────
+    resetForNewRun() {
+        const P = GAME_STATE.player;
+        P.perksOwned = [];
+        P.pity = 0;
+        P.rerolls = 0;
+        P.perkFlags = {};
+        P.cursedMomentumStacks = 0;
+        P.staticSpeedMul = 1.0;
+        P.dashDistanceMul = 1.0;
+        P._lastStandUsed = false;
+        P._focusedMindLastProc = 0;
+        // Reset every stat hook to its neutral baseline so a fresh run
+        // never inherits multipliers from the previous run.
+        P.attackSpeedMul = 1.0; P.dashCooldownMul = 1.0; P.abilityCooldownMul = 1.0;
+        P.damageMul = 1.0; P.damageTakenMul = 1.0; P.lifestealPct = 0;
+        P.critChance = 0; P.critMul = 1.6; P.hpRegenPerSec = 0; P.thornsPct = 0;
+        P.comboRampPct = 0; P.executeThresholdPct = 0; P.executeBonusMul = 1.0;
+        P.awakeningGainMul = 1.0; P.knockbackMul = 1.0;
+        P.maxHp = 100; P.hp = 100; P.speed = 13;
+        GAME_STATE.enemies.forEach(e => { if (e && e.state) { e.state._bleedUntil = 0; e.state._perkKillCounted = false; } });
+        ActivePerkHUD.refresh();
+    },
+
+    // ── Rarity roll w/ pity ──────────────────────────────────
+    _computeWeights(pity) {
+        const w = Object.assign({}, BASE_RARITY_WEIGHTS);
+        const bonus = Math.min(30, pity * 1.5); // pity nudges Special Grade odds up, capped
+        w.SPECIAL_GRADE += bonus;
+        const nonSpecialTotal = w.GRADE_4 + w.GRADE_3 + w.GRADE_2 + w.GRADE_1;
+        const shrink = bonus / nonSpecialTotal;
+        w.GRADE_4 -= w.GRADE_4 * shrink * (nonSpecialTotal / 99);
+        // Simple, stable renormalization: scale the four non-special weights
+        // down just enough to make room for the pity-boosted Special slice.
+        const targetNonSpecial = 100 - w.SPECIAL_GRADE;
+        const scale = targetNonSpecial / nonSpecialTotal;
+        w.GRADE_4 = BASE_RARITY_WEIGHTS.GRADE_4 * scale;
+        w.GRADE_3 = BASE_RARITY_WEIGHTS.GRADE_3 * scale;
+        w.GRADE_2 = BASE_RARITY_WEIGHTS.GRADE_2 * scale;
+        w.GRADE_1 = BASE_RARITY_WEIGHTS.GRADE_1 * scale;
+        return w;
+    },
+    _pickGrade(weights) {
+        const total = GRADE_ORDER.reduce((s,g)=>s+weights[g],0);
+        let r = Math.random()*total;
+        for (const g of GRADE_ORDER) { if (r < weights[g]) return g; r -= weights[g]; }
+        return 'GRADE_4';
+    },
+    _poolForGrade(grade, excludeIds) {
+        return PERKS.filter(p => p.grade===grade && !excludeIds.has(p.id) &&
+            (!p.character || p.character === currentCharacterId));
+    },
+
+    // ── Roll 3 cards for a perk screen ──────────────────────
+    rollCards() {
+        const P = GAME_STATE.player;
+        const weights = this._computeWeights(P.pity);
+        const excludeIds = new Set(P.perksOwned.map(p=>p.id));
+        const cards = [];
+        let gotSpecial = false;
+        for (let i=0;i<3;i++) {
+            let grade = this._pickGrade(weights);
+            let pool = this._poolForGrade(grade, excludeIds);
+            if (!pool.length) {
+                for (const g of GRADE_ORDER) {
+                    pool = this._poolForGrade(g, excludeIds);
+                    if (pool.length) { grade = g; break; }
+                }
+            }
+            if (!pool.length) continue; // every eligible perk already owned
+            const perk = pool[Math.floor(Math.random()*pool.length)];
+            excludeIds.add(perk.id);
+            cards.push(perk);
+            if (grade === 'SPECIAL_GRADE') gotSpecial = true;
+        }
+        P.pity = gotSpecial ? 0 : (P.pity + 1);
+        return cards;
+    },
+
+    // ── Show the selection overlay ───────────────────────────
+    showSelection(cards) {
+        this._currentCards = cards;
+        this._cardRevealed = cards.map(()=>false);
+
+        document.getElementById('perk-select-title').innerText =
+            PERK_TITLES[Math.floor(Math.random()*PERK_TITLES.length)];
+        this._refreshPityReadout();
+        this._refreshRerollReadout();
+
+        const row = document.getElementById('perk-card-row');
+        row.innerHTML = '';
+        cards.forEach((perk,i) => row.appendChild(this._buildCardEl(perk,i)));
+
+        // Stagger the cards fading in, one after another
+        requestAnimationFrame(()=>{
+            Array.from(row.children).forEach((el,i)=>{
+                setTimeout(()=>el.classList.add('show'), i*160);
+            });
+        });
+
+        const overlay = document.getElementById('perk-select-overlay');
+        overlay.classList.add('open');
+        requestAnimationFrame(()=>requestAnimationFrame(()=>overlay.classList.add('visible')));
+    },
+
+    _refreshPityReadout() {
+        const P = GAME_STATE.player;
+        document.getElementById('perk-pity-readout').innerText =
+            `Special Grade Luck Rising — Pity ${P.pity}`;
+    },
+    _refreshRerollReadout() {
+        const P = GAME_STATE.player;
+        document.getElementById('perk-reroll-readout').innerText = `Rerolls Remaining: ${P.rerolls||0}`;
+        document.getElementById('perk-reroll-btn').disabled = (P.rerolls||0) <= 0;
+    },
+
+    _buildCardEl(perk, idx) {
+        const card = document.createElement('div');
+        card.className = `perk-card rarity-${perk.grade}`;
+        card.dataset.idx = idx;
+        const buffsHtml = (perk.buffs||[]).map(b=>`<div>${b}</div>`).join('');
+        card.innerHTML = `
+            <div class="perk-card-inner">
+                <div class="perk-card-face back">
+                    <div class="perk-back-symbol">?</div>
+                    <div class="perk-back-hint">Tap To Reveal</div>
+                </div>
+                <div class="perk-card-face front">
+                    <span class="perk-rarity-tag perk-rarity-${perk.grade}">${GRADE_LABEL[perk.grade]}</span>
+                    <div class="perk-card-icon">${perk.icon}</div>
+                    <div class="perk-card-name">${perk.name}</div>
+                    <div class="perk-card-desc">${perk.desc}</div>
+                    <div class="perk-card-buffs">${buffsHtml}</div>
+                    <button class="perk-select-pick-btn">Select Perk</button>
+                    ${perk.grade==='SPECIAL_GRADE' ? '<div class="perk-special-banner">SPECIAL GRADE</div>' : ''}
+                </div>
+            </div>
+            <div class="perk-card-pick-hint">Click To Reveal</div>`;
+        card.addEventListener('click', (e) => {
+            if (!this._cardRevealed[idx]) {
+                this._revealCard(card, perk, idx);
+            } else if (e.target.classList.contains('perk-select-pick-btn') || card.classList.contains('revealed')) {
+                this._choosePerk(perk, card);
+            }
+        });
+        card.addEventListener('mouseenter', ()=>{ if(!this._cardRevealed[idx]) card.classList.add('hovershake'); });
+        card.addEventListener('animationend', ()=>card.classList.remove('hovershake'));
+        return card;
+    },
+
+    _revealCard(card, perk, idx) {
+        this._cardRevealed[idx] = true;
+        card.classList.add('revealed', 'pickable', `revealfx-${perk.grade}`);
+        const hint = card.querySelector('.perk-card-pick-hint');
+        if (hint) hint.innerText = 'Click Again To Select';
+        setTimeout(()=>card.classList.add('done'), 900);
+    },
+
+    revealAll() {
+        const row = document.getElementById('perk-card-row');
+        Array.from(row.children).forEach((card,i)=>{
+            if (!this._cardRevealed[i]) {
+                setTimeout(()=>this._revealCard(card, this._currentCards[i], i), i*140);
+            }
+        });
+    },
+
+    reroll() {
+        const P = GAME_STATE.player;
+        if ((P.rerolls||0) <= 0) return;
+        P.rerolls -= 1;
+        const cards = this.rollCards();
+        this.showSelection(cards);
+    },
+
+    _choosePerk(perk, cardEl) {
+        cardEl.classList.add('chosen');
+        cardEl.style.pointerEvents = 'none';
+        setTimeout(()=>this.acquirePerk(perk), 260);
+    },
+
+    // ── Acquiring a perk (handles the 10/10 replacement flow) ──
+    acquirePerk(perk) {
+        const P = GAME_STATE.player;
+        if (P.perksOwned.length >= (P.perksCapacity||10)) {
+            this._pendingPerk = perk;
+            ReplacementMenu.open(perk);
+            return;
+        }
+        this._commitPerk(perk);
+        this._closeSelectionAndResume();
+    },
+
+    _commitPerk(perk) {
+        const P = GAME_STATE.player;
+        perk.apply(P);
+        P.perksOwned.push({
+            id:perk.id, name:perk.name, desc:perk.desc, grade:perk.grade,
+            icon:perk.icon, buffs:perk.buffs, character:perk.character||null,
+            locked: perk.grade==='SPECIAL_GRADE' && !!perk.character
+        });
+        ActivePerkHUD.refresh();
+        this._showPickToast(perk);
+    },
+
+    _showPickToast(perk) {
+        const el = document.getElementById('perk-pick-toast');
+        if (!el) return;
+        el.innerHTML = `
+            <div class="toast-icon">${perk.icon}</div>
+            <div class="toast-body">
+                <div class="toast-title">Perk Acquired</div>
+                <div class="toast-name">${perk.name}<span class="toast-grade perk-rarity-${perk.grade}">${GRADE_LABEL[perk.grade]}</span></div>
+                <div class="toast-desc">${perk.desc}</div>
+            </div>`;
+        el.classList.add('show');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(()=>el.classList.remove('show'), 3600);
+    },
+
+    replacePerk(oldOwnedPerk) {
+        const P = GAME_STATE.player;
+        const def = PERKS.find(p=>p.id===oldOwnedPerk.id);
+        if (def) def.remove(P);
+        P.perksOwned = P.perksOwned.filter(p=>p.id!==oldOwnedPerk.id);
+        if (this._pendingPerk) {
+            this._commitPerk(this._pendingPerk);
+            this._pendingPerk = null;
+        }
+        ReplacementMenu.close();
+        this._closeSelectionAndResume();
+    },
+
+    cancelReplacement() {
+        this._pendingPerk = null;
+        ReplacementMenu.close();
+        this._closeSelectionAndResume();
+    },
+
+    _closeSelectionAndResume() {
+        const overlay = document.getElementById('perk-select-overlay');
+        overlay.classList.remove('visible');
+        setTimeout(()=>{
+            overlay.classList.remove('open');
+            document.getElementById('perk-card-row').innerHTML = '';
+        }, 350);
+        WaveManager.resumeAfterPerks();
+        this._unfreezeAllEnemies();
+    },
+
+    _unfreezeAllEnemies() {
+        GAME_STATE.enemies.forEach(e=>{
+            if (!e || !e.state) return;
+            e.state.frozen = false;
+            if (e.state._oldSpeed !== undefined) e.state.speed = e.state._oldSpeed;
+        });
+    },
+
+    // ── Derived-stat recompute (keeps multiplicative sources honest) ──
+    _recomputeSpeed() {
+        const P = GAME_STATE.player;
+        if (AwakeningController.isActive && AwakeningController.isActive()) return; // don't fight the awakening buff mid-activation
+        const base = 13;
+        const momentumMul = 1 + Math.min(10, P.cursedMomentumStacks||0) * 0.03;
+        P.speed = base * (P.staticSpeedMul||1) * momentumMul;
+    },
+
+    // ── Kill / hit event hooks (called by monkey-patch wrappers below) ──
+    onEnemyKilled(entry) {
+        const P = GAME_STATE.player;
+        if (P.perkFlags.cursedMomentum) {
+            P.cursedMomentumStacks = Math.min(10, (P.cursedMomentumStacks||0) + 1);
+            this._recomputeSpeed();
+        }
+        if (P.perkFlags.reverseFlow && entry && entry.state && entry.state.type === 'ELITE') {
+            P.hp = Math.min(P.maxHp, P.hp + P.maxHp*0.10);
+            updateHUD();
+        }
+    },
+
+    reduceAllCooldowns(ms) {
+        const now = performance.now();
+        if (typeof AbilitySystem !== 'undefined' && AbilitySystem.defs) {
+            Object.values(AbilitySystem.defs).forEach(ab=>{ ab.lastUsed = Math.max(0, ab.lastUsed - ms); });
+        }
+        GAME_STATE.player.lastDashTime = Math.max(0, GAME_STATE.player.lastDashTime - ms);
+    },
+
+    flashMessage(text, color) {
+        const el = document.getElementById('perk-flash-msg');
+        if (!el) return;
+        el.innerText = text;
+        el.style.color = color || '#fff';
+        el.classList.add('show');
+        setTimeout(()=>el.classList.remove('show'), 1400);
+    },
+
+    // ── Per-frame tick: bleed DoT + out-of-combat regen ──
+    tick(delta, now) {
+        const P = GAME_STATE.player;
+
+        // Blood Edge bleed ticks
+        GAME_STATE.enemies.forEach(entry=>{
+            if (!entry || !entry.state || entry.state.hp<=0) return;
+            const s = entry.state;
+            if (s._bleedUntil && now < s._bleedUntil) {
+                if (!s._bleedNextTick || now >= s._bleedNextTick) {
+                    const dmg = s._bleedDmgPerTick || Math.max(2, Math.round(0.03*(s.maxHp||100)));
+                    s.hp = Math.max(0, s.hp - dmg);
+                    s._bleedNextTick = now + 1000;
+                    if (s.hp <= 0) WaveManager.onEnemyDeath(entry);
+                }
+            }
+        });
+
+        // Recovery Flow: 2 HP / 5s while out of combat (no hit dealt or received recently)
+        if (P.perkFlags.recoveryFlow && P.hp > 0 && P.hp < P.maxHp) {
+            const lastCombat = Math.max(P._lastHitDealtAt||0, P._lastHitTakenAt||0);
+            if (now - lastCombat > 3000) {
+                P.hp = Math.min(P.maxHp, P.hp + 0.4*delta);
+            }
+        }
+
+        // Live "conditional effect currently active" glow on the HUD (throttled to ~6/sec)
+        if (!this._lastProcRefresh || now - this._lastProcRefresh > 160) {
+            this._lastProcRefresh = now;
+            ActivePerkHUD.updateProcStates();
+        }
+    }
+};
+
+// ════════════════════════════════════════════════════════
+// PERK SYSTEM — MONKEY-PATCH HOOKS
+// Each wrapper preserves 100% of the original function's behavior
+// and only adds new, additive perk logic around it.
+// ════════════════════════════════════════════════════════
+
+// ── Damage-to-enemy: Overflow / Predator / Limit Break / Cursed Flow /
+//    Cursed Overflow / Endless Assault bonus damage + Blood Edge bleed ──
+const _origApplyDamageToEnemy = applyDamageToEnemy;
+applyDamageToEnemy = function(wep, dir, step, targetEntry) {
+    const P = GAME_STATE.player;
+    const savedDamageMul = P.damageMul;
+    let bonus = 1;
+    if (P.perkFlags.overflow && P.hp >= P.maxHp) bonus *= 1.15;
+    if (P.perkFlags.predator) {
+        const entry = targetEntry || _entryForState(GAME_STATE.enemy);
+        if (entry && entry.state && entry.state.maxHp>0 && (entry.state.hp/entry.state.maxHp) <= 0.30) bonus *= 1.20;
+    }
+    if (P.perkFlags.limitBreak && P.maxHp>0 && (P.hp/P.maxHp) <= 0.25) bonus *= 1.35;
+    if (P.perkFlags.cursedFlow) bonus *= 1.15;          // simplification: applies to all damage, not abilities only
+    if (P.perkFlags.cursedOverflow) bonus *= 1.25;       // simplification: applies to all damage, not abilities only
+    if (P.perkFlags.endlessAssault && step === 4) bonus *= 1.30;
+    P.damageMul = savedDamageMul * bonus;
+    P._lastHitDealtAt = performance.now();
+
+    _origApplyDamageToEnemy(wep, dir, step, targetEntry);
+
+    P.damageMul = savedDamageMul;
+
+    // Blood Edge: refresh a bleed DoT on the target that was just hit
+    if (P.perkFlags.bloodEdge) {
+        const entry = targetEntry || _entryForState(GAME_STATE.enemy);
+        if (entry && entry.state && entry.state.hp > 0) {
+            const now = performance.now();
+            entry.state._bleedUntil = now + 4000;
+            entry.state._bleedDmgPerTick = Math.max(2, Math.round(0.03*(entry.state.maxHp||100)));
+        }
+    }
+};
+
+// ── Kill tracking: Cursed Momentum stacks / Reverse Flow heal ──
+const _origOnEnemyDeath = WaveManager.onEnemyDeath.bind(WaveManager);
+WaveManager.onEnemyDeath = function(entry) {
+    const isRealKill = entry && entry.state && entry.state.hp <= 0 && !entry.state._perkKillCounted;
+    if (isRealKill) entry.state._perkKillCounted = true;
+    _origOnEnemyDeath(entry);
+    if (isRealKill) {
+        PerkSystem.onEnemyKilled(entry);
+        WaveManager._enemiesDefeated = (WaveManager._enemiesDefeated||0) + 1;
+    }
+};
+
+// ── Player death: Last Stand revive + Death Screen hook ──
+const _origOnPlayerDeath = WaveManager.onPlayerDeath.bind(WaveManager);
+WaveManager.onPlayerDeath = function() {
+    const P = GAME_STATE.player;
+    if (P.perkFlags && P.perkFlags.lastStand && !P._lastStandUsed) {
+        P._lastStandUsed = true;
+        P.hp = Math.max(1, Math.round(P.maxHp*0.20));
+        updateHUD();
+        PerkSystem.flashMessage('LAST STAND!', '#ef4444');
+        return; // the run continues — do not end it
+    }
+    _origOnPlayerDeath();
+    DeathScreen.show();
+};
+
+// ── Track last-hit-taken timestamp for Recovery Flow's out-of-combat check ──
+const _origApplyDamageToPlayer = applyDamageToPlayer;
+applyDamageToPlayer = function(dmgOverride, attackerEntry) {
+    GAME_STATE.player._lastHitTakenAt = performance.now();
+    _origApplyDamageToPlayer(dmgOverride, attackerEntry);
+};
+
+// ── Focused Mind: dashing near a threat trims 2s off every cooldown ──
+const _origExecuteDashPipeline = executeDashPipeline;
+executeDashPipeline = function() {
+    const P = GAME_STATE.player;
+    const now = performance.now();
+    const canDash = (now - P.lastDashTime >= P.dashCooldown*P.dashCooldownMul) && P.hp > 0;
+    if (canDash && P.perkFlags && P.perkFlags.focusedMind) {
+        const nearThreat = GAME_STATE.enemies.some(e => e && e.state && e.state.hp>0 && e.mesh && typeof pMesh!=='undefined' && pMesh &&
+            e.mesh.position.distanceTo(pMesh.position) <= (e.state.range||2.4) + 2.5);
+        if (nearThreat && now - (P._focusedMindLastProc||0) > 3000) {
+            P._focusedMindLastProc = now;
+            PerkSystem.reduceAllCooldowns(2000);
+            PerkSystem.flashMessage('PERFECT DODGE', '#60a5fa');
+        }
+    }
+    _origExecuteDashPipeline();
+};
+
+// ── Hunter's Step: apply dash-distance multiplier without touching the
+//    original dash movement code (patches the per-frame locomotion call) ──
+const _origProcessPlayerLocomotion = processPlayerLocomotion;
+processPlayerLocomotion = function(delta, now) {
+    const P = GAME_STATE.player;
+    const savedSpeed = P.speed;
+    if (GAME_STATE.player.isDashing && P.dashDistanceMul && P.dashDistanceMul !== 1) {
+        P.speed = savedSpeed * P.dashDistanceMul;
+    }
+    _origProcessPlayerLocomotion(delta, now);
+    P.speed = savedSpeed;
+};
+
+// ════════════════════════════════════════════════════════
+// Bridge functions expected by WaveManager._startPerkSelection()
+// ════════════════════════════════════════════════════════
+function rollPerks(waveNumber, _pityArg) {
+    return PerkSystem.rollCards();
+}
+function showPerkUI(perks) {
+    PerkSystem.showSelection(perks);
+}
+
+// ════════════════════════════════════════════════════════
+// ACTIVE PERK HUD (compact icon strip, additive)
+// ════════════════════════════════════════════════════════
+const ActivePerkHUD = {
+    refresh() {
+        const P = GAME_STATE.player;
+        const row = document.getElementById('aph-icons-row');
+        const count = document.getElementById('aph-count');
+        if (!row || !count) return;
+        row.innerHTML = '';
+        P.perksOwned.forEach(p=>{
+            const icon = document.createElement('div');
+            icon.className = `aph-icon rarity-${p.grade}`;
+            icon.dataset.perkId = p.id;
+            icon.innerHTML = `${p.icon}${p.locked ? '<span class="aph-lock">🔒</span>' : ''}
+                <div class="aph-tooltip">
+                    <div class="aph-tooltip-name">${p.name}</div>
+                    <div class="aph-tooltip-grade" style="color:${this._gradeColor(p.grade)}">${GRADE_LABEL[p.grade]}</div>
+                    <div class="aph-tooltip-desc">${p.desc}</div>
+                </div>`;
+            row.appendChild(icon);
+        });
+        count.innerText = `Perks ${P.perksOwned.length} / ${P.perksCapacity||10}`;
+        this.updateProcStates();
+    },
+    // Toggles a glow on any perk icon whose conditional effect is
+    // *currently* active (e.g. Overflow at full HP, Limit Break at low HP).
+    _isProcActive(id, P) {
+        switch (id) {
+            case 'overflow':        return P.hp >= P.maxHp;
+            case 'limit_break':      return P.maxHp>0 && (P.hp/P.maxHp) <= 0.25;
+            case 'predator':         return GAME_STATE.enemies.some(e=>e&&e.state&&e.state.hp>0&&e.state.maxHp>0&&(e.state.hp/e.state.maxHp)<=0.30);
+            case 'combat_rhythm':    return (typeof combatFX!=='undefined') && combatFX.activeM1Step > 1;
+            case 'cursed_momentum':  return (P.cursedMomentumStacks||0) > 0;
+            case 'blood_edge':       return GAME_STATE.enemies.some(e=>e&&e.state&&e.state._bleedUntil>performance.now());
+            case 'endless_assault':  return (typeof combatFX!=='undefined') && combatFX.activeM1Step === 4;
+            default: return false;
+        }
+    },
+    updateProcStates() {
+        const P = GAME_STATE.player;
+        const row = document.getElementById('aph-icons-row');
+        if (!row) return;
+        Array.from(row.children).forEach(icon=>{
+            const id = icon.dataset.perkId;
+            icon.classList.toggle('proc-active', this._isProcActive(id, P));
+        });
+    },
+    _gradeColor(g) {
+        return { GRADE_4:'#9ca3af', GRADE_3:'#4ade80', GRADE_2:'#60a5fa', GRADE_1:'#a855f7', SPECIAL_GRADE:'#ef4444' }[g] || '#fff';
+    },
+    show() { const el=document.getElementById('active-perk-hud'); if(el) el.classList.add('game-visible');
+             const hint=document.getElementById('tab-build-hint'); if(hint) hint.classList.add('game-visible'); },
+    hide() { const el=document.getElementById('active-perk-hud'); if(el) el.classList.remove('game-visible');
+             const hint=document.getElementById('tab-build-hint'); if(hint) hint.classList.remove('game-visible'); }
+};
+
+// ════════════════════════════════════════════════════════
+// PERK REPLACEMENT MENU (10/10 capacity flow)
+// ════════════════════════════════════════════════════════
+const ReplacementMenu = {
+    open(newPerk) {
+        const P = GAME_STATE.player;
+        const list = document.getElementById('perk-replace-list');
+        list.innerHTML = '';
+        P.perksOwned.forEach(p=>{
+            const row = document.createElement('div');
+            row.className = 'replace-perk-row' + (p.locked ? ' locked' : '');
+            row.innerHTML = `<div class="perk-card-icon" style="margin:0;">${p.icon}</div>
+                <div style="flex:1;">
+                    <div class="build-perk-name">${p.name} ${p.locked ? '<span class="build-perk-lock">🔒 Locked</span>' : ''}</div>
+                    <div class="build-perk-desc">${p.desc}</div>
+                </div>`;
+            if (!p.locked) row.addEventListener('click', ()=>PerkSystem.replacePerk(p));
+            list.appendChild(row);
+        });
+        document.getElementById('perk-replace-overlay').classList.add('open');
+    },
+    close() {
+        document.getElementById('perk-replace-overlay').classList.remove('open');
+    }
+};
+document.addEventListener('DOMContentLoaded', ()=>{
+    const cancelBtn = document.getElementById('perk-replace-cancel');
+    if (cancelBtn) cancelBtn.addEventListener('click', ()=>PerkSystem.cancelReplacement());
+    const revealBtn = document.getElementById('perk-reveal-all-btn');
+    if (revealBtn) revealBtn.addEventListener('click', ()=>PerkSystem.revealAll());
+    const rerollBtn = document.getElementById('perk-reroll-btn');
+    if (rerollBtn) rerollBtn.addEventListener('click', ()=>PerkSystem.reroll());
+});
+
+// ════════════════════════════════════════════════════════
+// TAB BUILD MENU
+// ════════════════════════════════════════════════════════
+const BuildMenu = {
+    open: false,
+    toggle() { this.open ? this.close() : this.show(); },
+    show() {
+        if (!gameStarted) return;
+        this.open = true;
+        this._render();
+        WaveManager.active = false; // pause gameplay while the build menu is open
+        const overlay = document.getElementById('build-menu-overlay');
+        overlay.classList.add('open');
+        requestAnimationFrame(()=>requestAnimationFrame(()=>overlay.classList.add('visible')));
+    },
+    close() {
+        this.open = false;
+        const overlay = document.getElementById('build-menu-overlay');
+        overlay.classList.remove('visible');
+        setTimeout(()=>overlay.classList.remove('open'), 220);
+        // Only resume the wave manager if we're not mid-perk-selection/replacement
+        const perkOpen = document.getElementById('perk-select-overlay').classList.contains('open');
+        const replaceOpen = document.getElementById('perk-replace-overlay').classList.contains('open');
+        if (!perkOpen && !replaceOpen && gameStarted) WaveManager.active = true;
+    },
+    _render() {
+        const P = GAME_STATE.player;
+        const char = CharacterData[currentCharacterId];
+        const timeSurvived = WaveManager._runStartTime ? Math.floor((performance.now()-WaveManager._runStartTime)/1000) : 0;
+        const mm = String(Math.floor(timeSurvived/60)).padStart(2,'0');
+        const ss = String(timeSurvived%60).padStart(2,'0');
+        const enemiesDefeated = WaveManager._enemiesDefeated || 0;
+
+        const stats = [
+            ['Character', char ? char.name : currentCharacterId],
+            ['Current Wave', WaveManager.waveNumber],
+            ['Enemies Defeated', enemiesDefeated],
+            ['Time Survived', `${mm}:${ss}`],
+            ['Special Grade Pity', P.pity],
+            ['Current Rerolls', P.rerolls||0],
+            ['Active Perks', `${P.perksOwned.length} / ${P.perksCapacity||10}`],
+        ];
+        document.getElementById('build-stats-grid').innerHTML = stats.map(([label,value])=>
+            `<div class="build-stat-cell"><div class="build-stat-label">${label}</div><div class="build-stat-value">${value}</div></div>`
+        ).join('');
+
+        const groupsEl = document.getElementById('build-perk-groups');
+        groupsEl.innerHTML = '';
+        GRADE_ORDER.forEach(grade=>{
+            const perksOfGrade = P.perksOwned.filter(p=>p.grade===grade);
+            if (!perksOfGrade.length) return;
+            const group = document.createElement('div');
+            group.className = 'build-grade-group';
+            group.innerHTML = `<div class="build-grade-heading" style="color:${ActivePerkHUD._gradeColor(grade)}">${GRADE_LABEL[grade]}</div>` +
+                perksOfGrade.map(p=>`
+                    <div class="build-perk-row">
+                        <div class="build-perk-icon">${p.icon}</div>
+                        <div>
+                            <div class="build-perk-name">${p.name}${p.locked?'<span class="build-perk-lock">🔒</span>':''}</div>
+                            <div class="build-perk-desc">${p.desc} — ${(p.buffs||[]).join(', ')}</div>
+                        </div>
+                    </div>`).join('');
+            groupsEl.appendChild(group);
+        });
+        if (!P.perksOwned.length) {
+            groupsEl.innerHTML = '<div style="color:#726a92;font-size:12px;text-align:center;padding:20px 0;">No perks acquired yet this run.</div>';
+        }
+    }
+};
+
+// ════════════════════════════════════════════════════════
+// DEATH SCREEN
+// ════════════════════════════════════════════════════════
+const DeathScreen = {
+    show() {
+        const n = WaveManager.wavesCleared;
+        const char = CharacterData[currentCharacterId];
+        const timeSurvived = WaveManager._runStartTime ? Math.floor((performance.now()-WaveManager._runStartTime)/1000) : 0;
+        const mm = String(Math.floor(timeSurvived/60)).padStart(2,'0');
+        const ss = String(timeSurvived%60).padStart(2,'0');
+        const enemiesDefeated = WaveManager._enemiesDefeated || 0;
+
+        document.getElementById('death-stats-row').innerHTML = `
+            <div class="death-stat"><div class="death-stat-label">Character</div><div class="death-stat-value">${char ? char.name : currentCharacterId}</div></div>
+            <div class="death-stat"><div class="death-stat-label">Wave Reached</div><div class="death-stat-value">${n}</div></div>
+            <div class="death-stat"><div class="death-stat-label">Enemies Defeated</div><div class="death-stat-value">${enemiesDefeated}</div></div>
+            <div class="death-stat"><div class="death-stat-label">Time Survived</div><div class="death-stat-value">${mm}:${ss}</div></div>`;
+
+        ActivePerkHUD.hide();
+        const overlay = document.getElementById('death-screen-overlay');
+        overlay.classList.add('open');
+        requestAnimationFrame(()=>requestAnimationFrame(()=>overlay.classList.add('visible')));
+    },
+    hide() {
+        const overlay = document.getElementById('death-screen-overlay');
+        overlay.classList.remove('visible');
+        setTimeout(()=>overlay.classList.remove('open'), 300);
+    }
+};
+document.addEventListener('DOMContentLoaded', ()=>{
+    const again = document.getElementById('death-btn-again');
+    if (again) again.addEventListener('click', ()=>{ DeathScreen.hide(); GameFlow.exitRun('playagain'); });
+    const cs = document.getElementById('death-btn-charselect');
+    if (cs) cs.addEventListener('click', ()=>{ DeathScreen.hide(); GameFlow.exitRun('charselect'); });
+    const mm = document.getElementById('death-btn-mainmenu');
+    if (mm) mm.addEventListener('click', ()=>{ DeathScreen.hide(); GameFlow.exitRun('mainmenu'); });
+});
+
+// ════════════════════════════════════════════════════════
+// GAME FLOW — leaving an active run cleanly (no page refresh needed)
+// ════════════════════════════════════════════════════════
+const GameFlow = {
+    exitRun(target) {
+        gameStarted = false;
+        WaveManager.active = false;
+        BuildMenu.open = false;
+
+        const uiLayer = document.getElementById('ui-layer');
+        uiLayer.style.opacity = '0';
+        uiLayer.style.pointerEvents = 'none';
+        document.getElementById('dash-indicator').classList.remove('game-visible');
+        document.getElementById('awakening-bar-wrap').classList.remove('game-visible');
+        document.getElementById('ability-bar').classList.remove('game-visible');
+        document.getElementById('wave-banner').classList.remove('show');
+        document.getElementById('build-menu-overlay').classList.remove('open','visible');
+        document.getElementById('perk-select-overlay').classList.remove('open','visible');
+        ActivePerkHUD.hide();
+
+        GAME_STATE.enemies.forEach(e=>WaveManager._disposeEnemy(e));
+        GAME_STATE.enemies = [];
+        if (typeof pMesh !== 'undefined' && pMesh) pMesh.visible = false;
+
+        if (target === 'playagain') {
+            MenuUI.startGame(currentCharacterId);
+        } else if (target === 'charselect') {
+            CharacterSelect.show();
+        } else {
+            TitleScreen.show();
+        }
+    }
+};
+
+// ── TAB key opens/closes the Run Build Menu (additive listener, does not
+//    touch the existing keydown handler registered in setupInputListeners) ──
+window.addEventListener('keydown', (e)=>{
+    if (e.code === 'Tab' && gameStarted) {
+        e.preventDefault();
+        BuildMenu.toggle();
+    }
+});
+
 // ════════════════════════════════════════════════════════
 // PER-FRAME ADDITIVE UI UPDATES (new functions, no existing ones edited)
 // ════════════════════════════════════════════════════════
@@ -3632,7 +4841,6 @@ function setupInputListeners() {
         else if(e.code === KEYBINDS.S2) AbilitySystem.use('S2');
         else if(e.code === KEYBINDS.S3) AbilitySystem.use('S3');
         else if(e.code === KEYBINDS.S4) AbilitySystem.use('S4');
-        else if(e.code === KEYBINDS.RikaSummon) RikaSummonSystem.tryActivate();
     });
     window.addEventListener('keyup', e=>{
         switch(e.code){
@@ -3715,14 +4923,18 @@ const ANIM_MAP = {
         // before Projection triggers (afterimage burst on this hit is unchanged).
         { fwd:0.12, ang:1.05, shoulderZ: 0.00, elbowStart:0.06, bodyLeanZ: 0.00, lungeZ:0.40 }
     ],
-    // Yuta's Katana — quick horizontal slash, reverse slash (pull), spinning
-    // slash (AoE), heavy finisher (knockback). Distinct shape from Toji's
-    // katana so the combo reads as its own swordsmanship style.
-    YUTA_KATANA: [
-        { fwd:0.28, ang:1.10, shoulderZ: 0.38, elbowStart:0.42, bodyLeanZ: 0.12, lungeZ:0.24 },
-        { fwd:0.24, ang:1.20, shoulderZ:-0.42, elbowStart:0.46, bodyLeanZ:-0.14, lungeZ:0.18 },
-        { fwd:0.30, ang:1.35, shoulderZ: 0.20, elbowStart:0.30, bodyLeanZ: 0.22, lungeZ:0.20, spinY:1.35 },
-        { fwd:0.34, ang:1.50, shoulderZ: 0.00, elbowStart:0.75, bodyLeanZ: 0.00, lungeZ:0.46 }
+    // Frost — Uraume's Ice Reinforced Combat: calm, deliberate, elegant strikes
+    // rather than a frantic flurry. Hit 3 (Ice Sweep Kick) reuses the optional
+    // `spinY` field the same way Naoya's spinning kick does.
+    FROST: [
+        // Hit 1 — Ice Palm: a measured, open-palm thrust
+        { fwd:0.30, ang:0.60, shoulderZ: 0.14, elbowStart:0.30, bodyLeanZ: 0.08, lungeZ:0.18 },
+        // Hit 2 — Ice Backhand: a smooth reverse sweep of the arm
+        { fwd:0.28, ang:0.66, shoulderZ:-0.34, elbowStart:0.34, bodyLeanZ:-0.14, lungeZ:0.16 },
+        // Hit 3 — Ice Sweep Kick: a slow, elegant rotating kick
+        { fwd:0.34, ang:0.50, shoulderZ: 0.10, elbowStart:0.14, bodyLeanZ: 0.22, lungeZ:0.10, spinY:1.35 },
+        // Hit 4 — Freezing Impact: a deliberate, weighty finishing strike
+        { fwd:0.36, ang:0.78, shoulderZ: 0.00, elbowStart:0.50, bodyLeanZ: 0.00, lungeZ:0.30 }
     ]
 };
  
@@ -3862,9 +5074,6 @@ function applyDamageToEnemy(wep,dir,step,targetEntry) {
  
     AwakeningController.onHitLanded();   // fills meter on confirmed hit
  
-    // Rika Manifestation gauge — gains from damage dealt (Yuta only, additive no-op for everyone else)
-    if(currentCharacterId==='YUTA_OKKOTSU') RikaGaugeSystem.add(dmg*0.35);
- 
     // Sync the legacy pointer + last-attacked tracking so abilities/HUD/right-side
     // panel all reflect the enemy that was actually just hit.
     GAME_STATE.enemy = state;
@@ -3981,199 +5190,6 @@ function spawnBlackFlashVFX(pos) {
         }
     })();
 }
-
-// ════════════════════════════════════════════════════════
-// YUTA VFX — pink cursed-energy theme. Additive rAF-tick meshes,
-// same pattern as spawnMarkHitFX/spawnBlackFlashVFX above: spawn,
-// animate scale/opacity, remove + dispose when done.
-// ════════════════════════════════════════════════════════
-
-// Borrowed Curse cast — glowing ring + rising technique symbol above Yuta's hand
-function spawnCopyRingVFX(tech) {
-    if (!scene || !pMesh) return;
-    const t0 = performance.now(), dur = 380;
-    const color = tech.color || 0xff5fc4;
-    const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(0.32, 0.045, 6, 18),
-        new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.9 })
-    );
-    ring.position.copy(pMesh.position).add(new THREE.Vector3(0, 2.0, 0.3));
-    scene.add(ring);
-    const symbol = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.16, 0),
-        new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.95 })
-    );
-    symbol.position.copy(ring.position);
-    scene.add(symbol);
-    (function tick() {
-        const t = Math.min(1, (performance.now()-t0)/dur);
-        ring.rotation.z += 0.25;
-        ring.scale.setScalar(1 + t*1.6);
-        ring.material.opacity = Math.max(0, 0.9 - t*0.9);
-        symbol.rotation.y += 0.3;
-        symbol.position.y = ring.position.y + t*0.6;
-        symbol.material.opacity = Math.max(0, 0.95 - t);
-        if (t < 1) requestAnimationFrame(tick);
-        else { scene.remove(ring); ring.geometry.dispose(); ring.material.dispose();
-               scene.remove(symbol); symbol.geometry.dispose(); symbol.material.dispose(); }
-    })();
-}
-
-// Borrowed Curse impact — pink burst, bigger/brighter for legendary rolls
-function spawnPinkTechniqueImpactVFX(pos, color, isLegendary) {
-    if (!scene) return;
-    const t0 = performance.now(), dur = isLegendary ? 620 : 380;
-    const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(0.4, 8, 8),
-        new THREE.MeshBasicMaterial({ color: color||0xff5fc4, transparent:true, opacity:0.9 })
-    );
-    sphere.position.copy(pos).add(new THREE.Vector3(0, 1.1, 0));
-    scene.add(sphere);
-    const spikes = [];
-    const spikeCount = isLegendary ? 10 : 5;
-    for (let i=0;i<spikeCount;i++){
-        const ang = (i/spikeCount)*Math.PI*2;
-        const m = new THREE.Mesh(new THREE.ConeGeometry(0.05,0.5,4), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent:true, opacity:0.9 }));
-        m.position.copy(sphere.position);
-        m.rotation.z = ang;
-        spikes.push({ mesh:m, ang });
-        scene.add(m);
-    }
-    if (isLegendary) {
-        const fl=document.createElement('div');
-        fl.style.cssText='position:fixed;inset:0;background:rgba(255,60,180,0.22);pointer-events:none;z-index:9998;transition:opacity 0.4s';
-        document.body.appendChild(fl);
-        setTimeout(()=>{ fl.style.opacity='0'; setTimeout(()=>fl.remove(),420); },70);
-    }
-    (function tick() {
-        const t = Math.min(1, (performance.now()-t0)/dur);
-        const e = 1 - Math.pow(1-t,2);
-        sphere.scale.setScalar(1 + e*(isLegendary?5:3));
-        sphere.material.opacity = Math.max(0, 0.9 - t*1.3);
-        spikes.forEach(s=>{
-            const dist = e*(isLegendary?2.2:1.3);
-            s.mesh.position.set(sphere.position.x + Math.cos(s.ang)*dist, sphere.position.y + Math.sin(s.ang)*dist*0.6, sphere.position.z);
-            s.mesh.material.opacity = Math.max(0, 0.9 - t*1.4);
-        });
-        if (t < 1) requestAnimationFrame(tick);
-        else {
-            scene.remove(sphere); sphere.geometry.dispose(); sphere.material.dispose();
-            spikes.forEach(s=>{ scene.remove(s.mesh); s.mesh.geometry.dispose(); s.mesh.material.dispose(); });
-        }
-    })();
-}
-
-// Blade Combination — quick white/pink slash streak at the hit point
-function spawnBladeTrailFX(pos) {
-    if (!scene) return;
-    const t0 = performance.now(), dur = 220;
-    const geo = new THREE.PlaneGeometry(1.1, 0.14);
-    const mat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.85, side:THREE.DoubleSide });
-    const streak = new THREE.Mesh(geo, mat);
-    streak.position.copy(pos).add(new THREE.Vector3(0, 1.1, 0));
-    streak.rotation.y = Math.random()*Math.PI;
-    scene.add(streak);
-    const pink = new THREE.Mesh(geo.clone(), new THREE.MeshBasicMaterial({ color:0xff5fc4, transparent:true, opacity:0.55, side:THREE.DoubleSide }));
-    pink.position.copy(streak.position);
-    pink.rotation.copy(streak.rotation);
-    pink.scale.set(1.3,1.3,1);
-    scene.add(pink);
-    (function tick() {
-        const t = Math.min(1, (performance.now()-t0)/dur);
-        streak.material.opacity = Math.max(0, 0.85 - t*1.5);
-        pink.material.opacity = Math.max(0, 0.55 - t*1.2);
-        streak.scale.set(1 + t*0.6, 1 - t*0.4, 1);
-        if (t < 1) requestAnimationFrame(tick);
-        else {
-            scene.remove(streak); streak.geometry.dispose(); streak.material.dispose();
-            scene.remove(pink); pink.geometry.dispose(); pink.material.dispose();
-        }
-    })();
-}
-
-// Cursed Speech — brief purple glitch/flicker on a frozen enemy mesh
-function spawnCursedSpeechFlicker(mesh) {
-    if (!scene || !mesh) return;
-    const t0 = performance.now(), dur = 900;
-    const glow = new THREE.Mesh(
-        new THREE.BoxGeometry(1.0,1.9,1.0),
-        new THREE.MeshBasicMaterial({ color:0x8a2fd4, transparent:true, opacity:0.28, wireframe:true })
-    );
-    glow.position.copy(mesh.position).add(new THREE.Vector3(0,0.95,0));
-    scene.add(glow);
-    (function tick() {
-        const t = Math.min(1, (performance.now()-t0)/dur);
-        glow.position.x = mesh.position.x + (Math.random()-0.5)*0.06;
-        glow.position.z = mesh.position.z + (Math.random()-0.5)*0.06;
-        glow.material.opacity = 0.15 + Math.random()*0.2;
-        mesh.visible = Math.random() > 0.08;   // brief flicker
-        if (t < 1) requestAnimationFrame(tick);
-        else { mesh.visible = true; scene.remove(glow); glow.geometry.dispose(); glow.material.dispose(); }
-    })();
-}
-
-// Cursed Speech — full-screen purple distortion pulse + sound-distortion placeholder
-function spawnCursedSpeechOverlay() {
-    const fl=document.createElement('div');
-    fl.style.cssText='position:fixed;inset:0;background:rgba(120,40,220,0.20);pointer-events:none;z-index:9998;transition:opacity 0.5s;mix-blend-mode:screen';
-    document.body.appendChild(fl);
-    requestAnimationFrame(()=>{ fl.style.opacity='0'; setTimeout(()=>fl.remove(),550); });
-    console.log('[Cursed Speech] "Don\'t Move." (voice line placeholder)');
-}
-
-// Love Burst — Yuta's own cursed-energy explosion: pink blast + shockwave ring + ground cracks
-function spawnLoveBurstVFX(pos) {
-    if (!scene) return;
-    const t0 = performance.now(), dur = 560;
-    const core = new THREE.Mesh(
-        new THREE.SphereGeometry(0.5, 10, 10),
-        new THREE.MeshBasicMaterial({ color:0xff2f8f, transparent:true, opacity:0.92 })
-    );
-    core.position.copy(pos).add(new THREE.Vector3(0, 0.6, 0));
-    scene.add(core);
-    const ring = new THREE.Mesh(
-        new THREE.RingGeometry(0.4, 0.7, 24),
-        new THREE.MeshBasicMaterial({ color:0xff7fd4, transparent:true, opacity:0.85, side:THREE.DoubleSide })
-    );
-    ring.rotation.x = -Math.PI/2;
-    ring.position.copy(pos).add(new THREE.Vector3(0, 0.06, 0));
-    scene.add(ring);
-    const cracks = [];
-    for (let i=0;i<8;i++){
-        const ang=(i/8)*Math.PI*2;
-        const c=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.03,1.4), new THREE.MeshBasicMaterial({ color:0xff2f8f, transparent:true, opacity:0.8 }));
-        c.position.copy(pos).add(new THREE.Vector3(Math.cos(ang)*0.7,0.03,Math.sin(ang)*0.7));
-        c.rotation.y = -ang;
-        cracks.push(c);
-        scene.add(c);
-    }
-    const fl=document.createElement('div');
-    fl.style.cssText='position:fixed;inset:0;background:rgba(255,40,140,0.25);pointer-events:none;z-index:9998;transition:opacity 0.42s';
-    document.body.appendChild(fl);
-    setTimeout(()=>{ fl.style.opacity='0'; setTimeout(()=>fl.remove(),460); },70);
-    (function tick() {
-        const t = Math.min(1, (performance.now()-t0)/dur);
-        const e = 1 - Math.pow(1-t,2);
-        core.scale.setScalar(1 + e*7);
-        core.material.opacity = Math.max(0, 0.92 - t*1.4);
-        const rs = 1 + e*13;
-        ring.scale.set(rs, rs, 1);
-        ring.material.opacity = Math.max(0, 0.85 - t*1.2);
-        cracks.forEach((c,i)=>{
-            const ang=(i/8)*Math.PI*2;
-            const dist=0.7+e*4.5;
-            c.position.set(pos.x+Math.cos(ang)*dist, pos.y+0.03, pos.z+Math.sin(ang)*dist);
-            c.material.opacity = Math.max(0, 0.8 - t*1.3);
-        });
-        if (t < 1) requestAnimationFrame(tick);
-        else {
-            scene.remove(core); core.geometry.dispose(); core.material.dispose();
-            scene.remove(ring); ring.geometry.dispose(); ring.material.dispose();
-            cracks.forEach(c=>{ scene.remove(c); c.geometry.dispose(); c.material.dispose(); });
-        }
-    })();
-}
-
 
 // ── MARK HIT VFX — blue burst when hitting an already-marked enemy ──
 function spawnMarkHitFX(pos) {
@@ -4929,9 +5945,8 @@ const SecretAwakeningController = {
                 }
             });
         }
-    }
+    },
 };
-
 const NAOYA_PROJECTION_DURATION_MS = 5000;
 // ── Naoya Bleed (Zenin Edge, S3) ──
 const NAOYA_BLEED_TICK_MS = 700;
@@ -5145,210 +6160,6 @@ const NaoyaVFX = {
     }
 };
 
-// ════════════════════════════════════════════════════════
-// RIKA SUMMON SYSTEM — Rika Orimoto, Cursed Womb: Death Painting.
-// A SEPARATE entity from Yuta's own player rig (never fused into pMesh) —
-// her group is parented directly to `scene`, built once in build() and
-// toggled visible/invisible per-manifestation, exactly like every other
-// scene-level effect group in this file (SECRET_AWAKENING_STATE.cursedGroup
-// etc.). Driven by RIKA_GAUGE_STATE tiers; consumes gauge on activation.
-// Additive only — does not touch Toji/Nanami/Naoya, combat, or AI.
-// ════════════════════════════════════════════════════════
-const RikaSummonSystem = {
-    group: null,
-    activeUntil: 0,
-    activeAbility: null,   // 'smash' | 'rampage' | 'protection' | null
-
-    build() {
-        const g = new THREE.Group();
-        g.visible = false;
-
-        const mWhite = new THREE.MeshStandardMaterial({ color:0xf2eee6, roughness:0.55 });
-        const mDark  = new THREE.MeshStandardMaterial({ color:0x241826, roughness:0.85 });
-        const mPink  = new THREE.MeshStandardMaterial({ color:0xff5fc4, emissive:0xff2f9c, emissiveIntensity:0.6, roughness:0.4 });
-
-        // Tapered tendril "tail" body — stacked, shrinking cylinders
-        const tail = new THREE.Group();
-        let ty = 0, tr = 0.62;
-        for (let i=0;i<7;i++){
-            const seg = new THREE.Mesh(new THREE.CylinderGeometry(tr, tr*0.86, 0.62, 8), i%2===0?mDark:mWhite);
-            seg.position.y = ty;
-            tail.add(seg);
-            ty += 0.5; tr *= 0.86;
-        }
-        tail.position.y = 0.3;
-        g.add(tail);
-
-        // Ribbed torso plates
-        for (let i=0;i<4;i++){
-            const plate = new THREE.Mesh(new THREE.BoxGeometry(1.0-i*0.12, 0.16, 0.5-i*0.05), mWhite);
-            plate.position.set(0, 3.0+i*0.34, 0);
-            g.add(plate);
-        }
-
-        // Two clawed arms
-        const mkArm = (side) => {
-            const arm = new THREE.Group();
-            const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.16,0.9,6), mWhite);
-            upperArm.rotation.z = side*0.5;
-            upperArm.position.set(side*0.4, 3.8, 0);
-            arm.add(upperArm);
-            const foreArm = new THREE.Mesh(new THREE.CylinderGeometry(0.10,0.13,0.85,6), mWhite);
-            foreArm.rotation.z = side*0.15;
-            foreArm.position.set(side*0.85, 3.15, 0.1);
-            arm.add(foreArm);
-            for (let c=0;c<4;c++){
-                const claw = new THREE.Mesh(new THREE.ConeGeometry(0.035,0.28,4), mDark);
-                claw.position.set(side*1.15 + (c-1.5)*0.06, 2.75, 0.15);
-                claw.rotation.x = Math.PI*0.5;
-                arm.add(claw);
-            }
-            return arm;
-        };
-        g.add(mkArm(-1));
-        g.add(mkArm(1));
-
-        // Toothy, fanged head
-        const head = new THREE.Group();
-        const skull = new THREE.Mesh(new THREE.SphereGeometry(0.42, 8, 8), mWhite);
-        skull.scale.set(1, 1.25, 0.85);
-        head.add(skull);
-        const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.22,0.4), mDark);
-        jaw.position.set(0,-0.32,0.08);
-        head.add(jaw);
-        for (let i=0;i<8;i++){
-            const tooth = new THREE.Mesh(new THREE.ConeGeometry(0.03,0.13,4), mWhite);
-            tooth.position.set(-0.2+i*0.058, -0.22, 0.24);
-            tooth.rotation.x = Math.PI;
-            head.add(tooth);
-        }
-        head.position.set(0, 4.35, 0);
-        g.add(head);
-
-        // Faint pink cursed-energy aura
-        const aura = new THREE.Mesh(new THREE.SphereGeometry(1.4, 8, 8), new THREE.MeshBasicMaterial({ color:0xff5fc4, transparent:true, opacity:0.10, wireframe:true }));
-        aura.position.y = 2.4;
-        g.add(aura);
-        g.userData.aura = aura;
-        g.userData.head = head;
-
-        scene.add(g);
-        this.group = g;
-    },
-
-    // Places + shows Rika near the player, holds for `durMs`, then hides again
-    _manifest(durMs) {
-        if (!this.group || !pMesh) return;
-        const behind = new THREE.Vector3(-Math.sin(GAME_STATE.player.rotation), 0, -Math.cos(GAME_STATE.player.rotation));
-        this.group.position.copy(pMesh.position).addScaledVector(behind, 1.6);
-        this.group.rotation.y = pMesh.rotation.y;
-        this.group.visible = true;
-        this.group.scale.set(0.05,0.05,0.05);
-        this.activeUntil = performance.now() + durMs;
-        const t0 = performance.now();
-        const grp = this.group;
-        (function grow(){
-            const t = Math.min(1, (performance.now()-t0)/220);
-            const s = 0.05 + t*0.95;
-            grp.scale.set(s,s,s);
-            if (t<1) requestAnimationFrame(grow);
-        })();
-    },
-
-    update(now) {
-        if (!this.group || !this.group.visible) return;
-        // Gentle bob + aura pulse while manifested
-        this.group.position.y += Math.sin(now*0.004)*0.0015;
-        if (this.group.userData.aura) {
-            this.group.userData.aura.material.opacity = 0.08 + Math.sin(now*0.003)*0.04;
-        }
-        if (now >= this.activeUntil) {
-            const grp = this.group;
-            const t0 = performance.now();
-            (function shrink(){
-                const t = Math.min(1, (performance.now()-t0)/260);
-                const s = Math.max(0.001, 0.95*(1-t)+0.05);
-                grp.scale.set(s,s,s);
-                if (t<1) requestAnimationFrame(shrink);
-                else grp.visible = false;
-            })();
-            this.activeUntil = Infinity;   // prevent the shrink from re-triggering every frame
-            this.activeAbility = null;
-        }
-    },
-
-    // ── Public entry point — bound to KEYBINDS.RikaSummon ──
-    // Uses the highest manifestation tier the current gauge affords,
-    // consumes exactly that tier's worth of gauge.
-    tryActivate() {
-        if (!gameStarted || currentCharacterId !== 'YUTA_OKKOTSU') return;
-        if (GAME_STATE.player.hp <= 0) return;
-        const tier = RikaGaugeSystem.currentTier();
-        if (tier < 25) return;
-        if (tier >= 75) this._queensProtection();
-        else if (tier >= 50) this._rikaRampage();
-        else this._rikaSmash();
-    },
-
-    // 25% — Rika Smash: giant arm manifestation, single massive punch, AoE + knockback
-    _rikaSmash() {
-        RikaGaugeSystem.spend(25);
-        this._manifest(1400);
-        setTimeout(()=>{
-            if (!pMesh) return;
-            const SMASH_RADIUS = 6.0;
-            const origin = pMesh.position.clone();
-            GAME_STATE.enemies.forEach(entry=>{
-                if(!entry||entry.state.hp<=0) return;
-                if(origin.distanceTo(entry.mesh.position)>SMASH_RADIUS) return;
-                const dir=new THREE.Vector3().subVectors(entry.mesh.position,origin).normalize();
-                if(dir.lengthSq()===0) dir.set(0,0,1);
-                applyDamageToEnemy(_mkAbWep(34,26,190,0.42),dir,3,entry);
-            });
-            spawnLoveBurstVFX(origin);
-        },420);
-    },
-
-    // 50% — Rika Rampage: appears behind Yuta, multi-hit combo + ground slam, large AoE
-    _rikaRampage() {
-        RikaGaugeSystem.spend(50);
-        this._manifest(2200);
-        const origin = pMesh ? pMesh.position.clone() : new THREE.Vector3();
-        const RAMPAGE_RADIUS = 6.5;
-        const doHit=(dmg,kb,step)=>{
-            GAME_STATE.enemies.forEach(entry=>{
-                if(!entry||entry.state.hp<=0) return;
-                if(origin.distanceTo(entry.mesh.position)>RAMPAGE_RADIUS) return;
-                const dir=new THREE.Vector3().subVectors(entry.mesh.position,origin).normalize();
-                if(dir.lengthSq()===0) dir.set(0,0,1);
-                applyDamageToEnemy(_mkAbWep(dmg,kb,140,0.30),dir,step,entry);
-                spawnPinkTechniqueImpactVFX(entry.mesh.position.clone(),0xff5fc4,false);
-            });
-        };
-        [300,520,740].forEach(delay=>setTimeout(()=>doHit(16,8,2),delay));   // multiple punches
-        setTimeout(()=>{ doHit(30,28,4); spawnLoveBurstVFX(origin); },980);   // ground slam + shockwave
-    },
-
-    // 75% — Queen's Protection: defensive buff on Yuta (damage reduction, hyper armor, knockback resist)
-    _queensProtection() {
-        RikaGaugeSystem.spend(75);
-        this._manifest(6000);
-        const P = GAME_STATE.player;
-        const prevTakenMul = P.damageTakenMul, prevKbMul = P.knockbackMul;
-        P.damageTakenMul = prevTakenMul * 0.45;
-        P.knockbackMul = prevKbMul * 0.15;
-        P._queensProtectionActive = true;
-        document.querySelector('.player-panel')?.classList.add('queens-protection-active');
-        setTimeout(()=>{
-            P.damageTakenMul = prevTakenMul;
-            P.knockbackMul = prevKbMul;
-            P._queensProtectionActive = false;
-            document.querySelector('.player-panel')?.classList.remove('queens-protection-active');
-        },6000);
-    }
-};
-
-
 function applyDamageToPlayer(dmgOverride, attackerEntry) {
     if(GAME_STATE.player.hp<=0||GAME_STATE.player.isDashing) return;
     // Hyperarmor: invulnerable during awakening animation
@@ -5358,9 +6169,6 @@ function applyDamageToPlayer(dmgOverride, attackerEntry) {
     const baseDmg = (dmgOverride !== undefined) ? dmgOverride : GAME_STATE.enemy.damage;
     const incomingDmg=Math.round(baseDmg*AwakeningController.getDamageReceiveMul()*GAME_STATE.player.damageTakenMul);
     GAME_STATE.player.hp=Math.max(0,GAME_STATE.player.hp-incomingDmg);
- 
-    // Rika Manifestation gauge — gains from damage received (Yuta only)
-    if(currentCharacterId==='YUTA_OKKOTSU') RikaGaugeSystem.add(incomingDmg*0.6);
  
     // Thorns perks: reflect a fraction of the hit back at whoever landed it
     if (GAME_STATE.player.thornsPct > 0 && attackerEntry && attackerEntry.state && attackerEntry.state.hp > 0) {
@@ -5454,13 +6262,15 @@ function runGameLoop(timestamp) {
         NaoyaProjectionSystem.update(now);
         SecretAwakeningController.update(now);
         NaoyaVFX.update(now);
-        RikaSummonSystem.update(now);
         processCameraPhysics(delta);
  
         // Passive HP regen perks
         if (GAME_STATE.player.hpRegenPerSec > 0 && GAME_STATE.player.hp > 0) {
             GAME_STATE.player.hp = Math.min(GAME_STATE.player.maxHp, GAME_STATE.player.hp + GAME_STATE.player.hpRegenPerSec*delta);
         }
+
+        // PHASE 1 perk system per-frame tick (bleed DoT, out-of-combat regen, etc.)
+        if (typeof PerkSystem !== 'undefined') PerkSystem.tick(delta, now);
  
         updateHUD();
         updateEnemyPanelVisibility();
@@ -5501,7 +6311,7 @@ function updateWalkAnimation(delta,now) {
         const prog=(now-GAME_STATE.player.attackStartTime)/wDur;
         if(prog<1.0){
             // ── Resolve this hit's animation definition ──
-            const animKey = wep===WEAPONS.KATANA ? 'KATANA' : wep===WEAPONS.CLEAVER ? 'CLEAVER' : wep===WEAPONS.FISTS ? 'FISTS' : wep===WEAPONS.YUTA_KATANA ? 'YUTA_KATANA' : 'SPEAR';
+            const animKey = wep===WEAPONS.KATANA ? 'KATANA' : wep===WEAPONS.CLEAVER ? 'CLEAVER' : wep===WEAPONS.FISTS ? 'FISTS' : 'SPEAR';
             const hitIdx  = Math.max(0, (combatFX.activeM1Step||1) - 1);
             const h       = ANIM_MAP[animKey][hitIdx];
  
