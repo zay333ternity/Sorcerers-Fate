@@ -1104,7 +1104,7 @@ const CharacterData = {
         strengths:['Highest Mobility','Extremely Fast Attacks','Strong Combo Pressure','Unique Crowd Control Through Projection','Excellent Chase Potential'],
         weaknesses:['Lower Durability','Requires Maintaining Combos','Mistakes Are Punished Heavily','High Skill Ceiling'],
         weapons:['None — Projection Sorcery'],
-        image:'naoya.jpeg',
+        image:'naoyapfp.jpeg',
         playable:true,
         color:'#7fd4ff'
         // NOTE: no `awakening` block yet — Naoya's awakening is out of scope for this
@@ -1121,11 +1121,11 @@ const CharacterData = {
         difficulty:'Moderate',
         stars:3,
         combatStyle:'Ice Control / Battlefield Denial',
-        description:'A master of ice manipulation who freezes the battlefield, controls enemy movement, and punishes those trapped in eternal frost.',
+        description:'Uraume controls the battlefield through freezing enemies, controlling space, and creating openings rather than overwhelming melee damage. Calm, elegant, and terrifying.',
         strengths:['Strong Crowd Control','Battlefield Denial','Freeze Lockdown','Great Against Groups'],
         weaknesses:['Lower Single-Target Burst','Requires Positioning','Freeze Buildup Takes Setup'],
         weapons:['Frost Technique'],
-        image:'uraume.jpeg',
+        image:'uraumepfp.jpeg',
         playable:true,
         color:'#8fe0ff',
         awakening:{
@@ -1414,55 +1414,160 @@ function _applyNanamiGlasses(charId, rig) {
     upper.add(glassGroup);
 }
 
-// ── Uraume cosmetics: long flowing white hair (small crimson back-layer accent)
-// plus a thin white collar peeking above the black outer robe. Built once per
-// character-select (mirrors _applyNanamiGlasses' add/remove-by-name pattern) and
-// parented to rig.upper so it bobs naturally with the existing walk animation.
-// The hair group is also given a tiny idle sway, driven every frame from
-// UraumeVFX.updateHairSway() (see runGameLoop) — a no-op for every other character.
+// ── Uraume cosmetics (Final Appearance Pass): a chin-length, angular white bob
+// with a dark plum-red patch hidden on the back/upper-rear only; a white inner
+// kimono collar + sleeve cuffs peeking from the indigo/purple outer robe; a white
+// obi sash; white tabi peeking above the shoes; and two minimal pink-red eye
+// accents. Everything here is additive/removable per character-select, mirroring
+// _applyNanamiGlasses' add/remove-by-name pattern, and none of it touches the
+// shared rig geometry other characters use — the only shared thing this function
+// touches is toggling visibility on the existing hr-material hair boxes (so
+// Uraume's custom bob replaces them without deleting/rebuilding anyone else's hair).
 function _applyUraumeCosmetics(charId, rig) {
     const upper = rig && rig.upper;
     if (!upper) return;
     const old = upper.getObjectByName('uraume_cosmetics');
     if (old) upper.remove(old);
+
+    // These pieces are parented to the arm/leg pivots (so they follow limb motion),
+    // NOT to the 'uraume_cosmetics' group above — clean them up explicitly here or
+    // they'd persist onto every other character after switching away from Uraume.
+    ['lE','rE','lK','rK','lS','rS'].forEach(key => {
+        const node = rig[key];
+        if (!node) return;
+        const existing = node.getObjectByName('uraume_attach_' + key);
+        if (existing) node.remove(existing);
+    });
+
+    // Hide the shared box-hair meshes only while Uraume is selected — restored
+    // automatically for every other character since this check runs on every switch.
+    const rm = GAME_STATE.player.rigMaterials;
+    if (rm && rm.hr) {
+        upper.traverse(obj => { if (obj.isMesh && obj.material === rm.hr) obj.visible = (charId !== 'URAUME'); });
+    }
+
     if (charId !== 'URAUME') return;
 
     const group = new THREE.Group();
     group.name = 'uraume_cosmetics';
 
-    // White collar sliver — hints at the white inner shirt beneath the black robe
-    const collarMat = new THREE.MeshStandardMaterial({ color:0xf0f2f5, roughness:0.7 });
-    const collar = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.07, 0.46), collarMat);
+    // ── White inner kimono collar, visible above the outer robe's neckline ──
+    const whiteMat = new THREE.MeshStandardMaterial({ color:0xf5f3ee, roughness:0.75 });
+    const collar = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.08, 0.46), whiteMat);
     collar.position.set(0, 1.905, 0);
     collar.castShadow = true;
     group.add(collar);
 
-    // Long flowing white hair — a handful of thin cascading strands down the back
-    const hairMat = new THREE.MeshStandardMaterial({ color:0xf1f3f6, roughness:0.55 });
+    // ── White obi sash at the waist ──
+    const sash = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.16, 0.48), whiteMat);
+    sash.position.set(0, 1.06, 0);
+    sash.castShadow = true;
+    group.add(sash);
+
+    // ── White tabi peeking just above the existing (dark) shoe geometry ──
+    if (rig.lK) {
+        const tabiL = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.10, 0.40), whiteMat);
+        tabiL.name = 'uraume_attach_lK';
+        tabiL.position.set(0, -0.53, 0.06);
+        tabiL.castShadow = true;
+        rig.lK.add(tabiL);
+    }
+    if (rig.rK) {
+        const tabiR = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.10, 0.40), whiteMat);
+        tabiR.name = 'uraume_attach_rK';
+        tabiR.position.set(0, -0.53, 0.06);
+        tabiR.castShadow = true;
+        rig.rK.add(tabiR);
+    }
+
+    // ── Oversized white inner sleeve cuffs, peeking beneath the robe's wide
+    // sleeves — parented to the elbow pivots so they follow arm swings naturally ──
+    if (rig.lE) {
+        const cuffL = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.16, 0.30), whiteMat);
+        cuffL.name = 'uraume_attach_lE';
+        cuffL.position.set(0, -0.40, 0);
+        cuffL.castShadow = true;
+        rig.lE.add(cuffL);
+    }
+    if (rig.rE) {
+        const cuffR = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.16, 0.30), whiteMat);
+        cuffR.name = 'uraume_attach_rE';
+        cuffR.position.set(0, -0.40, 0);
+        cuffR.castShadow = true;
+        rig.rE.add(cuffR);
+    }
+
+    // ── Wide, loose outer-robe sleeve panels (angular, oversized — low-poly
+    // "wide sleeve" silhouette) at the shoulders, deep indigo/purple ──
+    const robeMat = new THREE.MeshStandardMaterial({ color:0x2b1f47, roughness:0.72 });
+    if (rig.lS) {
+        const sleeveL = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.46, 0.40), robeMat);
+        sleeveL.name = 'uraume_attach_lS';
+        sleeveL.position.set(-0.06, -0.30, 0);
+        sleeveL.castShadow = true;
+        rig.lS.add(sleeveL);
+    }
+    if (rig.rS) {
+        const sleeveR = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.46, 0.40), robeMat);
+        sleeveR.name = 'uraume_attach_rS';
+        sleeveR.position.set(0.06, -0.30, 0);
+        sleeveR.castShadow = true;
+        rig.rS.add(sleeveR);
+    }
+
+    // ── Angular chin-length bob — a handful of flat, geometric panels forming a
+    // solid "helmet" silhouette rather than individual strands ──
+    const hairMat = new THREE.MeshStandardMaterial({ color:0xf3f4f7, roughness:0.5, flatShading:true });
     const hairGroup = new THREE.Group();
     hairGroup.name = 'uraume_hair_sway';
-    const strandDefs = [
-        { w:0.14, h:0.98, x:-0.13, y:1.78, z:-0.27 },
-        { w:0.14, h:0.92, x: 0.13, y:1.78, z:-0.27 },
-        { w:0.10, h:0.80, x:-0.03, y:1.72, z:-0.30 },
-        { w:0.10, h:0.80, x: 0.03, y:1.72, z:-0.30 }
-    ];
-    strandDefs.forEach(s => {
-        const strand = new THREE.Mesh(new THREE.BoxGeometry(s.w, s.h, 0.09), hairMat);
-        strand.position.set(s.x, s.y - s.h/2, s.z);
-        strand.castShadow = true;
-        hairGroup.add(strand);
-    });
+    // Cap over the top of the head
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.16, 0.48), hairMat);
+    cap.position.set(0, 2.62, -0.01);
+    cap.castShadow = true;
+    hairGroup.add(cap);
+    // Blunt-cut front bangs, angled slightly forward
+    const bangs = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.30, 0.14), hairMat);
+    bangs.position.set(0, 2.42, 0.19);
+    bangs.rotation.x = -0.06;
+    bangs.castShadow = true;
+    hairGroup.add(bangs);
+    // Two angular side panels flaring down to chin length
+    const sideL = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.50, 0.46), hairMat);
+    sideL.position.set(-0.285, 2.26, -0.02);
+    sideL.castShadow = true;
+    hairGroup.add(sideL);
+    const sideR = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.50, 0.46), hairMat);
+    sideR.position.set(0.285, 2.26, -0.02);
+    sideR.castShadow = true;
+    hairGroup.add(sideR);
+    // Solid back panel, chin-length
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.54, 0.14), hairMat);
+    back.position.set(0, 2.26, -0.27);
+    back.castShadow = true;
+    hairGroup.add(back);
 
-    // Small crimson accent — a single thin strand tucked on the BACK layer only,
-    // mostly hidden behind the white strands (subtle accent, never dominant)
-    const crimsonMat = new THREE.MeshStandardMaterial({ color:0x7a1420, roughness:0.5 });
-    const crimsonStrand = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.70, 0.06), crimsonMat);
-    crimsonStrand.position.set(0, 1.78 - 0.35, -0.335);
-    crimsonStrand.castShadow = true;
-    hairGroup.add(crimsonStrand);
+    // Dark plum-red/pink patch — back + upper-rear only, sits flush against the
+    // outer face of the back panel so it reads on the back layer but is fully
+    // occluded by the bangs/side panels from the front.
+    const plumMat = new THREE.MeshStandardMaterial({ color:0x5a2438, roughness:0.55, flatShading:true });
+    const plumPatch = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.34, 0.05), plumMat);
+    plumPatch.position.set(0, 2.40, -0.345);
+    plumPatch.castShadow = true;
+    hairGroup.add(plumPatch);
 
     group.add(hairGroup);
+
+    // ── Minimal face: sharp, narrow, bright pinkish-red eye accents; no mouth ──
+    const eyeMat = new THREE.MeshStandardMaterial({ color:0xd63f6b, emissive:0xd63f6b, emissiveIntensity:0.65, roughness:0.35 });
+    const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.028, 0.02), eyeMat);
+    eyeL.position.set(-0.10, 2.185, 0.205);
+    eyeL.rotation.z = 0.10;   // slightly drooping outer corner
+    group.add(eyeL);
+    const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.028, 0.02), eyeMat);
+    eyeR.position.set(0.10, 2.185, 0.205);
+    eyeR.rotation.z = -0.10;
+    group.add(eyeR);
+
     upper.add(group);
 }
 
@@ -1534,14 +1639,15 @@ function _applyCharacterConfig(charId) {
         if(rm.sh) rm.sh.color.setHex(0x1f1f1f);   // dark sandals
         rm.sw.roughness = 0.62;   // slightly glossier — silk-like kimono fabric
     } else if(rm && charId === 'URAUME'){
-        // Reference: black outer robe, pale cold skin, white hair (crimson accent added
-        // separately via _applyUraumeCosmetics), dark pants/sandals — no armor.
-        if(rm.sw) rm.sw.color.setHex(0x0c0c10);   // black outer robe
-        if(rm.pt) rm.pt.color.setHex(0x15151a);   // dark pants
-        if(rm.sk) rm.sk.color.setHex(0xd9c7c0);   // pale, cold skin tone
-        if(rm.hr) rm.hr.color.setHex(0xf1f3f6);   // white hair (dominant)
-        if(rm.sh) rm.sh.color.setHex(0x0e0e12);   // dark sandals
-        rm.sw.roughness = 0.70;
+        // Final Appearance Pass reference: deep indigo/dark purple outer robe (white
+        // inner kimono/sash/tabi added separately via _applyUraumeCosmetics),
+        // extremely pale skin, dark pants beneath the robe, dark zori sandals.
+        if(rm.sw) rm.sw.color.setHex(0x2b1f47);   // deep indigo/dark purple outer robe
+        if(rm.pt) rm.pt.color.setHex(0x15131c);   // dark pants
+        if(rm.sk) rm.sk.color.setHex(0xf2e8e4);   // extremely pale skin
+        if(rm.hr) rm.hr.color.setHex(0xf3f4f7);   // (shared hair boxes hidden — custom bob used instead)
+        if(rm.sh) rm.sh.color.setHex(0x120f16);   // dark straw sandals
+        rm.sw.roughness = 0.72;
     } else if(rm){
         // Toji — reset to original dark colours
         if(rm.sw) rm.sw.color.setHex(0x080808);
@@ -1636,6 +1742,7 @@ const GAME_STATE = {
         executeBonusMul: 1.0,
         awakeningGainMul: 1.0,    // multiplies Toji awakening meter gain per hit
         knockbackMul: 1.0,
+        freezeBuildupMul: 1.0,    // Uraume-only: multiplies all Freeze Meter buildup
  
         // ── Forward hooks for future cursed-energy characters (NOT consumed by any
         //    system yet — mirrors the project's existing "future expansion" pattern) ──
@@ -2783,7 +2890,7 @@ const AbilitySystem = {
         if(!pMesh) return;
         AbilityAnimController.play(ABILITY_ANIMS.S2);
         const awakened = AwakeningController.isActive();
-        const fwd = new THREE.Vector3(Math.sin(GAME_STATE.player.rotation),0,Math.cos(GAME_STATE.player.rotation));
+        const fwd = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),GAME_STATE.player.rotation);
         const center = pMesh.position.clone().addScaledVector(fwd, awakened?7.5:5.5);
         const radius = awakened?6.5:5.0;
         const dmg = awakened?27:18;
@@ -2827,7 +2934,7 @@ const AbilitySystem = {
         if(!pMesh) return;
         AbilityAnimController.play(ABILITY_ANIMS.S4);
         const awakened=AwakeningController.isActive();
-        const fwd=new THREE.Vector3(Math.sin(GAME_STATE.player.rotation),0,Math.cos(GAME_STATE.player.rotation));
+        const fwd=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),GAME_STATE.player.rotation);
         const center=pMesh.position.clone().addScaledVector(fwd, 3);
         UraumeFreezeSystem.addZone(center.x, center.z, awakened?9.5:7, awakened?9500:7000, 0.55, awakened?15:9);
     },
@@ -3272,7 +3379,16 @@ function createEnemy(opts) {
         // ── Naoya Bleed (Zenin Edge, S3) ──
         bleedStacks: 0,
         bleedEndTime: 0,
-        bleedNextTick: 0
+        bleedNextTick: 0,
+        // ── Uraume Freeze system (UraumeFreezeSystem) ──
+        freezeMeter: 0,          // 0-100, only shown/built while > 0
+        frozen: false,           // true while in Frozen State
+        frozenEndTime: 0,        // Thaw Timer — performance.now() ms
+        lastFreezeHitTime: 0,    // used to gate passive decay after inactivity
+        uraumeSlowMul: 1,        // active temp-slow multiplier (Frost Calm / Ice Field)
+        uraumeSlowEndTime: 0,
+        uraumeBaseSpeed: null,   // stashed opts.speed the first time a slow/zone applies
+        uraumeIceMesh: null      // Frozen-State ice-shell visual (managed by UraumeFreezeSystem)
     };
  
     // Lightweight DOM floating health bar (no extra 3D geometry/texture per enemy)
@@ -3294,7 +3410,15 @@ function createEnemy(opts) {
         'transform:translate(-50%,-100%);z-index:45;font-family:inherit;';
     if (layer) layer.appendChild(markEl);
 
-    return { state, mesh, barEl, barFillEl: fillEl, markEl };
+    // Uraume Freeze Meter — thin bar above the health bar; hidden until buildup > 0
+    const freezeEl = document.createElement('div');
+    freezeEl.className = 'freeze-meter-bar';
+    const freezeFillEl = document.createElement('div');
+    freezeFillEl.className = 'freeze-meter-fill';
+    freezeEl.appendChild(freezeFillEl);
+    if (layer) layer.appendChild(freezeEl);
+
+    return { state, mesh, barEl, barFillEl: fillEl, markEl, freezeEl, freezeFillEl };
 }
  
  
@@ -3794,6 +3918,8 @@ _beginWaveIntro() {
         if (entry.mesh && entry.mesh.parent) entry.mesh.parent.remove(entry.mesh);
         if (entry.barEl  && entry.barEl.parentNode)  entry.barEl.parentNode.removeChild(entry.barEl);
         if (entry.markEl && entry.markEl.parentNode) entry.markEl.parentNode.removeChild(entry.markEl);
+        if (entry.freezeEl && entry.freezeEl.parentNode) entry.freezeEl.parentNode.removeChild(entry.freezeEl);
+        UraumeFreezeSystem.releaseVisual(entry);   // removes the ice-shell mesh, if any (no-op otherwise)
     },
  
     // Keeps the legacy eMesh/GAME_STATE.enemy pointer (read by AbilitySystem,
@@ -3838,6 +3964,10 @@ onEnemyDeath(entry) {
 
     // Naoya Projection: don't leave an orphaned frame if the trapped enemy died (e.g. from a perk/DoT)
     if (entry.state.projectionTrapped) NaoyaProjectionSystem.release(entry, false);
+
+    // Uraume Freeze: don't leave an orphaned ice-shell mesh if a frozen enemy died
+    if (entry.state.frozen) UraumeFreezeSystem.releaseVisual(entry);
+    if (entry.freezeEl) entry.freezeEl.style.display = 'none';
  
     if (GAME_STATE.enemy === entry.state) {
         this._refreshDefaultTarget(); // snap abilities/HUD to a still-living enemy
@@ -4058,6 +4188,10 @@ const PERKS = [
       buffs:['Faster/longer Projection','+ Movement Speed'],
       apply(P){ P.staticSpeedMul *= 1.10; P.abilityCooldownMul *= 0.90; PerkSystem._recomputeSpeed(); },
       remove(P){ P.staticSpeedMul /= 1.10; P.abilityCooldownMul /= 0.90; PerkSystem._recomputeSpeed(); } },
+    { id:'absolute_zero_mastery', name:'Absolute Zero Mastery', desc:'The cold bends further to your will — enemies freeze almost on contact.', grade:'SPECIAL_GRADE', icon:'❄️', character:'URAUME',
+      buffs:['+35% Freeze buildup','+15% Ability Damage'],
+      apply(P){ P.freezeBuildupMul *= 1.35; P.damageMul *= 1.15; },
+      remove(P){ P.freezeBuildupMul /= 1.35; P.damageMul /= 1.15; } },
     { id:'queens_blessing', name:"Queen's Blessing", desc:"Rika's protection surges through the Rika Gauge.", grade:'SPECIAL_GRADE', icon:'💍', character:'YUTA',
       buffs:['Rika Gauge fills 40% faster','Rika abilities +20% dmg','Rika costs -15%'],
       apply(P){ P.abilityCooldownMul *= 0.85; P.damageMul *= 1.20; }, remove(P){ P.abilityCooldownMul /= 0.85; P.damageMul /= 1.20; } }
@@ -4775,7 +4909,7 @@ function updateEnemyFloatingBars() {
     if (!camera) return;
     GAME_STATE.enemies.forEach(entry => {
         if (!entry.barEl) return;
-        if (entry.state.hp <= 0) { entry.barEl.style.display = 'none'; return; }
+        if (entry.state.hp <= 0) { entry.barEl.style.display = 'none'; if(entry.freezeEl) entry.freezeEl.style.display='none'; return; }
         _efbProjVec.copy(entry.mesh.position);
         _efbProjVec.y += 3.0;
         _efbProjVec.project(camera);
@@ -4795,6 +4929,18 @@ function updateEnemyFloatingBars() {
                 entry.markEl.style.top  = (sy - 28) + 'px';
             } else {
                 entry.markEl.style.display = 'none';
+            }
+        }
+        // Uraume Freeze Meter — only ever shown while there's buildup, per design
+        if(entry.freezeEl){
+            if(currentCharacterId==='URAUME' && entry.state.freezeMeter>0){
+                entry.freezeEl.style.display = 'block';
+                entry.freezeEl.style.left = sx + 'px';
+                entry.freezeEl.style.top  = (sy - 14) + 'px';
+                entry.freezeFillEl.style.width = Math.min(100, entry.state.freezeMeter) + '%';
+                entry.freezeEl.classList.toggle('freeze-full', entry.state.frozen === true);
+            } else {
+                entry.freezeEl.style.display = 'none';
             }
         }
     });
@@ -4981,6 +5127,15 @@ function executeAttackPipeline() {
                 setTimeout(() => NaoyaVFX._spawnAfterimage(), 55);
             }
         }
+
+        // ── Uraume Ice Reinforced Combat — small freeze buildup per M1 hit, plus
+        // impact frost VFX. Additive, no-op for every other character. ──
+        if (currentCharacterId === 'URAUME' && targetEntry.state.hp > 0) {
+            const buildupByStep = { 1:8, 2:8, 3:10, 4:18 };
+            const amt = (buildupByStep[combatFX.m1Step] || 8) * (AwakeningController.isActive() ? 1.35 : 1);
+            UraumeFreezeSystem.addFreeze(targetEntry, amt);
+            UraumeVFX.spawnM1FrostHit(targetEntry.mesh.position.clone(), combatFX.m1Step);
+        }
     }
  
     // Advance the string — loops back to hit 1 right after the finisher (hit 4)
@@ -5004,6 +5159,25 @@ function _findMeleeTarget(wep) {
         if(dist<bestDist){ bestDist=dist; best=entry; }
     });
     return best;
+}
+
+// Uraume — returns every living enemy inside a forward-facing cone (range +
+// half-angle in radians). Used by Frost Calm (S1) for its multi-target ice wave.
+// Mirrors _findMeleeTarget's facing-direction math but collects *all* matches
+// instead of just the nearest one.
+function _uraumeConeTargets(range, halfAngleRad) {
+    if (!pMesh) return [];
+    const fwd=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),GAME_STATE.player.rotation);
+    const targets=[];
+    GAME_STATE.enemies.forEach(entry=>{
+        if(!entry||!entry.state||entry.state.hp<=0) return;
+        const dist=pMesh.position.distanceTo(entry.mesh.position);
+        if(dist>range) return;
+        const dir=new THREE.Vector3().subVectors(entry.mesh.position,pMesh.position).normalize();
+        if(fwd.angleTo(dir)>halfAngleRad) return;
+        targets.push(entry);
+    });
+    return targets;
 }
  
 function executeDashPipeline() {
@@ -5029,6 +5203,9 @@ function applyDamageToEnemy(wep,dir,step,targetEntry) {
     const entry = targetEntry || _entryForState(GAME_STATE.enemy);
     if(!entry || entry.state.hp<=0) return;
     const state = entry.state, mesh = entry.mesh;
+    // Captured before damage/hp changes — Frozen State itself is only cleared by
+    // UraumeFreezeSystem.shatter()/its own timer, never by hp reduction directly.
+    const wasFrozenForShatter = currentCharacterId==='URAUME' && state.frozen === true;
  
     const tuning=M1_STEP_TUNING[step] || M1_STEP_TUNING[1];
     const now=performance.now();
@@ -5050,8 +5227,21 @@ function applyDamageToEnemy(wep,dir,step,targetEntry) {
     if (P.executeThresholdPct > 0 && state.maxHp > 0 && (state.hp/state.maxHp) <= P.executeThresholdPct) {
         dmg = Math.round(dmg * P.executeBonusMul);
     }
+
+    // ── Uraume Shatter: any hit against a Frozen enemy deals bonus damage.
+    // The awakening's SHATTER buff amplifies this further while active.
+    if (wasFrozenForShatter) {
+        const shatterMul = AwakeningController.isActive() ? 1.9 : 1.35;
+        dmg = Math.round(dmg * shatterMul);
+    }
  
     state.hp=Math.max(0,state.hp-dmg);
+
+    // ── Uraume Shatter: break the ice with an explosion the instant a Frozen
+    // enemy takes another hit (only if it survives — a killing blow just dies).
+    if (wasFrozenForShatter && state.hp>0) {
+        UraumeFreezeSystem.shatter(entry);
+    }
 
     // ── Nanami Ratio Mark: every hit adds stacks; 7 marks the enemy ──
     if(currentCharacterId==='NANAMI' && state.hp>0){
@@ -6160,6 +6350,425 @@ const NaoyaVFX = {
     }
 };
 
+// ════════════════════════════════════════════════════════
+// URAUME FREEZE SYSTEM — reusable ice-control status architecture.
+// Mirrors NaoyaProjectionSystem's shape (trap/release/update/shatter) but is its
+// own independent system so future ice-based characters can plug into it too.
+// Every entry point is additive and either checks currentCharacterId itself or
+// is only ever called from Uraume-specific code paths — complete no-op for
+// Toji/Nanami/Naoya.
+// ════════════════════════════════════════════════════════
+const URAUME_FROZEN_DURATION_MS = 3800;
+const URAUME_FREEZE_DECAY_PER_SEC = 14;      // meter decay rate once buildup goes idle
+const URAUME_FREEZE_DECAY_DELAY_MS = 1000;   // grace period after the last hit before decay starts
+const URAUME_ABSOLUTE_ZERO_RADIUS = 12;      // Awakening buff: nearby-enemy passive freeze range
+const URAUME_ABSOLUTE_ZERO_RATE = 6;         // freeze-meter/sec granted to enemies in that radius
+
+const UraumeFreezeSystem = {
+    _iceShells: new Map(),   // entry.state -> { mesh, mat }  (Frozen State visual)
+    zones: [],               // Ice Field zones: { x, z, radius, endTime, slowMul, freezeRatePerSec, visual }
+
+    // ── Freeze buildup ──────────────────────────────────
+    addFreeze(entry, amount) {
+        if (!entry || !entry.state || entry.state.hp <= 0 || entry.state.frozen) return;
+        if (!amount || amount <= 0) return;
+        const state = entry.state;
+        amount *= (GAME_STATE.player.freezeBuildupMul || 1);
+        state.freezeMeter = Math.min(100, (state.freezeMeter || 0) + amount);
+        state.lastFreezeHitTime = performance.now();
+        if (state.freezeMeter >= 100) this._freeze(entry);
+    },
+
+    _freeze(entry) {
+        const state = entry.state;
+        state.frozen = true;
+        state.freezeMeter = 100;
+        state.frozenEndTime = performance.now() + URAUME_FROZEN_DURATION_MS;
+        // Immobilized enemies shouldn't keep sliding on old knockback momentum
+        if (combatFX.knockbackTargetMesh === entry.mesh) combatFX.knockbackVel.set(0, 0, 0);
+        this._spawnIceShell(entry);
+    },
+
+    // Natural thaw — meter empties back to 0 (per design: "Freeze meter resets back to 0")
+    _thaw(entry) {
+        const state = entry.state;
+        state.frozen = false;
+        state.freezeMeter = 0;
+        state.frozenEndTime = 0;
+        this.releaseVisual(entry);
+    },
+
+    // Shatter — an attack breaks a Frozen enemy early. Ice-explosion VFX, then
+    // same reset-to-0 behavior as a natural thaw (matches applyDamageToEnemy's
+    // wasFrozenForShatter/shatter() call).
+    shatter(entry) {
+        if (!entry || !entry.state || !entry.state.frozen) return;
+        if (entry.mesh) UraumeVFX.spawnShatterBurst(entry.mesh.position.clone());
+        this._thaw(entry);
+    },
+
+    // Uraume-only temporary slow (Frost Calm cone, Ice Field zone, etc.)
+    applySlow(entry, mul, durationMs) {
+        if (!entry || !entry.state || entry.state.hp <= 0) return;
+        const state = entry.state;
+        if (state.uraumeBaseSpeed == null) state.uraumeBaseSpeed = state.speed;
+        state.uraumeSlowMul = Math.min(state.uraumeSlowMul || 1, mul);
+        state.uraumeSlowEndTime = Math.max(state.uraumeSlowEndTime || 0, performance.now() + durationMs);
+        state.speed = state.uraumeBaseSpeed * state.uraumeSlowMul;
+    },
+
+    // Ice Field (S4) — a lingering ground zone. Enemies inside are slowed and
+    // continuously build freeze meter for as long as they remain in it.
+    addZone(x, z, radius, durationMs, slowMul, freezeRatePerSec) {
+        const zone = { x, z, radius, endTime: performance.now() + durationMs, slowMul, freezeRatePerSec, visual: null };
+        zone.visual = UraumeVFX.spawnIceFieldVisual(x, z, radius, durationMs);
+        this.zones.push(zone);
+    },
+
+    // ── Per-frame tick (called from runGameLoop) ─────────
+    update(now, delta) {
+        // Frozen-state expiry, meter decay, ice-shell follow
+        GAME_STATE.enemies.forEach(entry => {
+            const state = entry.state;
+            if (!state) return;
+            if (state.hp <= 0) {
+                if (state.frozen || this._iceShells.has(state)) this.releaseVisual(entry);
+                return;
+            }
+            if (state.frozen) {
+                if (now >= state.frozenEndTime) { this._thaw(entry); return; }
+                const shell = this._iceShells.get(state);
+                if (shell && entry.mesh) {
+                    shell.mesh.position.copy(entry.mesh.position);
+                    const pulse = 1 + Math.sin(now * 0.004) * 0.03;
+                    shell.mesh.scale.set(pulse, pulse, pulse);
+                }
+                return;
+            }
+            // Passive decay once buildup has gone idle for a bit
+            if (state.freezeMeter > 0 && now - (state.lastFreezeHitTime || 0) > URAUME_FREEZE_DECAY_DELAY_MS) {
+                state.freezeMeter = Math.max(0, state.freezeMeter - URAUME_FREEZE_DECAY_PER_SEC * delta);
+            }
+            // Slow expiry — restore base speed once the temp slow runs out
+            if (state.uraumeSlowEndTime && now >= state.uraumeSlowEndTime && state.uraumeBaseSpeed != null) {
+                state.speed = state.uraumeBaseSpeed;
+                state.uraumeSlowMul = 1;
+                state.uraumeSlowEndTime = 0;
+            }
+        });
+
+        // Ice Field zones — apply slow + freeze buildup to anyone standing inside, expire old zones
+        if (this.zones.length) {
+            const alive = [];
+            this.zones.forEach(zone => {
+                if (now >= zone.endTime) {
+                    if (zone.visual) UraumeVFX.disposeIceFieldVisual(zone.visual);
+                    return;
+                }
+                alive.push(zone);
+                GAME_STATE.enemies.forEach(entry => {
+                    if (!entry.state || entry.state.hp <= 0 || entry.state.frozen) return;
+                    const dx = entry.mesh.position.x - zone.x, dz = entry.mesh.position.z - zone.z;
+                    if (dx*dx + dz*dz > zone.radius*zone.radius) return;
+                    this.applySlow(entry, zone.slowMul, 400);   // refreshed every frame while inside
+                    this.addFreeze(entry, zone.freezeRatePerSec * delta);
+                });
+            });
+            this.zones = alive;
+        }
+
+        // Absolute Zero — while awakened, nearby enemies passively build freeze meter
+        if (currentCharacterId === 'URAUME' && AwakeningController.isActive() && pMesh) {
+            GAME_STATE.enemies.forEach(entry => {
+                if (!entry.state || entry.state.hp <= 0 || entry.state.frozen) return;
+                if (pMesh.position.distanceTo(entry.mesh.position) <= URAUME_ABSOLUTE_ZERO_RADIUS) {
+                    this.addFreeze(entry, URAUME_ABSOLUTE_ZERO_RATE * delta);
+                }
+            });
+        }
+    },
+
+    // ── Frozen State visual — an icy crystal shell around the enemy ──
+    _spawnIceShell(entry) {
+        if (!scene || !entry.mesh) return;
+        this.releaseVisual(entry);   // guard against double-spawn
+        const mat = new THREE.MeshStandardMaterial({
+            color: 0xbdeeff, emissive: 0x4fc3ff, emissiveIntensity: 0.55,
+            transparent: true, opacity: 0.55, metalness: 0.2, roughness: 0.1
+        });
+        const group = new THREE.Group();
+        const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.05, 0), mat);
+        core.position.y = 1.1;
+        group.add(core);
+        // A few jagged crystal shards jutting out of the shell
+        for (let i = 0; i < 5; i++) {
+            const shard = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.55, 4), mat);
+            const ang = (i / 5) * Math.PI * 2;
+            shard.position.set(Math.cos(ang) * 0.75, 0.9 + Math.random()*0.6, Math.sin(ang) * 0.75);
+            shard.rotation.set(Math.random()*0.6-0.3, 0, Math.random()*0.6-0.3);
+            group.add(shard);
+        }
+        group.position.copy(entry.mesh.position);
+        scene.add(group);
+        this._iceShells.set(entry.state, { mesh: group, mat });
+    },
+
+    releaseVisual(entry) {
+        if (!entry || !entry.state) return;
+        const shell = this._iceShells.get(entry.state);
+        if (!shell) return;
+        this._iceShells.delete(entry.state);
+        if (scene) scene.remove(shell.mesh);
+        shell.mesh.children.forEach(m => m.geometry && m.geometry.dispose());
+        shell.mat.dispose();
+    }
+};
+
+// ════════════════════════════════════════════════════════
+// URAUME VFX — cyan/white/ice-blue impact, cone, pillar, prison and shatter
+// effects. Never purple. Kept lightweight (short-lived, disposed meshes) to
+// match the rest of the codebase's VFX conventions.
+// ════════════════════════════════════════════════════════
+const UraumeVFX = {
+    // Idle hair sway — called every frame from runGameLoop; no-op unless the
+    // Uraume cosmetics group is currently attached to the rig.
+    updateHairSway(now) {
+        if (currentCharacterId !== 'URAUME' || !GAME_STATE.player.rig || !GAME_STATE.player.rig.upper) return;
+        const cosmetics = GAME_STATE.player.rig.upper.getObjectByName('uraume_cosmetics');
+        if (!cosmetics) return;
+        const hair = cosmetics.getObjectByName('uraume_hair_sway');
+        if (hair) hair.rotation.z = Math.sin(now * 0.0018) * 0.045;
+    },
+
+    // Small frost puff on each M1 hit — cheap, frequent impact feedback
+    spawnM1FrostHit(pos, step) {
+        if (!scene) return;
+        const big = step === 4;
+        const mat = new THREE.MeshBasicMaterial({ color:0xcdefff, transparent:true, opacity:0.85 });
+        const puff = new THREE.Mesh(new THREE.SphereGeometry(big?0.32:0.22, 6, 6), mat);
+        puff.position.copy(pos).add(new THREE.Vector3(0, 1.2, 0));
+        scene.add(puff);
+        const shardMat = new THREE.MeshBasicMaterial({ color:0xeaf9ff, transparent:true, opacity:0.9 });
+        const shards = [];
+        const n = big ? 8 : 4;
+        for (let i=0;i<n;i++) {
+            const s = new THREE.Mesh(new THREE.PlaneGeometry(0.06,0.16), shardMat.clone());
+            s.position.copy(puff.position);
+            const ang = Math.random()*Math.PI*2;
+            s.userData.vel = new THREE.Vector3(Math.cos(ang), Math.random()*0.6, Math.sin(ang)).multiplyScalar(1.6+Math.random());
+            scene.add(s); shards.push(s);
+        }
+        const t0 = performance.now(), dur = big?340:220;
+        (function tick(){
+            const t = Math.min(1,(performance.now()-t0)/dur);
+            puff.scale.setScalar(1+t*1.6);
+            mat.opacity = 0.85*(1-t);
+            shards.forEach(s=>{ s.position.addScaledVector(s.userData.vel,0.02); s.material.opacity=0.9*(1-t); });
+            if(t<1) requestAnimationFrame(tick);
+            else { scene.remove(puff); puff.geometry.dispose(); mat.dispose();
+                   shards.forEach(s=>{scene.remove(s); s.geometry.dispose(); s.material.dispose();}); }
+        })();
+    },
+
+    // Frost Calm (S1) — a wide expanding ice-sheet cone with frost particles/shards
+    spawnFrostCone(origin, rotationY, range, halfAngle, maximum) {
+        if (!scene) return;
+        const segs = 20;
+        const shape = new THREE.Shape();
+        shape.moveTo(0,0);
+        for (let i=0;i<=segs;i++){
+            const a = -halfAngle + (i/segs)*halfAngle*2;
+            shape.lineTo(Math.sin(a)*range, -Math.cos(a)*range);
+        }
+        shape.lineTo(0,0);
+        const geo = new THREE.ShapeGeometry(shape);
+        const mat = new THREE.MeshBasicMaterial({ color:0xaeeaff, transparent:true, opacity: maximum?0.55:0.42, side:THREE.DoubleSide, depthWrite:false });
+        const cone = new THREE.Mesh(geo, mat);
+        cone.rotation.x = -Math.PI/2;
+        cone.rotation.z = rotationY;
+        cone.position.copy(origin); cone.position.y = 0.06;
+        cone.scale.set(0.05,0.05,1);
+        scene.add(cone);
+
+        // Snow-spray particles fanning out through the cone
+        const flakeMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.9 });
+        const flakes = [];
+        const n = maximum ? 26 : 16;
+        for (let i=0;i<n;i++){
+            const a = -halfAngle + Math.random()*halfAngle*2;
+            const f = new THREE.Mesh(new THREE.PlaneGeometry(0.08,0.08), flakeMat.clone());
+            f.position.copy(origin).add(new THREE.Vector3(0, 0.5+Math.random()*1.4, 0));
+            const dir = new THREE.Vector3(Math.sin(rotationY+a), 0.1, Math.cos(rotationY+a));
+            f.userData.vel = dir.multiplyScalar((range/0.5) * (0.6+Math.random()*0.5));
+            scene.add(f); flakes.push(f);
+        }
+
+        const t0 = performance.now(), dur = maximum?520:380;
+        (function tick(){
+            const t = Math.min(1,(performance.now()-t0)/dur);
+            const e = 1-Math.pow(1-t,2);
+            cone.scale.set(e,e,1);
+            mat.opacity = (maximum?0.55:0.42) * (1-t*0.8);
+            flakes.forEach(f=>{ f.position.addScaledVector(f.userData.vel,0.016); f.material.opacity = 0.9*(1-t); });
+            if(t<1) requestAnimationFrame(tick);
+            else {
+                scene.remove(cone); geo.dispose(); mat.dispose();
+                flakes.forEach(f=>{scene.remove(f); f.geometry.dispose(); f.material.dispose();});
+            }
+        })();
+    },
+
+    // Ice Fall (S2) — pillars erupting from the ground across the target area
+    spawnIcePillars(center, radius, awakened) {
+        if (!scene) return;
+        const count = awakened ? 8 : 6;
+        const pillarMat = new THREE.MeshStandardMaterial({ color:0xcdeeff, emissive:0x5fb8e8, emissiveIntensity:0.4, transparent:true, opacity:0.85, metalness:0.3, roughness:0.15 });
+        for (let i=0;i<count;i++){
+            const ang = Math.random()*Math.PI*2, r = Math.random()*radius;
+            const px = center.x + Math.cos(ang)*r, pz = center.z + Math.sin(ang)*r;
+            const h = 1.4 + Math.random()*1.2;
+            const pillar = new THREE.Mesh(new THREE.ConeGeometry(0.3+Math.random()*0.2, h, 5), pillarMat.clone());
+            pillar.position.set(px, -h/2, pz);
+            scene.add(pillar);
+            const delay = Math.random()*150;
+            const t0 = performance.now()+delay, dur=260, holdDur=900;
+            (function tick(){
+                const now = performance.now();
+                if (now < t0) { requestAnimationFrame(tick); return; }
+                const t = Math.min(1,(now-t0)/dur);
+                pillar.position.y = -h/2 + (h/2 + h/2)*t;
+                if (t<1) { requestAnimationFrame(tick); return; }
+                if (now - t0 < dur + holdDur) { requestAnimationFrame(tick); return; }
+                const ft = Math.min(1,(now-t0-dur-holdDur)/300);
+                pillar.material.opacity = 0.85*(1-ft);
+                if (ft<1) requestAnimationFrame(tick);
+                else { scene.remove(pillar); pillar.geometry.dispose(); pillar.material.dispose(); }
+            })();
+        }
+        // Ground frost mist ring
+        const ringMat = new THREE.MeshBasicMaterial({ color:0xbdeeff, transparent:true, opacity:0.35, side:THREE.DoubleSide });
+        const ring = new THREE.Mesh(new THREE.CircleGeometry(radius, 24), ringMat);
+        ring.rotation.x = -Math.PI/2; ring.position.copy(center); ring.position.y = 0.04;
+        scene.add(ring);
+        const rt0 = performance.now(), rdur = 700;
+        (function tick(){
+            const t = Math.min(1,(performance.now()-rt0)/rdur);
+            ringMat.opacity = 0.35*(1-t);
+            if (t<1) requestAnimationFrame(tick);
+            else { scene.remove(ring); ring.geometry.dispose(); ringMat.dispose(); }
+        })();
+    },
+
+    // Frozen Prison (S3) — a crystal cage briefly enclosing the target
+    spawnPrisonCrystal(pos) {
+        if (!scene) return;
+        const mat = new THREE.MeshStandardMaterial({ color:0xcdeeff, emissive:0x5fc3ff, emissiveIntensity:0.5, transparent:true, opacity:0.5, metalness:0.25, roughness:0.1, side:THREE.DoubleSide });
+        const cage = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 2.3, 8, 1, true), mat);
+        cage.position.copy(pos).add(new THREE.Vector3(0, 1.15, 0));
+        scene.add(cage);
+        const t0 = performance.now(), growDur = 220;
+        cage.scale.set(0.05, 0.05, 0.05);
+        (function tick(){
+            const t = Math.min(1,(performance.now()-t0)/growDur);
+            const e = 1-Math.pow(1-t,2);
+            cage.scale.set(e,e,e);
+            cage.rotation.y += 0.05;
+            if (t<1) requestAnimationFrame(tick);
+        })();
+        setTimeout(() => {
+            const ft0 = performance.now(), fdur = 400;
+            (function fade(){
+                const t = Math.min(1,(performance.now()-ft0)/fdur);
+                mat.opacity = 0.5*(1-t);
+                cage.rotation.y += 0.05;
+                if (t<1) requestAnimationFrame(fade);
+                else { scene.remove(cage); cage.geometry.dispose(); mat.dispose(); }
+            })();
+        }, 500);
+    },
+
+    // Ice Field (S4) — a persistent frosted-ground zone with drifting particles
+    spawnIceFieldVisual(x, z, radius, durationMs) {
+        if (!scene) return null;
+        const ringMat = new THREE.MeshBasicMaterial({ color:0x8fd8ff, transparent:true, opacity:0.28, side:THREE.DoubleSide });
+        const ring = new THREE.Mesh(new THREE.CircleGeometry(radius, 28), ringMat);
+        ring.rotation.x = -Math.PI/2; ring.position.set(x, 0.03, z);
+        scene.add(ring);
+
+        const flakeMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.6 });
+        const flakes = [];
+        for (let i=0;i<18;i++){
+            const f = new THREE.Mesh(new THREE.PlaneGeometry(0.07,0.07), flakeMat);
+            const ang = Math.random()*Math.PI*2, r = Math.random()*radius;
+            f.position.set(x+Math.cos(ang)*r, 0.4+Math.random()*1.6, z+Math.sin(ang)*r);
+            f.userData.fallSpeed = 0.5+Math.random()*0.5;
+            f.userData.baseY = f.position.y;
+            ring.add(f);
+            flakes.push(f);
+        }
+        const startTime = performance.now();
+        const anim = { active:true };
+        (function tick(){
+            if (!anim.active) return;
+            const now = performance.now();
+            flakes.forEach(f=>{
+                f.position.y -= f.userData.fallSpeed*0.01;
+                if (f.position.y < 0.1) f.position.y = f.userData.baseY;
+            });
+            if (now - startTime < durationMs + 50) requestAnimationFrame(tick);
+        })();
+        return { ring, ringMat, anim };
+    },
+
+    disposeIceFieldVisual(visual) {
+        if (!visual) return;
+        visual.anim.active = false;
+        if (scene) scene.remove(visual.ring);
+        visual.ring.children.forEach(f => { f.geometry.dispose(); });
+        visual.ring.geometry.dispose();
+        visual.ringMat.dispose();
+    },
+
+    // Shatter — ice explosion + crystal shard particles (bonus-damage payoff)
+    spawnShatterBurst(pos) {
+        if (!scene) return;
+        const t0 = performance.now(), dur = 560;
+        const group = new THREE.Group();
+        group.position.copy(pos).add(new THREE.Vector3(0, 1.2, 0));
+        scene.add(group);
+        const shardMat = new THREE.MeshStandardMaterial({
+            color: 0xdff6ff, emissive: 0x7fd6ff, emissiveIntensity: 1.2,
+            transparent: true, opacity: 0.95, metalness: 0.3, roughness: 0.1, side: THREE.DoubleSide
+        });
+        const shards = [];
+        for (let i=0;i<16;i++){
+            const size = 0.07+Math.random()*0.11;
+            const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size*1.5), shardMat.clone());
+            m.position.set((Math.random()-0.5)*0.3,(Math.random()-0.5)*0.6,(Math.random()-0.5)*0.3);
+            m.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,Math.random()*Math.PI);
+            const dir = new THREE.Vector3(Math.random()-0.5, Math.random()*0.7+0.15, Math.random()-0.5).normalize();
+            m.userData.vel = dir.multiplyScalar(2.6+Math.random()*2.4);
+            group.add(m); shards.push(m);
+        }
+        const fl = document.createElement('div');
+        fl.style.cssText = 'position:fixed;inset:0;background:rgba(150,225,255,0.16);pointer-events:none;z-index:9998;transition:opacity 0.24s';
+        document.body.appendChild(fl);
+        requestAnimationFrame(() => { fl.style.opacity='0'; setTimeout(()=>fl.remove(),260); });
+        (function tick(){
+            const t = Math.min(1,(performance.now()-t0)/dur);
+            shards.forEach(m=>{
+                m.position.addScaledVector(m.userData.vel,0.016);
+                m.userData.vel.multiplyScalar(0.92);
+                m.userData.vel.y -= 0.10;
+                m.material.opacity = 0.95*(1-t);
+                m.rotation.x += 0.2; m.rotation.y += 0.15;
+            });
+            if (t<1) requestAnimationFrame(tick);
+            else { scene.remove(group); shards.forEach(m=>{m.geometry.dispose(); m.material.dispose();}); }
+        })();
+    }
+};
+
 function applyDamageToPlayer(dmgOverride, attackerEntry) {
     if(GAME_STATE.player.hp<=0||GAME_STATE.player.isDashing) return;
     // Hyperarmor: invulnerable during awakening animation
@@ -6262,6 +6871,8 @@ function runGameLoop(timestamp) {
         NaoyaProjectionSystem.update(now);
         SecretAwakeningController.update(now);
         NaoyaVFX.update(now);
+        UraumeFreezeSystem.update(now, delta);
+        UraumeVFX.updateHairSway(now);
         processCameraPhysics(delta);
  
         // Passive HP regen perks
@@ -6311,7 +6922,7 @@ function updateWalkAnimation(delta,now) {
         const prog=(now-GAME_STATE.player.attackStartTime)/wDur;
         if(prog<1.0){
             // ── Resolve this hit's animation definition ──
-            const animKey = wep===WEAPONS.KATANA ? 'KATANA' : wep===WEAPONS.CLEAVER ? 'CLEAVER' : wep===WEAPONS.FISTS ? 'FISTS' : 'SPEAR';
+            const animKey = wep===WEAPONS.KATANA ? 'KATANA' : wep===WEAPONS.CLEAVER ? 'CLEAVER' : wep===WEAPONS.FISTS ? 'FISTS' : wep===WEAPONS.FROST ? 'FROST' : 'SPEAR';
             const hitIdx  = Math.max(0, (combatFX.activeM1Step||1) - 1);
             const h       = ANIM_MAP[animKey][hitIdx];
  
@@ -6413,6 +7024,15 @@ function processEnemyAI(entry,delta,now) {
 
     // ── Naoya Projection: trapped enemies are fully frozen — no movement, no attack ──
     if(state.projectionTrapped) {
+        mesh.position.x=Math.max(-38,Math.min(38,mesh.position.x));
+        mesh.position.z=Math.max(-38,Math.min(38,mesh.position.z));
+        state.position.copy(mesh.position);
+        return;
+    }
+
+    // ── Uraume Freeze: Frozen State enemies are fully immobilized — no movement,
+    // no attack, no pathfinding (reuses the same guard pattern as Projection above) ──
+    if(state.frozen) {
         mesh.position.x=Math.max(-38,Math.min(38,mesh.position.x));
         mesh.position.z=Math.max(-38,Math.min(38,mesh.position.z));
         state.position.copy(mesh.position);
