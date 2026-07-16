@@ -476,6 +476,51 @@
         }
         #kael-overclock-tint.active { opacity:1; }
 
+        /* ── KAEL — CYBER LIMIT BREAK cinematic awakening cutscene overlay.
+             Purely visual: black fade + memory GIF sequence + cyber glitch
+             transitions. Modular / additive — only ever shown by
+             AwakeningController during Kael's 'kael' cutsceneType, complete
+             no-op for every other character. ── */
+        #kael-awakening-cutscene {
+            position:fixed; inset:0; z-index:9600;
+            display:none; align-items:center; justify-content:center;
+            background:#000; opacity:0; pointer-events:none;
+            transition:opacity 0.6s ease;
+        }
+        #kael-awakening-cutscene.active { display:flex; }
+        #kael-awakening-cutscene.fade-in { opacity:1; }
+        #kael-memory-gif {
+            width:100%; height:100%; object-fit:cover;
+            opacity:0; transition:opacity 0.08s linear;
+        }
+        #kael-memory-gif.show { opacity:1; }
+        #kael-glitch-layer {
+            position:absolute; inset:0; pointer-events:none; opacity:0;
+            mix-blend-mode:screen;
+            background:
+                repeating-linear-gradient(0deg, rgba(255,0,80,0.35) 0px, rgba(255,0,80,0.35) 2px, transparent 2px, transparent 4px),
+                repeating-linear-gradient(90deg, rgba(0,255,220,0.28) 0px, rgba(0,255,220,0.28) 1px, transparent 1px, transparent 3px);
+            background-size:100% 6px, 6px 100%;
+        }
+        #kael-glitch-layer.burst { opacity:1; animation:kael-glitch-jitter 0.12s steps(2,end) infinite; }
+        @keyframes kael-glitch-jitter {
+            0%   { transform:translate(0,0); filter:hue-rotate(0deg); }
+            25%  { transform:translate(-6px,2px); filter:hue-rotate(50deg); }
+            50%  { transform:translate(5px,-3px); filter:hue-rotate(-35deg); }
+            75%  { transform:translate(-3px,-2px); filter:hue-rotate(65deg); }
+            100% { transform:translate(0,0); filter:hue-rotate(0deg); }
+        }
+        #kael-static-layer {
+            position:absolute; inset:0; pointer-events:none; opacity:0;
+            background-image:repeating-linear-gradient(180deg, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 1px, rgba(0,0,0,0.9) 1px, rgba(0,0,0,0.9) 2px);
+            mix-blend-mode:overlay;
+        }
+        #kael-static-layer.burst { opacity:0.5; }
+        #kael-finalflash-layer {
+            position:absolute; inset:0; pointer-events:none; background:#eafff5; opacity:0;
+        }
+        #kael-finalflash-layer.flash { opacity:1; transition:opacity 0.12s ease-out; }
+
         /* ── Uraume Freeze Meter — only rendered while an enemy has freeze buildup ── */
         .freeze-meter-bar {
             position:absolute; width:48px; height:5px;
@@ -924,6 +969,17 @@
     <video id="kael-activation-audio" src="sandysfx.mp4" style="display:none;" playsinline></video>
 </div>
 <audio id="kael-awakening-theme" src="davidawakeningmusic.mp4" style="display:none;"></audio>
+
+<!-- ── KAEL — CYBER LIMIT BREAK cinematic awakening cutscene. Purely visual:
+     black fade + memory GIF sequence + cyber glitch transitions. Modular /
+     additive: only ever shown by AwakeningController during Kael's 'kael'
+     cutsceneType, complete no-op for every other character. ── -->
+<div id="kael-awakening-cutscene">
+    <img id="kael-memory-gif" src="" alt="">
+    <div id="kael-static-layer"></div>
+    <div id="kael-glitch-layer"></div>
+    <div id="kael-finalflash-layer"></div>
+</div>
  
 <!-- ── TITLE SCREEN ── -->
 <div id="title-screen">
@@ -1130,8 +1186,30 @@ const KAEL_ASSETS = {
     activationGif:      'sandyanimation.gif',
     activationAudioMp4: 'sandysfx.mp4',
     awakeningThemeMp4:  'davidawakeningmusic.mp4',
-    portrait:           'david.jpeg'
+    portrait:           'david.jpeg',
+    // Cyber Limit Break cinematic — existing memory GIF assets, played in
+    // this exact order during the awakening cutscene's memory sequence.
+    crewMemoryGif: 'crewmemory.gif',   // [CREW_MEMORY_GIF]
+    memoryGif1:    'kaelmemory1.gif',  // [MEMORY_GIF_1]
+    memoryGif2:    'kaelmemory2.gif',  // [MEMORY_GIF_2]
+    memoryGif3:    'kaelmemory3.gif'   // [MEMORY_GIF_3]
 };
+
+// ── KAEL — CYBER LIMIT BREAK cutscene timeline (ms, elapsed since
+//    cutsceneStart). Single source of truth read by AwakeningController's
+//    update()/overrideCamera() for the 'kael' cutsceneType. Purely visual
+//    timing — none of this affects the awakening duration timer, which only
+//    starts once _startActive() runs at KAEL_CUTSCENE_END. ──
+const KAEL_ZOOM_MS        = 600;   // intro zoom-in / outro zoom-out length
+const KAEL_MEMORY_START   = KAEL_ZOOM_MS;                 // 600  — memory sequence begins as fade-to-black completes
+const KAEL_GIF_MS         = 600;   // each memory GIF on screen ~0.6s
+const KAEL_GLITCH_MS      = 150;   // cyber glitch transition between memories
+const KAEL_MEMORY_STEP    = KAEL_GIF_MS + KAEL_GLITCH_MS; // 750 per memory slot
+const KAEL_MEMORY_SEQUENCE = ['crewMemoryGif','memoryGif1','memoryGif2','memoryGif3'];
+const KAEL_MEMORY_END     = KAEL_MEMORY_START + KAEL_MEMORY_SEQUENCE.length * KAEL_MEMORY_STEP; // 3600
+const KAEL_FLASH_MS       = 200;   // final flash/glitch
+const KAEL_FLASH_END      = KAEL_MEMORY_END + KAEL_FLASH_MS;   // 3800
+const KAEL_CUTSCENE_END   = KAEL_FLASH_END + KAEL_ZOOM_MS;     // 4400 — gameplay resumes, duration timer starts
 const CharacterData = {
     TOJI: {
         id:'TOJI',
@@ -2136,9 +2214,20 @@ const AwakeningController = {
             return;
         }
         if (this._cfg.cutsceneType === 'kael') {
-            // Kael: "Existing awakening button. No cinematic. No camera cut."
-            // Stands still while RGB afterimages expand outward, then straight to active —
-            // handled entirely in update()'s cutscene branch below.
+            // Kael: Cyber Limit Break cinematic — freeze gameplay, zoom in, fade to
+            // black, memory sequence, final flash, zoom out, resume. All timing is
+            // driven from update()'s 'kael' branch below and the KAEL_* constants;
+            // the awakening duration timer only starts once _startActive() runs at
+            // the very end, so the cutscene never eats into gameplay/awakening time.
+            s.kaelMemoryIndex = -1;
+            s.kaelMemoryThemeStarted = false;
+            GAME_STATE.awakeningCutsceneFreeze = true;   // pauses enemies/projectiles/timers (read in processEnemyAI, KaelBulletSystem, runGameLoop)
+            const cutsceneOverlay = document.getElementById('kael-awakening-cutscene');
+            if (cutsceneOverlay) {
+                cutsceneOverlay.classList.add('active');
+                void cutsceneOverlay.offsetWidth;   // force reflow so the fade-in transition actually plays
+                cutsceneOverlay.classList.add('fade-in');
+            }
             return;
         }
         // Toji: hide player for cinematic
@@ -2281,7 +2370,30 @@ const AwakeningController = {
         // Nanami awakening: no cinematic camera override — stays in normal gameplay view
         if(this._cfg.cutsceneType === 'nanami') return false;
         if(this._cfg.cutsceneType === 'uraume') return false;   // gameplay-focused — no camera hijack
-        if(this._cfg.cutsceneType === 'kael') return false;     // "No camera cut" — per design brief
+        if(this._cfg.cutsceneType === 'kael') {
+            const el = performance.now() - TOJI_AWAKENING_STATE.cutsceneStart;
+            // Intro: zoom the camera into the character as the screen fades to black
+            if (el < KAEL_ZOOM_MS) {
+                const t = el / KAEL_ZOOM_MS;
+                const fwd = new THREE.Vector3(Math.sin(GAME_STATE.player.rotation), 0, Math.cos(GAME_STATE.player.rotation));
+                const camPos = pMesh.position.clone().sub(fwd.multiplyScalar(5.0 - t*3.2)).add(new THREE.Vector3(0, 2.6 - t*0.6, 0));
+                camera.position.lerp(camPos, 8*delta);
+                camera.lookAt(pMesh.position.clone().add(new THREE.Vector3(0, 1.8, 0)));
+                return true;
+            }
+            // Memory sequence + final flash: screen is fully black/flashed — hold camera in place
+            if (el < KAEL_FLASH_END) return true;
+            // Outro: zoom back out as gameplay resumes
+            if (el < KAEL_CUTSCENE_END) {
+                const t = (el - KAEL_FLASH_END) / (KAEL_CUTSCENE_END - KAEL_FLASH_END);
+                const fwd = new THREE.Vector3(Math.sin(GAME_STATE.player.rotation), 0, Math.cos(GAME_STATE.player.rotation));
+                const camPos = pMesh.position.clone().sub(fwd.multiplyScalar(1.8 + t*3.2)).add(new THREE.Vector3(0, 2.0 + t*0.6, 0));
+                camera.position.lerp(camPos, 6*delta);
+                camera.lookAt(pMesh.position.clone().add(new THREE.Vector3(0, 1.8, 0)));
+                return true;
+            }
+            return false;   // cutscene fully ended — processCameraPhysics snaps back naturally
+        }
         if(this._cfg.cutsceneType === 'naoya') {
             // Short, subtle zoom toward Naoya — player still reads the action, not a full cutscene
             const elapsed = performance.now() - TOJI_AWAKENING_STATE.cutsceneStart;
@@ -2383,18 +2495,70 @@ const AwakeningController = {
                 return;
             }
 
-            // ── Kael CYBER LIMIT BREAK (stands still, RGB afterimages expand
-            //    outward, screen distortion, awakening theme starts — no
-            //    cinematic, no camera cut) ──
+            // ── Kael CYBER LIMIT BREAK (cinematic): freeze → zoom-in/fade-to-black
+            //    → memory sequence (music + GIFs + glitch transitions) → final
+            //    flash → zoom-out/resume. Purely visual — no damage, stats, or
+            //    awakening time lost; _startActive() at KAEL_CUTSCENE_END is what
+            //    starts the duration timer, same as every other character. ──
             if (this._cfg.cutsceneType === 'kael') {
-                if (el === 0 || el < 40) {
-                    const themeEl = document.getElementById('kael-awakening-theme');
-                    if (themeEl) { themeEl.src = KAEL_ASSETS.awakeningThemeMp4; themeEl.currentTime = 0; themeEl.play().catch(()=>{}); }
+                const gifEl    = document.getElementById('kael-memory-gif');
+                const glitchEl = document.getElementById('kael-glitch-layer');
+                const staticEl = document.getElementById('kael-static-layer');
+                const flashEl  = document.getElementById('kael-finalflash-layer');
+
+                if (el < KAEL_MEMORY_START) {
+                    // Zoom-in + fade-to-black: handled by overrideCamera() and the
+                    // '.fade-in' CSS transition kicked off in _startCutscene().
+                } else if (el < KAEL_MEMORY_END) {
+                    // Memory sequence — start the awakening theme the instant it begins
+                    if (!s.kaelMemoryThemeStarted) {
+                        s.kaelMemoryThemeStarted = true;
+                        const themeEl = document.getElementById('kael-awakening-theme');
+                        if (themeEl) { themeEl.src = KAEL_ASSETS.awakeningThemeMp4; themeEl.currentTime = 0; themeEl.play().catch(()=>{}); }
+                    }
+                    const localEl    = el - KAEL_MEMORY_START;
+                    const idx        = Math.min(KAEL_MEMORY_SEQUENCE.length - 1, Math.floor(localEl / KAEL_MEMORY_STEP));
+                    const withinStep = localEl - idx * KAEL_MEMORY_STEP;
+                    const inGlitch   = withinStep >= KAEL_GIF_MS;
+
+                    if (idx !== s.kaelMemoryIndex) {
+                        s.kaelMemoryIndex = idx;
+                        if (gifEl) gifEl.src = KAEL_ASSETS[KAEL_MEMORY_SEQUENCE[idx]] + '?t=' + Date.now();
+                    }
+                    if (gifEl) gifEl.classList.toggle('show', !inGlitch);
+                    if (glitchEl) glitchEl.classList.toggle('burst', inGlitch);
+                    if (staticEl) {
+                        staticEl.classList.toggle('burst', inGlitch);
+                        if (inGlitch) staticEl.style.backgroundPosition = '0 ' + Math.floor(Math.random()*40) + 'px';
+                    }
+                } else if (el < KAEL_FLASH_END) {
+                    // Final flash/glitch
+                    if (gifEl) gifEl.classList.remove('show');
+                    if (glitchEl) glitchEl.classList.add('burst');
+                    if (staticEl) { staticEl.classList.add('burst'); staticEl.style.backgroundPosition = '0 ' + Math.floor(Math.random()*40) + 'px'; }
+                    if (flashEl) flashEl.classList.add('flash');
+                } else if (el < KAEL_CUTSCENE_END) {
+                    // Zoom back out — camera handled in overrideCamera(); fade the
+                    // cutscene overlay away here so gameplay becomes visible again.
+                    if (glitchEl) glitchEl.classList.remove('burst');
+                    if (staticEl) staticEl.classList.remove('burst');
+                    if (flashEl) flashEl.classList.remove('flash');
+                    const cutsceneOverlay = document.getElementById('kael-awakening-cutscene');
+                    if (cutsceneOverlay) cutsceneOverlay.classList.remove('fade-in');
                 }
-                if (el % 90 < 20 && typeof KaelOverclockSystem !== 'undefined') KaelOverclockSystem._spawnAfterimage();
-                const tint = document.getElementById('kael-overclock-tint');
-                if (tint) tint.classList.add('active');
-                if (el >= 500) this._startActive();
+
+                if (el >= KAEL_CUTSCENE_END) {
+                    // Cleanup + resume gameplay. Awakening duration timer starts
+                    // now, inside _startActive() — the cutscene never consumes it.
+                    const cutsceneOverlay = document.getElementById('kael-awakening-cutscene');
+                    if (cutsceneOverlay) cutsceneOverlay.classList.remove('active','fade-in');
+                    if (gifEl) { gifEl.classList.remove('show'); gifEl.src = ''; }
+                    if (glitchEl) glitchEl.classList.remove('burst');
+                    if (staticEl) staticEl.classList.remove('burst');
+                    if (flashEl) flashEl.classList.remove('flash');
+                    GAME_STATE.awakeningCutsceneFreeze = false;   // unpause enemies/projectiles/timers
+                    this._startActive();
+                }
                 return;
             }
 
@@ -7300,10 +7464,16 @@ const KaelOverclockSystem = {
         }
     },
 
-    // ── Activation (R key, Kael-only, handled in setupInputListeners) ──
+    // ── Manual ON/OFF toggle (R key, Kael-only, handled in setupInputListeners) ──
+    // idle      -> ON:  runs the existing activation sequence (gif+audio once, then effects/timers start)
+    // activating-> (ignored: mid-activation, input already locked — prevents duplicate anim/audio/timers)
+    // active    -> OFF: immediately removes effects/stops timers, no animation/sound/cutscene
     tryActivate() {
         if (!gameStarted || currentCharacterId !== 'KAEL') return;
-        if (KAEL_OVERCLOCK_STATE.phase !== 'idle') return;
+        const phase = KAEL_OVERCLOCK_STATE.phase;
+        if (phase === 'activating') return;   // repeated R press mid-activation — no-op, avoids duplicate triggers
+        if (phase === 'active') { this._endActive(); return; }   // manual OFF
+        // phase === 'idle' — manual ON
         if (KAEL_OVERCLOCK_STATE.charge <= KAEL_OVERCLOCK_ACTIVATE_THRESHOLD) return;
         this._startActivation();
     },
@@ -7485,6 +7655,8 @@ const KaelBulletSystem = {
     },
 
     update(delta) {
+        // Kael Cyber Limit Break awakening cutscene: freeze projectiles in place (visual-only cutscene)
+        if (GAME_STATE.awakeningCutsceneFreeze) return;
         for (let i = this._active.length - 1; i >= 0; i--) {
             const b = this._active[i];
             const age = performance.now() - b.spawn;
@@ -7632,7 +7804,8 @@ function runGameLoop(timestamp) {
     try {
         AwakeningController.update(delta,now);
         AbilitySystem.updateUI(now);
-        WaveManager.update(now);
+        // Kael Cyber Limit Break awakening cutscene: pause relevant gameplay timers (visual-only cutscene)
+        if (!GAME_STATE.awakeningCutsceneFreeze) WaveManager.update(now);
  
         // Input buffer flush — fires buffered attack as soon as cooldown clears
         if(combatFX.inputBuffer){
@@ -7665,7 +7838,7 @@ function runGameLoop(timestamp) {
         }
 
         // PHASE 1 perk system per-frame tick (bleed DoT, out-of-combat regen, etc.)
-        if (typeof PerkSystem !== 'undefined') PerkSystem.tick(delta, now);
+        if (typeof PerkSystem !== 'undefined' && !GAME_STATE.awakeningCutsceneFreeze) PerkSystem.tick(delta, now);
  
         updateHUD();
         updateEnemyPanelVisibility();
@@ -7795,6 +7968,9 @@ function processEnemyAI(entry,delta,now) {
 
     // ── Kael Overlock: enemies cannot move, attack, or damage Kael — AI fully paused ──
     if(GAME_STATE.kaelOverclockFreeze) return;
+
+    // ── Kael Cyber Limit Break awakening cutscene: gameplay fully frozen (visual-only cutscene) ──
+    if(GAME_STATE.awakeningCutsceneFreeze) return;
 
     // ── Naoya Bleed (Zenin Edge, S3) — stackable DoT, ticks independently of Projection ──
     if(state.bleedStacks>0){
