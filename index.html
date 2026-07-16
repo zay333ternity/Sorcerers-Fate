@@ -2069,9 +2069,9 @@ const TOJI_AWAKENING_STATE = {
 };
  
 const AwakeningController = {
-
+ 
     DISPLAY_NAME: 'THE ONE WHO LEFT IT ALL BEHIND',
-
+ 
     // ── Public queries ──────────────────────────────────
     isActive()      { return TOJI_AWAKENING_STATE.phase === 'active'; },
     inputLocked()   { return TOJI_AWAKENING_STATE.phase === 'cutscene' || SecretAwakeningController.inputLocked() || (typeof KaelOverclockSystem !== 'undefined' && KaelOverclockSystem.inputLocked()); },
@@ -2087,19 +2087,19 @@ const AwakeningController = {
     },
     getDamageMul()  { return this.isActive() ? this._cfg.damageMul : 1.0; },
     getDamageReceiveMul() { return this.isActive() ? this._cfg.damageReceiveMul : 1.0; },
-
+ 
     // ── Audio placeholders ──────────────────────────────
     playAwakeningVoice() {
         console.log('AWAKENING VOICE LINE TRIGGERED');
     },
-
+ 
     // ── Meter ───────────────────────────────────────────
     onHitLanded() {
         if(TOJI_AWAKENING_STATE.phase !== 'idle') return;
         TOJI_AWAKENING_STATE.meter = Math.min(100, TOJI_AWAKENING_STATE.meter + this._cfg.meterGain*GAME_STATE.player.awakeningGainMul);
         this._refreshMeterUI();
     },
-
+ 
     // ── Activation ──────────────────────────────────────
     tryActivate() {
         if(!gameStarted) return;
@@ -2107,7 +2107,7 @@ const AwakeningController = {
         if(TOJI_AWAKENING_STATE.meter < 100) return;
         this._startCutscene();
     },
-
+ 
     // ── Cutscene start ───────────────────────────────────
     _startCutscene() {
         const s = TOJI_AWAKENING_STATE;
@@ -2119,140 +2119,68 @@ const AwakeningController = {
         this.playAwakeningVoice();
         console.log(`[${this.DISPLAY_NAME}] Cutscene started`);
         if (this._cfg.cutsceneType === 'nanami') {
+            // Nanami stays visible — play tie-loosen animation via AbilityAnimController
+            // (suppresses walk/idle arms for its 3 s duration)
             AbilityAnimController.play(ABILITY_ANIMS.NANAMI_AWAKENING);
             return;
         }
         if (this._cfg.cutsceneType === 'naoya') {
+            // Naoya stays visible — short speed-burst cutscene, no held pose needed
             return;
         }
         if (this._cfg.cutsceneType === 'uraume') {
+            // Uraume stays fully visible — quick, gameplay-focused frost-spread cutscene.
+            // Not a transformation, not armor, not a cinematic (per design brief).
             s.uraumeBurstDone = false;
             s.uraumeFrostGroup = null;
             return;
         }
         if (this._cfg.cutsceneType === 'kael') {
-            // Freeze gameplay during the cutscene
-            if (typeof GAME_STATE !== 'undefined') GAME_STATE.isPaused = true;
-
-            const overlay = document.getElementById('kael-cutscene-overlay');
-            const memoryImg = document.getElementById('kael-memory-img');
-            const glitchLayer = document.getElementById('kael-glitch-layer');
-
-            const memories = [
-                'crew.gif', 
-                'memory1.gif',
-                'memory2.gif',
-                'memory3.gif'
-            ];
-
-            if (overlay) {
-                // Fade into black screen
-                overlay.style.display = 'block';
-                setTimeout(() => {
-                    overlay.style.opacity = '1';
-                    
-                    // Start awakening music EXACTLY as the memory sequence begins
-                    const themeEl = document.getElementById('kael-awakening-theme');
-                    if (themeEl && KAEL_ASSETS) { 
-                        themeEl.src = KAEL_ASSETS.awakeningThemeMp4; 
-                        themeEl.currentTime = 0; 
-                        themeEl.play().catch(()=>{}); 
-                    }
-
-                    let currentMemory = 0;
-                    if (memoryImg) memoryImg.style.display = 'block';
-
-                    const playMemorySequence = () => {
-                        if (currentMemory >= memories.length) {
-                            // Awakening Finish: Final flash/glitch effect
-                            if (glitchLayer) {
-                                glitchLayer.style.background = 'rgba(255,255,255,0.9)'; // White flash
-                                glitchLayer.style.display = 'block';
-                            }
-
-                            setTimeout(() => {
-                                // Fade out
-                                if (overlay) overlay.style.opacity = '0'; 
-                                setTimeout(() => {
-                                    if (overlay) overlay.style.display = 'none';
-                                    if (glitchLayer) {
-                                        glitchLayer.style.display = 'none';
-                                        glitchLayer.style.background = 'rgba(0,255,200,0.2)'; // Reset glitch
-                                    }
-                                    
-                                    // Resume gameplay
-                                    if (typeof GAME_STATE !== 'undefined') GAME_STATE.isPaused = false;
-                                    
-                                    // Only start the awakening duration timer after gameplay resumes
-                                    this._startActive();
-                                    
-                                }, 600); // Fade out duration
-                            }, 150); // Flash duration
-                            return;
-                        }
-
-                        // Cyber glitch transition between memories (except the first one)
-                        if (currentMemory > 0) {
-                            if (glitchLayer) glitchLayer.style.display = 'block';
-                            setTimeout(() => {
-                                if (glitchLayer) glitchLayer.style.display = 'none';
-                                if (memoryImg) memoryImg.src = memories[currentMemory];
-                                currentMemory++;
-                                setTimeout(playMemorySequence, 600); // 0.6 seconds per memory
-                            }, 100); // Brief static glitch
-                        } else {
-                            if (memoryImg) memoryImg.src = memories[currentMemory];
-                            currentMemory++;
-                            setTimeout(playMemorySequence, 600);
-                        }
-                    };
-
-                    playMemorySequence();
-                    
-                }, 600); // Wait for the fade to black
-            } else {
-                // Failsafe in case HTML tags are missing
-                if (typeof GAME_STATE !== 'undefined') GAME_STATE.isPaused = false;
-                this._startActive();
-            }
+            // Kael: "Existing awakening button. No cinematic. No camera cut."
+            // Stands still while RGB afterimages expand outward, then straight to active —
+            // handled entirely in update()'s cutscene branch below.
             return;
         }
         // Toji: hide player for cinematic
         if(pMesh) pMesh.visible = false;
     },
-
+ 
     // ── Black hole ───────────────────────────────────────
     _spawnBlackHole() {
         if(TOJI_AWAKENING_STATE.blackHole) return;
         const g = new THREE.Group();
         g.position.copy(pMesh.position); g.position.y = 1;
-
+ 
+        // Core void sphere
         const core = new THREE.Mesh(
             new THREE.SphereGeometry(0.55, 8, 8),
             new THREE.MeshBasicMaterial({ color:0x000000 })
         );
         g.add(core);
-
+ 
+        // Dark-purple torus ring
         const ring = new THREE.Mesh(
             new THREE.TorusGeometry(1.3, 0.28, 8, 24),
             new THREE.MeshBasicMaterial({ color:0x1a0033, transparent:true, opacity:0.88, side:THREE.DoubleSide })
         );
         ring.rotation.x = Math.PI * 0.28;
         g.add(ring);
-
+ 
+        // Energy disc
         const disc = new THREE.Mesh(
             new THREE.CircleGeometry(1.3, 16),
             new THREE.MeshBasicMaterial({ color:0x0d001a, transparent:true, opacity:0.45, side:THREE.DoubleSide })
         );
         disc.rotation.x = -Math.PI * 0.5;
         g.add(disc);
-
+ 
         g.scale.set(0.01, 0.01, 0.01);
         scene.add(g);
         TOJI_AWAKENING_STATE.blackHole = g;
     },
-
+ 
     _collapseBlackHole(t) {
+        // t = 0→1 collapse progress
         const sc = Math.max(0, 1 - t);
         const bh = TOJI_AWAKENING_STATE.blackHole;
         if(!bh) return;
@@ -2262,118 +2190,121 @@ const AwakeningController = {
             TOJI_AWAKENING_STATE.blackHole = null;
         }
     },
-
+ 
     // ── Activate passives ────────────────────────────────
     _startActive() {
         const s = TOJI_AWAKENING_STATE;
         s.phase = 'active';
         s.activeStart = performance.now();
         console.log(`[${this.DISPLAY_NAME}] Awakening active — 30 s`);
+        // Toji only: player was hidden during cutscene, restore now
+        // (skip if Naoya's Cursed Form is active — that form intentionally keeps pMesh hidden)
         if(pMesh && this._cfg.cutsceneType !== 'nanami' && !SECRET_AWAKENING_STATE.cursedActive) { pMesh.visible = true; pMesh.position.y = 0; }
-        
+        // Speed buff (configurable per character)
         s.origSpeed = GAME_STATE.player.speed;
         GAME_STATE.player.speed *= this._cfg.speedMul;
-        
+        // Nanami: faster ratio building during OVERTIME
         if (this._cfg.cutsceneType === 'nanami') {
             GAME_STATE.player.ratioStackBonus = 1;
         }
+        // Naoya: faster M1 cadence — reuses the existing attackSpeedMul/attackCooldownMs hooks
         if (this._cfg.cutsceneType === 'naoya') {
             s.naoyaOrigAttackSpeedMul = GAME_STATE.player.attackSpeedMul;
             s.naoyaOrigAttackCooldownMs = GAME_STATE.player.attackCooldownMs || 0;
             GAME_STATE.player.attackSpeedMul = 0.70;
             GAME_STATE.player.attackCooldownMs = WEAPONS.FISTS.attackSpeed * 0.70;
         }
+        // Kael: Cyber Limit Break — Attack speed +40% (reuses the same attackSpeedMul hook)
         if (this._cfg.cutsceneType === 'kael') {
             s.naoyaOrigAttackSpeedMul = GAME_STATE.player.attackSpeedMul;
             s.naoyaOrigAttackCooldownMs = GAME_STATE.player.attackCooldownMs || 0;
-            GAME_STATE.player.attackSpeedMul = 0.60;   
+            GAME_STATE.player.attackSpeedMul = 0.60;   // -40% cooldown = +40% attack speed
             GAME_STATE.player.attackCooldownMs = WEAPONS.KAEL_FISTS.attackSpeed * 0.60;
             document.querySelector('.player-panel')?.classList.add('kael-limitbreak-active');
         }
-        
+        // Damage & durability buffs live in getDamageMul / getDamageReceiveMul
+        // Remove black hole if still present (Toji only)
         if(s.blackHole) { scene.remove(s.blackHole); s.blackHole = null; }
+        // Uraume: arm the Frost Calm: Maximum Output upgrade + start falling snow
         if (this._cfg.cutsceneType === 'uraume') {
             s.uraumeS1Ready = true;
             this._spawnUraumeSnow();
         }
+        // Visual: purple glow on player panel
         document.querySelector('.player-panel')?.classList.add('awakening-active');
         this._refreshMeterUI();
     },
-
+ 
     // ── End awakening ────────────────────────────────────
     _endActive() {
         const s = TOJI_AWAKENING_STATE;
         s.phase = 'idle';
         console.log(`[${this.DISPLAY_NAME}] Awakening ended`);
-        
+        // Remove speed buff
         GAME_STATE.player.speed = s.origSpeed || 13;
-        
+        // Nanami: clear faster ratio stack bonus
         if (this._cfg.cutsceneType === 'nanami') {
             GAME_STATE.player.ratioStackBonus = 0;
         }
+        // Naoya: restore normal M1 cadence
         if (this._cfg.cutsceneType === 'naoya') {
             GAME_STATE.player.attackSpeedMul = s.naoyaOrigAttackSpeedMul !== undefined ? s.naoyaOrigAttackSpeedMul : 1.0;
             GAME_STATE.player.attackCooldownMs = s.naoyaOrigAttackCooldownMs || 0;
         }
+        // Kael: restore normal attack cadence + clear Cyber Limit Break glow/tint
         if (this._cfg.cutsceneType === 'kael') {
             GAME_STATE.player.attackSpeedMul = s.naoyaOrigAttackSpeedMul !== undefined ? s.naoyaOrigAttackSpeedMul : 1.0;
             GAME_STATE.player.attackCooldownMs = s.naoyaOrigAttackCooldownMs || 0;
             document.querySelector('.player-panel')?.classList.remove('kael-limitbreak-active');
-            if (typeof KaelOverclockSystem !== 'undefined' && !KaelOverclockSystem.isActive()) {
+            if (!KaelOverclockSystem.isActive()) {
                 const tint = document.getElementById('kael-overclock-tint');
                 if (tint) tint.classList.remove('active');
             }
         }
+        // Uraume: disarm the S1 upgrade + stop falling snow
         if (this._cfg.cutsceneType === 'uraume') {
             s.uraumeS1Ready = false;
             this._clearUraumeSnow();
             const s1Slot = document.getElementById('ab-slot-s1');
             if (s1Slot) s1Slot.classList.remove('ab-glow-ice');
         }
-        
+        // Reset meter
         s.meter = 0;
         document.querySelector('.player-panel')?.classList.remove('awakening-active');
         this._refreshMeterUI();
     },
-
-    // ── Camera override ──────────────────────────────────
+ 
+    // ── Camera override (called from processCameraPhysics) ──
+    // Returns true while it's controlling the camera so the default path is skipped.
     overrideCamera(delta) {
         if(TOJI_AWAKENING_STATE.phase !== 'cutscene') return false;
+        // Nanami awakening: no cinematic camera override — stays in normal gameplay view
         if(this._cfg.cutsceneType === 'nanami') return false;
-        if(this._cfg.cutsceneType === 'uraume') return false; 
-        
-        const elapsed = performance.now() - TOJI_AWAKENING_STATE.cutsceneStart;
-
-        // Kael Cyber Limit Break zoom sequence
-        if (this._cfg.cutsceneType === 'kael') {
-            // Cutscene lasts roughly ~3800ms total
-            if (elapsed < 3800 && pMesh && camera) {
-                const targetCamPos = pMesh.position.clone().add(new THREE.Vector3(0, 1.5, 3));
-                camera.position.lerp(targetCamPos, 5 * delta);
-                camera.lookAt(pMesh.position.clone().add(new THREE.Vector3(0, 1.5, 0)));
-                return true;
-            }
-            return false;
-        }
-
+        if(this._cfg.cutsceneType === 'uraume') return false;   // gameplay-focused — no camera hijack
+        if(this._cfg.cutsceneType === 'kael') return false;     // "No camera cut" — per design brief
         if(this._cfg.cutsceneType === 'naoya') {
+            // Short, subtle zoom toward Naoya — player still reads the action, not a full cutscene
+            const elapsed = performance.now() - TOJI_AWAKENING_STATE.cutsceneStart;
             const DUR = 1200;
             if(elapsed >= DUR) return false;
             const t = elapsed / DUR;
             const fwd = new THREE.Vector3(Math.sin(GAME_STATE.player.rotation), 0, Math.cos(GAME_STATE.player.rotation));
-            const zoomedBack = 4.2 - t*1.1;   
+            const zoomedBack = 4.2 - t*1.1;   // pulls the camera in slightly over the burst
             const camPos = pMesh.position.clone().sub(fwd.multiplyScalar(zoomedBack)).add(new THREE.Vector3(0, 2.6, 0));
             camera.position.lerp(camPos, 9*delta);
             camera.lookAt(pMesh.position.clone().add(new THREE.Vector3(0, 1.8, 0)));
             return true;
         }
-
+        const elapsed = performance.now() - TOJI_AWAKENING_STATE.cutsceneStart;
+ 
         if(elapsed < 3500) {
+            // Phases 1–2: slow pull up to top-down cinematic
             const t = elapsed / 3500;
             const tgt = pMesh.position.clone().add(new THREE.Vector3(0, 22+t*12, 12-t*10));
             camera.position.lerp(tgt, 7*delta);
             camera.lookAt(pMesh.position.clone().add(new THREE.Vector3(0, 2, 0)));
         } else if(elapsed < 7500) {
+            // Phases 3–4: cinematic front-facing close-up
             const fwd = new THREE.Vector3(
                 Math.sin(GAME_STATE.player.rotation), 0,
                 Math.cos(GAME_STATE.player.rotation)
@@ -2384,17 +2315,19 @@ const AwakeningController = {
             camera.position.lerp(camPos, 5.5*delta);
             camera.lookAt(pMesh.position.clone().add(new THREE.Vector3(0, 2.8, 0)));
         }
+        // Phases 5+: stop overriding — processCameraPhysics snaps back naturally
         return elapsed < 8500;
     },
-
-    // ── Per-frame update ──────────────────────────────────
+ 
+    // ── Per-frame update (called from runGameLoop) ────────
     update(delta, now) {
         const s = TOJI_AWAKENING_STATE;
         if(s.phase === 'idle') return;
-
+ 
         if(s.phase === 'cutscene') {
             const el = now - s.cutsceneStart;
-
+ 
+            // ── Nanami OVERTIME awakening (tie-loosen → blue energy → burst) ──
             if (this._cfg.cutsceneType === 'nanami') {
                 if (s.nanamiEnergyGroup) {
                     s.nanamiEnergyGroup.rotation.y += delta * 1.8;
@@ -2416,6 +2349,7 @@ const AwakeningController = {
                 return;
             }
 
+            // ── Naoya VENGEANCE OF ZENIN awakening (quick speed-burst, ~1.2 s) ──
             if (this._cfg.cutsceneType === 'naoya') {
                 if (el >= 150 && !s.naoyaBurstDone) {
                     s.naoyaBurstDone = true;
@@ -2426,6 +2360,8 @@ const AwakeningController = {
                 return;
             }
 
+            // ── Uraume FROZEN DOMINATION awakening (ice spreads from feet → frost
+            //    burst) — quick, smooth, gameplay-focused, same spirit as Nanami's ──
             if (this._cfg.cutsceneType === 'uraume') {
                 if (el >= 0 && !s.uraumeFrostGroup) this._spawnUraumeFrost();
                 if (s.uraumeFrostGroup) {
@@ -2447,24 +2383,35 @@ const AwakeningController = {
                 return;
             }
 
-            // Kael's cutscene logic waits for the sequence in _startCutscene to finish
+            // ── Kael CYBER LIMIT BREAK (stands still, RGB afterimages expand
+            //    outward, screen distortion, awakening theme starts — no
+            //    cinematic, no camera cut) ──
             if (this._cfg.cutsceneType === 'kael') {
+                if (el === 0 || el < 40) {
+                    const themeEl = document.getElementById('kael-awakening-theme');
+                    if (themeEl) { themeEl.src = KAEL_ASSETS.awakeningThemeMp4; themeEl.currentTime = 0; themeEl.play().catch(()=>{}); }
+                }
+                if (el % 90 < 20 && typeof KaelOverclockSystem !== 'undefined') KaelOverclockSystem._spawnAfterimage();
                 const tint = document.getElementById('kael-overclock-tint');
                 if (tint) tint.classList.add('active');
+                if (el >= 500) this._startActive();
                 return;
             }
 
-            // ── Toji awakening ──
+            // ── Toji awakening (original — unchanged) ──
+                        // Phase 2 (1.5 s): spawn black hole
             if(el >= 1500 && !s.blackHole) this._spawnBlackHole();
-
+ 
+            // Expand black hole + spin (phases 2–3)
             if(s.blackHole && el < 7500) {
                 const grow = Math.min(1, Math.max(0, el-1500) / 1100);
                 s.blackHole.scale.set(grow, grow, grow);
-                s.blackHole.children[0].rotation.y += delta * 0.7;  
-                s.blackHole.children[1].rotation.z += delta * 1.5;  
-                s.blackHole.children[2].rotation.z += delta * 0.9;  
+                s.blackHole.children[0].rotation.y += delta * 0.7;  // core
+                s.blackHole.children[1].rotation.z += delta * 1.5;  // torus
+                s.blackHole.children[2].rotation.z += delta * 0.9;  // disc
             }
-
+ 
+            // Phase 3 (3.5 s): player rises from black hole
             if(el >= 3500 && pMesh && !pMesh.visible) {
                 pMesh.visible = true;
                 pMesh.position.y = -2.2;
@@ -2474,27 +2421,30 @@ const AwakeningController = {
             } else if(el >= 5500 && pMesh) {
                 pMesh.position.y = 0;
             }
-
+ 
+            // Phase 5 (7.5 s): collapse black hole
             if(el >= 7500 && s.blackHole) {
                 this._collapseBlackHole((el - 7500) / 700);
             }
-
+ 
+            // Cutscene ends → activate passives
             if(el >= 8500) { this._startActive(); return; }
         }
-
+ 
         if(s.phase === 'active') {
             if (this._cfg.cutsceneType === 'uraume' && s.uraumeSnowGroup) this._updateUraumeSnow(delta, now);
             if(now - s.activeStart >= (this._cfg.activeDuration || s.activeDuration)) this._endActive();
         }
     },
-
-    // ── FX Spawners ───────────────────────────────
+ 
+    // ── Nanami OVERTIME awakening FX ───────────────────────────────
     _spawnNanamiEnergy() {
         const s = TOJI_AWAKENING_STATE;
         if (!pMesh || !scene) return;
         const g = new THREE.Group();
         g.position.copy(pMesh.position);
         g.position.y = 1.2;
+        // 8 blue energy fragments orbiting the player
         for (let i = 0; i < 8; i++) {
             const ang = (i / 8) * Math.PI * 2;
             const frag = new THREE.Mesh(
@@ -2505,6 +2455,7 @@ const AwakeningController = {
             frag.rotation.y = ang;
             g.add(frag);
         }
+        // Inner glow sphere
         g.add(new THREE.Mesh(
             new THREE.SphereGeometry(0.55, 8, 8),
             new THREE.MeshBasicMaterial({ color:0x1a55ff, transparent:true, opacity:0.20 })
@@ -2517,6 +2468,7 @@ const AwakeningController = {
     _spawnNanamiBurst() {
         if (!pMesh || !scene) return;
         const pos = pMesh.position.clone();
+        // Expanding blue shockwave ring
         const rGeo = new THREE.TorusGeometry(0.7, 0.11, 6, 24);
         const rMat = new THREE.MeshBasicMaterial({ color:0x3399ff, transparent:true, opacity:0.88 });
         const ring = new THREE.Mesh(rGeo, rMat);
@@ -2533,6 +2485,7 @@ const AwakeningController = {
             if (t < 1) requestAnimationFrame(tick);
             else { scene.remove(ring); rGeo.dispose(); rMat.dispose(); }
         })();
+        // Blue DOM flash
         const fl = document.createElement('div');
         fl.style.cssText = 'position:fixed;inset:0;background:rgba(25,90,255,0.26);pointer-events:none;z-index:9999;transition:opacity 0.38s';
         document.body.appendChild(fl);
@@ -2542,6 +2495,7 @@ const AwakeningController = {
     _spawnNaoyaBurst() {
         if (!pMesh || !scene) return;
         const pos = pMesh.position.clone();
+        // Expanding light-blue shockwave ring
         const rGeo = new THREE.TorusGeometry(0.6, 0.09, 6, 24);
         const rMat = new THREE.MeshBasicMaterial({ color:0x8fd6ff, transparent:true, opacity:0.9 });
         const ring = new THREE.Mesh(rGeo, rMat);
@@ -2557,13 +2511,17 @@ const AwakeningController = {
             if (t < 1) requestAnimationFrame(tick);
             else { scene.remove(ring); rGeo.dispose(); rMat.dispose(); }
         })();
+        // A quick radial burst of afterimages — reuses the existing, unmodified NaoyaVFX clone system
         for (let i = 0; i < 5; i++) setTimeout(() => NaoyaVFX._spawnAfterimage(), i * 35);
+        // Light-blue DOM flash (distinct tint from Nanami's gold/blue and Toji's purple)
         const fl = document.createElement('div');
         fl.style.cssText = 'position:fixed;inset:0;background:rgba(90,190,255,0.22);pointer-events:none;z-index:9999;transition:opacity 0.32s';
         document.body.appendChild(fl);
         setTimeout(() => { fl.style.opacity = '0'; setTimeout(() => fl.remove(), 350); }, 60);
     },
 
+    // ── Uraume FROZEN DOMINATION awakening FX ──────────────────────
+    // Ice spreading from the feet — a flat expanding ring on the ground.
     _spawnUraumeFrost() {
         if (!pMesh || !scene) return;
         const ringMat = new THREE.MeshBasicMaterial({ color:0xbdeeff, transparent:true, opacity:0.0, side:THREE.DoubleSide });
@@ -2576,6 +2534,7 @@ const AwakeningController = {
         TOJI_AWAKENING_STATE.uraumeFrostGroup = ring;
     },
 
+    // Cyan/white cursed-energy burst — the moment the cutscene resolves into full power
     _spawnUraumeBurst() {
         if (!pMesh || !scene) return;
         const pos = pMesh.position.clone();
@@ -2585,6 +2544,7 @@ const AwakeningController = {
         ring.rotation.x = Math.PI / 2;
         ring.position.copy(pos); ring.position.y = 0.3;
         scene.add(ring);
+        // A handful of crystal shard fragments bursting outward alongside the ring
         const shardMat = new THREE.MeshBasicMaterial({ color:0xeaf9ff, transparent:true, opacity:0.9 });
         const shards = [];
         for (let i = 0; i < 10; i++) {
@@ -2610,12 +2570,14 @@ const AwakeningController = {
                 shards.forEach(s => { scene.remove(s); s.geometry.dispose(); s.material.dispose(); });
             }
         })();
+        // Ice-blue DOM flash — distinct tint from every other character's awakening flash
         const fl = document.createElement('div');
         fl.style.cssText = 'position:fixed;inset:0;background:rgba(140,220,255,0.20);pointer-events:none;z-index:9999;transition:opacity 0.34s';
         document.body.appendChild(fl);
         setTimeout(() => { fl.style.opacity = '0'; setTimeout(() => fl.remove(), 370); }, 65);
     },
 
+    // Falling snow — spawned once on activation, persists for the whole active duration
     _spawnUraumeSnow() {
         if (!scene) return;
         this._clearUraumeSnow();
@@ -2656,8 +2618,7 @@ const AwakeningController = {
             s.uraumeSnowGroup.userData.flakes[0] && s.uraumeSnowGroup.userData.flakes[0].material.dispose();
         }
         s.uraumeSnowGroup = null;
-    }
-};
+    },
 
     // ── Meter UI ─────────────────────────────────────────
     _refreshMeterUI() {
@@ -7339,28 +7300,12 @@ const KaelOverclockSystem = {
         }
     },
 
-    // ── Activation (R key Toggle, Kael-only) ──
+    // ── Activation (R key, Kael-only, handled in setupInputListeners) ──
     tryActivate() {
         if (!gameStarted || currentCharacterId !== 'KAEL') return;
-        
-        // 1. TOGGLE OFF: If Overclock is already active, shut it down instantly
-        if (this.isActive()) {
-            if (typeof this._endActive === 'function') {
-                this._endActive(); // Removes effects, stops timers, no animation
-            } else if (typeof this._forceEnd === 'function') {
-                this._forceEnd();
-            }
-            return;
-        }
-
-        // 2. PREVENT DUPLICATION: If currently activating, ignore extra R presses
-        if (this.isActivating()) return;
-
-        // 3. TOGGLE ON: If idle and has charge, start activation sequence once
-        if (KAEL_OVERCLOCK_STATE.phase === 'idle') {
-            if (KAEL_OVERCLOCK_STATE.charge <= KAEL_OVERCLOCK_ACTIVATE_THRESHOLD) return;
-            this._startActivation();
-        }
+        if (KAEL_OVERCLOCK_STATE.phase !== 'idle') return;
+        if (KAEL_OVERCLOCK_STATE.charge <= KAEL_OVERCLOCK_ACTIVATE_THRESHOLD) return;
+        this._startActivation();
     },
 
     _startActivation() {
@@ -7395,6 +7340,7 @@ const KaelOverclockSystem = {
             this._startActive();
         }, activationMs);
     },
+
     _startActive() {
         const s = KAEL_OVERCLOCK_STATE;
         const spentPct = s.charge;
